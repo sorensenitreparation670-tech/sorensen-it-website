@@ -3,440 +3,1246 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sørensen IT — Kassen</title>
+<title>Kassen — Sørensen IT &amp; Reparation</title>
+<meta name="description" content="Gennemfør din bestilling hos Sørensen IT &amp; Reparation. Betal sikkert med kort via Square, MobilePay eller bankoverførsel.">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#0a0f1a">
 <link rel="icon" href="content.ico" type="image/x-icon">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
-<!-- ══════════════════════════════════════════════════════
-     ⚙️  INDSTILLINGER — det er KUN her du skal rette noget
-     ══════════════════════════════════════════════════════ -->
+<!-- ══════════════════════════════════════════════════════════════════
+     ⚙️  INDSTILLINGER — det er KUN her du skal rette noget.
+     Alle Square-værdier hentes på  https://app.squareup.com/
+       · Application ID + Location ID:  Developer → din app → Credentials
+       · Access Token (KUN på serveren): samme sted — må ALDRIG stå her
+     ══════════════════════════════════════════════════════════════════ -->
 <script>
 const CONFIG={
   square:{
-    applicationId:'sq0idp-siTzG67F--guwAkszyhGwQ',        /* ← Application ID herind (sq0idp-...) */
-    locationId:'L56T6E4PA9CF6',           /* ← Location ID herind */
-    environment:'production',
-    backendUrl:'',           /* ← https://din-server.dk/api/betaling */
-    demoKort:false           /* true = test kort-flowet uden rigtige penge */
+    applicationId:'sq0idp-siTzG67F--guwAkszyhGwQ',   /* app.squareup.com → Developer → Credentials */
+    locationId:'L56T6E4PA9CF6',                      /* app.squareup.com → Developer → Locations   */
+    environment:'production',                        /* 'production' eller 'sandbox'               */
+    backendUrl:'',        /* Tom = find serveren automatisk (samme domæne → /api/betaling).
+                             Ellers fx 'https://api.dit-domæne.dk/api/betaling'                    */
+    wallets:true,         /* Apple Pay / Google Pay-knapper (kræver domæne godkendt hos Square)    */
+    demoKort:false        /* true = prøv kort-flowet igennem uden at trække penge                  */
   },
   butik:{
     navn:'Sørensen IT & Reparation',
+    ejere:'Jonas & Storm',
     tlf:'93 86 92 67',
     mail:'sorensenitreparation670@gmail.com',
     logo:'content.ico'
   },
   bank:{ navn:'Jyske Bank', reg:'5069', konto:'0002341897', iban:'DK6350690002341897', bic:'JYBADKKK' },
   mail:{
-    web3formsKey:'bf51c0b3-b42e-442f-970c-b70bb047adf0',   /* ordren til JER */
-    kvitteringUrl:''                                        /* ← https://din-server.dk/api/kvittering */
+    web3formsKey:'bf51c0b3-b42e-442f-970c-b70bb047adf0',  /* ordremail til JER   */
+    kvitteringUrl:''                                       /* '' = find automatisk (/api/kvittering) */
   },
-  mobilepay:{ boxUrl:'' },
-  expressPris:100
+  mobilepay:{ nummer:'93 86 92 67', boxUrl:'' },
+  expressPris:100,
+  ventetid:'2-3 hverdage',
+  rabatkoder:{ 'SORENSEN10':10, 'VELKOMMEN':15, 'STUDENT20':20 },
+  /* Samme åbningstider som forsiden */
+  tider:[
+    {dag:'Mandag – Fredag', tid:'09:30 – 17:30', dage:[1,2,3,4,5], start:'09:30', slut:'17:30'},
+    {dag:'Lørdag',          tid:'12:00 – 20:00', dage:[6],         start:'12:00', slut:'20:00'},
+    {dag:'Søndag',          tid:'Lukket',        dage:[0],         lukket:true}
+  ],
+  /* Vises når kurven er tom — id/pris skal matche forsiden */
+  populaere:[
+    {id:2, ico:'⚡',  n:'HELE SETUP',   d:'PC + OS + alle drivere + software. Fuldt testet og klar til brug.', p:1199},
+    {id:4, ico:'🔧', n:'Reparation',   d:'Hardware og software fejlfix. Gratis diagnostik inkluderet altid.', p:299},
+    {id:5, ico:'🛡️', n:'Virus & Malware', d:'Fuld scanning, rensning og opsætning af antivirus-beskyttelse.', p:249},
+    {id:14,ico:'🖥️', n:'Fjernhjælp',   d:'Vi hjælper dig remote via AnyDesk. Hurtig og nem support.', p:99}
+  ]
 };
 </script>
 
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+/* ══════════════ TOKENS — identiske med index.html ══════════════ */
 :root{
-  --blue:#1a56db;--blue-dark:#1341b8;--blue-light:#e8f0fe;
-  --green:#16a34a;--green-light:#dcfce7;--red:#dc2626;--red-light:#fee2e2;
-  --amber:#b45309;--amber-light:#fef3c7;
-  --g50:#f9fafb;--g100:#f3f4f6;--g200:#e5e7eb;--g300:#d1d5db;
-  --g500:#6b7280;--g700:#374151;--g900:#111827;--radius:10px;
+  --blue:#1d4ed8;--blue-dk:#1e3a8a;--blue-lt:#3b82f6;
+  --blue-sky:#38bdf8;--blue-pale:#dbeafe;--blue-gh:#eff6ff;
+  --ink:#0a0f1a;--text:#111827;--muted:#6b7280;--light:#94a3b8;
+  --border:#e5e7eb;--bg:#f8fafc;--white:#ffffff;
+  --green:#10b981;--green-gh:#ecfdf5;--red:#ef4444;--red-gh:#fef2f2;
+  --amber:#f59e0b;--amber-gh:#fffbeb;--purple:#8b5cf6;
+  --status-h:34px;--hdr-h:70px;--nav-h:44px;--total-h:148px;
+  --mw:1240px;--r:10px;--r-lg:16px;
+  --sh:0 1px 2px rgba(10,15,26,.05);
+  --sh-md:0 6px 20px rgba(10,15,26,.07);
+  --sh-lg:0 18px 46px rgba(10,15,26,.14);
 }
-body{font-family:'Inter',sans-serif;background:var(--g50);color:var(--g900);min-height:100vh;-webkit-font-smoothing:antialiased}
-:focus-visible{outline:3px solid var(--blue);outline-offset:2px;border-radius:6px}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);line-height:1.65;padding-top:var(--total-h);-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+button,input,textarea,select{font-family:'Outfit',sans-serif}
+:focus-visible{outline:3px solid var(--blue-sky);outline-offset:2px;border-radius:6px}
 
-nav{background:#fff;border-bottom:1px solid var(--g200);padding:0 24px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
-.nav-logo{font-weight:800;font-size:18px;color:var(--blue);letter-spacing:-.3px}
-.nav-logo span{color:var(--g500);font-weight:400;font-size:13px;margin-left:6px}
-.nav-back{display:flex;align-items:center;gap:6px;color:var(--blue);font-size:14px;font-weight:600;text-decoration:none;cursor:pointer;border:none;background:none;font-family:inherit}
-.nav-back:hover{opacity:.8}
-.nav-back svg{width:16px;height:16px}
-
-.demo-bar{background:var(--amber-light);border-bottom:1px solid #fde68a;color:var(--amber);font-size:13px;font-weight:600;padding:9px 24px;text-align:center}
-
-.progress-bar{background:#fff;border-bottom:1px solid var(--g200);padding:14px 24px;display:flex;justify-content:center;align-items:center}
-.step{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--g500)}
-.step.active{color:var(--blue)}
-.step.done{color:var(--green)}
-.step-num{width:24px;height:24px;border-radius:50%;background:var(--g200);color:var(--g500);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800}
-.step.active .step-num{background:var(--blue);color:#fff}
-.step.done .step-num{background:var(--green);color:#fff}
-.step-line{width:40px;height:2px;background:var(--g200);margin:0 10px}
-.step-line.done{background:var(--green)}
-
-.checkout-layout{max-width:1100px;margin:32px auto;padding:0 20px;display:grid;grid-template-columns:1fr 380px;gap:28px;align-items:start}
-@media(max-width:860px){.checkout-layout{grid-template-columns:1fr}.order-summary{order:-1;position:static!important}}
-
-.card{background:#fff;border:1px solid var(--g200);border-radius:var(--radius);padding:24px;margin-bottom:16px}
-.card-title{font-size:16px;font-weight:800;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--g100);display:flex;align-items:center;gap:8px}
-.card-title svg{width:20px;height:20px;color:var(--blue)}
-
-.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-@media(max-width:520px){.form-row{grid-template-columns:1fr}}
-.form-group{margin-bottom:16px}
-.form-group label{display:block;font-size:13px;font-weight:600;color:var(--g700);margin-bottom:6px}
-.form-group label .req{color:var(--red);margin-left:2px}
-.form-control{width:100%;padding:11px 14px;border:1.5px solid var(--g300);border-radius:8px;font-size:14px;font-family:inherit;outline:none;transition:border-color .15s,box-shadow .15s;background:#fff}
-.form-control:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(26,86,219,.1)}
-.form-control.error{border-color:var(--red);box-shadow:0 0 0 3px rgba(220,38,38,.1)}
-.form-control.valid{border-color:var(--green)}
-.error-msg{font-size:12px;color:var(--red);margin-top:5px;display:none;font-weight:500}
-.error-msg.show{display:block}
-.hint{font-size:12px;color:var(--g500);margin-top:5px}
-
-.payment-tabs{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
-.pay-tab{flex:1;min-width:110px;border:2px solid var(--g200);border-radius:10px;padding:12px 8px;cursor:pointer;text-align:center;background:#fff;transition:all .15s;display:flex;flex-direction:column;align-items:center;gap:6px;position:relative;font-family:inherit}
-.pay-tab:hover{border-color:var(--blue);background:var(--blue-light)}
-.pay-tab.active{border-color:var(--blue);background:var(--blue-light)}
-.pay-tab .tab-icon{font-size:22px}
-.pay-tab .tab-label{font-size:12px;font-weight:700;color:var(--g700)}
-.pay-tab.active .tab-label{color:var(--blue)}
-.pay-tab.disabled{opacity:.55}
-.pay-tab .soon{position:absolute;top:-8px;right:-6px;background:var(--g500);color:#fff;font-size:9px;font-weight:800;padding:2px 6px;border-radius:99px;display:none}
-.pay-panel{display:none}
-.pay-panel.active{display:block}
-
-.card-icons{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
-.card-icon{height:28px;padding:3px 8px;border:1px solid var(--g200);border-radius:5px;font-size:11px;font-weight:800;display:flex;align-items:center;background:#fff;color:var(--g700)}
-.card-icon.visa{color:#1a1f71}.card-icon.mc{color:#eb001b}.card-icon.amex{color:#007bc1}
-.card-icon.maestro{color:#00a2e5}
-
-#square-card:not(:empty){min-height:90px;padding:4px 0}
-.square-status{font-size:12px;color:var(--g500);margin-top:10px;line-height:1.6}
-
-.mobilepay-box{text-align:center;padding:22px;background:linear-gradient(135deg,#5a2d9c 0%,#7b3fcf 100%);border-radius:12px;color:#fff}
-.mp-logo{font-size:28px;font-weight:900;letter-spacing:-1px;margin-bottom:4px}
-.mp-sub{font-size:13px;opacity:.85;margin-bottom:16px}
-.mp-phone-label{font-size:12px;opacity:.75;margin-bottom:4px}
-.mp-phone{font-size:26px;font-weight:900;letter-spacing:1px}
-.mp-amount{background:rgba(255,255,255,.16);border-radius:10px;padding:12px;margin-top:14px;font-size:15px;font-weight:700}
-.mp-amount b{font-size:20px;display:block;margin-top:2px}
-.mobilepay-steps{text-align:left;margin-top:18px;list-style:none}
-.mobilepay-steps li{font-size:13px;opacity:.92;margin-bottom:8px;display:flex;align-items:flex-start;gap:9px}
-.mobilepay-steps li::before{content:attr(data-n);background:rgba(255,255,255,.25);border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0;margin-top:1px}
-.qr-wrapper{background:#fff;border-radius:12px;padding:12px;display:inline-block;margin-bottom:12px}
-.qr-wrapper img{display:block;width:150px;height:150px}
-
-.bank-box{background:var(--g50);border:1px solid var(--g200);border-radius:10px;padding:18px}
-.bank-row{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--g200);font-size:14px}
-.bank-row:last-child{border-bottom:none}
-.bank-row span:first-child{color:var(--g500);font-weight:500}
-.bank-row span:last-child{font-weight:700;text-align:right}
-.copy-btn{background:none;border:1px solid var(--g300);border-radius:5px;padding:2px 8px;font-size:11px;cursor:pointer;color:var(--g700);margin-left:8px;font-family:inherit}
-.copy-btn:hover{background:var(--g100)}
-.copy-btn.copied{background:var(--green-light);border-color:var(--green);color:var(--green)}
-
-.trustmarks{display:flex;gap:16px;margin-top:16px;flex-wrap:wrap}
-.trustmark{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--g500)}
-.trustmark svg{width:14px;height:14px;color:var(--green)}
-
-.order-summary{position:sticky;top:80px}
-.summary-item{display:flex;justify-content:space-between;align-items:flex-start;padding:14px 0;border-bottom:1px solid var(--g100);gap:10px}
-.summary-item:last-of-type{border-bottom:none}
-.item-ico{font-size:20px;flex-shrink:0;line-height:1.3}
-.item-info{flex:1;min-width:0}
-.item-name{font-size:14px;font-weight:700;margin-bottom:2px}
-.item-desc{font-size:12px;color:var(--g500);line-height:1.45}
-.item-right{display:flex;flex-direction:column;align-items:flex-end;gap:8px;flex-shrink:0}
-.item-price{font-size:14px;font-weight:800;white-space:nowrap}
-.qty-ctrl{display:inline-flex;align-items:center;border:1.5px solid var(--g200);border-radius:7px;overflow:hidden}
-.qty-ctrl button{width:24px;height:24px;border:none;background:var(--g50);cursor:pointer;font-size:14px;font-weight:800;color:var(--blue);line-height:1;font-family:inherit}
-.qty-ctrl button:hover{background:var(--blue-light)}
-.qty-ctrl span{min-width:26px;text-align:center;font-size:12px;font-weight:800}
-.remove-btn{background:none;border:none;color:var(--g300);cursor:pointer;font-size:15px;line-height:1;padding:3px 5px;border-radius:6px;transition:all .15s;font-family:inherit;align-self:flex-start}
-.remove-btn:hover{background:var(--red-light);color:var(--red)}
-.empty-cart{text-align:center;padding:28px 10px;color:var(--g500);font-size:14px;line-height:1.7}
-.empty-cart .big{font-size:34px;display:block;margin-bottom:10px}
-
-.addon{display:flex;align-items:flex-start;gap:10px;padding:12px;border:1.5px solid var(--g200);border-radius:10px;margin-top:14px;cursor:pointer;transition:all .15s}
-.addon:hover{border-color:var(--blue)}
-.addon.on{border-color:var(--blue);background:var(--blue-light)}
-.addon input{margin-top:3px;accent-color:var(--blue);width:16px;height:16px;cursor:pointer}
-.addon-t{font-size:13px;font-weight:700}
-.addon-s{font-size:12px;color:var(--g500);margin-top:2px}
-
-.summary-divider{border:none;border-top:1px solid var(--g200);margin:14px 0}
-.summary-row{display:flex;justify-content:space-between;font-size:14px;padding:4px 0;color:var(--g700)}
-.summary-row.total{font-size:19px;font-weight:800;color:var(--g900);padding-top:12px;margin-top:6px;border-top:2px solid var(--g900)}
-.summary-vat{font-size:12px;color:var(--g500);text-align:right;margin-top:2px}
-.summary-badge{background:var(--amber-light);border:1px solid #fde68a;border-radius:8px;padding:9px 12px;font-size:12px;color:var(--amber);margin-top:14px;display:flex;align-items:center;gap:6px;font-weight:600}
-
-.coupon-row{display:flex;gap:8px;margin-top:14px}
-.coupon-input{flex:1;padding:9px 12px;border:1.5px solid var(--g300);border-radius:7px;font-size:13px;font-family:inherit;outline:none;text-transform:uppercase}
-.coupon-input:focus{border-color:var(--blue)}
-.coupon-btn{padding:9px 14px;background:var(--g100);border:1px solid var(--g300);border-radius:7px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
-.coupon-btn:hover{background:var(--g200)}
-.coupon-msg{font-size:12px;margin-top:7px;font-weight:600}
-
-.submit-btn{width:100%;padding:16px;margin-top:20px;background:var(--blue);color:#fff;border:none;border-radius:var(--radius);font-size:16px;font-weight:800;cursor:pointer;transition:background .15s,transform .1s;display:flex;align-items:center;justify-content:center;gap:8px;font-family:inherit}
-.submit-btn:hover{background:var(--blue-dark)}
-.submit-btn:active{transform:scale(.99)}
-.submit-btn:disabled{background:var(--g300);cursor:not-allowed;transform:none}
-.spinner{width:18px;height:18px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none}
-.submit-btn.loading .spinner{display:block}
-.submit-btn.loading .btn-label{display:none}
+/* ══════════════ ANIMATIONER ══════════════ */
+@keyframes blobA{0%,100%{transform:translate(0,0)scale(1)}33%{transform:translate(55px,-40px)scale(1.09)}66%{transform:translate(-25px,28px)scale(.93)}}
+@keyframes blobB{0%,100%{transform:translate(0,0)scale(1)}33%{transform:translate(-48px,44px)scale(1.07)}66%{transform:translate(35px,-25px)scale(.96)}}
+@keyframes blobC{0%,100%{transform:translate(0,0)scale(1)}50%{transform:translate(28px,32px)scale(1.06)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+@keyframes pulseGlow{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.45;transform:scale(1.5)}}
 @keyframes spin{to{transform:rotate(360deg)}}
-.security-notice{text-align:center;margin-top:12px;font-size:12px;color:var(--g500);display:flex;align-items:center;justify-content:center;gap:5px}
-.pay-error{background:var(--red-light);border:1px solid #fecaca;color:var(--red);font-size:13px;font-weight:600;border-radius:8px;padding:11px;margin-top:14px;display:none}
-.pay-error.show{display:block}
-.pay-info{background:var(--blue-light);border:1px solid #c7d7fb;color:var(--blue-dark);font-size:13px;font-weight:600;border-radius:8px;padding:11px;margin-top:14px;display:none}
-.pay-info.show{display:block}
+@keyframes pop{0%{transform:scale(.4);opacity:0}60%{transform:scale(1.12)}100%{transform:scale(1);opacity:1}}
+@keyframes ring{0%{transform:scale(.6);opacity:.55}100%{transform:scale(2.1);opacity:0}}
+@keyframes shimmer{0%{background-position:-420px 0}100%{background-position:420px 0}}
+@keyframes shake{10%,90%{transform:translateX(-2px)}30%,70%{transform:translateX(3px)}50%{transform:translateX(-3px)}}
+noscript ~ * .reveal,.no-anim .reveal{opacity:1!important;transform:none!important}
+.reveal{opacity:0;transform:translateY(22px);transition:opacity .55s ease,transform .55s ease}
+.reveal.in{opacity:1;transform:none}
+.d1{transition-delay:.07s}.d2{transition-delay:.14s}.d3{transition-delay:.21s}.d4{transition-delay:.28s}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.reveal{opacity:1;transform:none}}
 
-.phone-wrapper{position:relative}
-.phone-prefix{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:14px;color:var(--g500);font-weight:500;pointer-events:none}
-.phone-wrapper .form-control{padding-left:46px;letter-spacing:.5px}
+/* ══════════════ STATUSBAR ══════════════ */
+.sb{position:fixed;top:0;left:0;right:0;z-index:1200;height:var(--status-h);background:var(--ink);display:flex;align-items:center;justify-content:center;gap:14px;padding:0 20px;font-size:.76rem;font-weight:500;color:var(--light);overflow:hidden;white-space:nowrap}
+.sb b{color:#fff}
+.sb-dot{display:inline-block;width:7px;height:7px;background:var(--green);border-radius:50%;animation:pulseGlow 2s infinite}
+.sb-dot.lukket{background:var(--red)}
+.sb-sep{color:#1e293b}
 
-.receipt-wrap{max-width:640px;margin:40px auto;padding:0 20px}
-.receipt{background:#fff;border:1px solid var(--g200);border-radius:14px;overflow:hidden}
-.receipt-head{background:linear-gradient(135deg,#030a1c,#1a56db);color:#fff;padding:32px 26px;text-align:center}
-.receipt-head img{width:52px;height:52px;border-radius:12px;background:#fff;padding:6px;object-fit:contain;margin-bottom:12px}
-.receipt-head h1{font-size:22px;font-weight:800;margin-bottom:6px}
-.receipt-head p{font-size:14px;opacity:.85}
-.receipt-body{padding:26px}
-.rc-id{background:var(--blue-light);border:1px dashed var(--blue);border-radius:10px;padding:14px;text-align:center;margin-bottom:20px}
-.rc-id small{font-size:12px;color:var(--g500);display:block;margin-bottom:3px}
-.rc-id b{font-size:19px;color:var(--blue);letter-spacing:1px}
-.rc-line{display:flex;justify-content:space-between;font-size:14px;padding:8px 0;border-bottom:1px solid var(--g100);gap:12px}
-.rc-tot{display:flex;justify-content:space-between;font-size:18px;font-weight:800;padding-top:12px;margin-top:6px;border-top:2px solid var(--g900)}
-.rc-box{background:var(--g50);border:1px solid var(--g200);border-radius:10px;padding:16px;margin-top:20px;font-size:13px;line-height:1.75;color:var(--g700)}
-.rc-btns{display:flex;gap:10px;margin-top:22px;flex-wrap:wrap}
-.rc-btn{flex:1;min-width:150px;padding:13px;border-radius:9px;font-size:14px;font-weight:700;cursor:pointer;text-align:center;text-decoration:none;border:2px solid var(--blue);font-family:inherit}
-.rc-btn.primary{background:var(--blue);color:#fff}
-.rc-btn.ghost{background:#fff;color:var(--blue)}
-@media print{nav,.demo-bar,.progress-bar,.rc-btns{display:none!important}}
+/* ══════════════ HEADER ══════════════ */
+.hdr{position:fixed;top:var(--status-h);left:0;right:0;z-index:1100;background:var(--white);transition:box-shadow .3s}
+.hdr.up{box-shadow:0 4px 24px rgba(0,0,0,.1)}
+.hdr-top{display:flex;align-items:center;gap:14px;height:var(--hdr-h);padding:0 28px;border-bottom:1px solid var(--border)}
+.logo{display:flex;flex-direction:column;line-height:1;gap:3px;flex-shrink:0;cursor:pointer}
+.logo-n{font-size:1.22rem;font-weight:900;color:var(--text);letter-spacing:-.4px}
+.logo-n em{color:var(--blue);font-style:normal}
+.logo-s{font-size:.57rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.9px}
+
+.hdr-trust{flex:1;display:flex;align-items:center;justify-content:center;gap:20px;font-size:.76rem;font-weight:600;color:var(--muted);min-width:0}
+.hdr-trust span{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.hdr-trust b{color:var(--text)}
+
+.hdr-acts{display:flex;align-items:center;gap:6px;margin-left:auto;flex-shrink:0;padding-bottom:4px}
+.hbtn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:10px 16px;border:none;background:none;border-radius:12px;cursor:pointer;color:var(--text);transition:all .2s;min-width:80px;position:relative}
+.hbtn:hover{background:var(--blue-gh);transform:translateY(-2px);box-shadow:0 4px 12px rgba(29,78,216,.12)}
+.hbtn .hi{font-size:1.5rem;line-height:1;margin-bottom:1px}
+.hbtn .hl{font-size:.62rem;font-weight:600;color:var(--muted);white-space:nowrap;letter-spacing:.2px}
+.hbtn .hv{font-size:.78rem;font-weight:800;white-space:nowrap;color:var(--text)}
+.hbtn-sep{width:1px;height:36px;background:var(--border);flex-shrink:0;margin:0 2px}
+.cart-btn{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:10px 16px;border:2px solid var(--blue-pale);border-radius:12px;cursor:pointer;transition:all .2s;background:var(--blue-gh);min-width:90px}
+.cart-btn:hover{background:var(--blue);border-color:var(--blue);transform:translateY(-2px);box-shadow:0 6px 20px rgba(29,78,216,.25)}
+.cart-btn:hover .hl,.cart-btn:hover .hv{color:#fff}
+.cart-btn .hi{font-size:1.5rem;line-height:1}
+.cart-btn .hl{font-size:.62rem;font-weight:600;color:var(--blue);white-space:nowrap;letter-spacing:.2px;transition:color .2s}
+.cart-btn .hv{font-size:.78rem;font-weight:800;white-space:nowrap;color:var(--blue);transition:color .2s}
+.cbadge{position:absolute;top:-4px;right:-4px;background:var(--red);color:#fff;font-size:.6rem;font-weight:900;min-width:18px;height:18px;border-radius:99px;display:none;align-items:center;justify-content:center;padding:0 4px;border:2px solid #fff;box-shadow:0 2px 6px rgba(239,68,68,.4)}
+.hdr-nav{height:var(--nav-h);display:flex;align-items:center;padding:0 28px;overflow-x:auto;scrollbar-width:none;border-top:1px solid var(--border)}
+.hdr-nav::-webkit-scrollbar{display:none}
+.hdr-nav a{display:flex;align-items:center;height:100%;padding:0 11px;font-size:.81rem;font-weight:600;color:var(--muted);white-space:nowrap;border-bottom:3px solid transparent;cursor:pointer;transition:color .2s,border-color .2s}
+.hdr-nav a:hover,.hdr-nav a.act{color:var(--blue);border-bottom-color:var(--blue)}
+.ndiv{width:1px;height:14px;background:var(--border);flex-shrink:0;margin:0 2px}
+
+/* ══════════════ KNAPPER ══════════════ */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 26px;border-radius:var(--r);font-size:.95rem;font-weight:700;cursor:pointer;border:2px solid transparent;transition:all .2s;line-height:1}
+.btn-blue{background:var(--blue);color:#fff;border-color:var(--blue)}
+.btn-blue:hover{background:var(--blue-dk);border-color:var(--blue-dk);transform:translateY(-1px)}
+.btn-white{background:#fff;color:var(--blue);border-color:#fff}
+.btn-white:hover{background:var(--blue-gh);transform:translateY(-1px)}
+.btn-ghost{background:#fff;color:var(--blue);border-color:var(--blue-pale)}
+.btn-ghost:hover{background:var(--blue-gh);border-color:var(--blue)}
+.btn-outline{background:transparent;color:#fff;border-color:rgba(255,255,255,.45)}
+.btn-outline:hover{background:rgba(255,255,255,.1);border-color:#fff}
+.btn-full{width:100%}
+
+/* ══════════════ TOAST + TIL TOPPEN ══════════════ */
+.toast-wrap{position:fixed;top:calc(var(--total-h) + 10px);right:16px;z-index:4000;display:flex;flex-direction:column;gap:8px;align-items:flex-end}
+.toast{background:var(--ink);color:#fff;padding:12px 16px;border-radius:10px;font-size:.875rem;font-weight:600;display:flex;align-items:center;gap:10px;box-shadow:0 8px 28px rgba(0,0,0,.25);transform:translateX(120%);opacity:0;transition:transform .35s cubic-bezier(.34,1.56,.64,1),opacity .3s;border-left:4px solid var(--green);max-width:320px}
+.toast.show{transform:translateX(0);opacity:1}
+.toast.warn{border-left-color:var(--amber)}
+.toast.bad{border-left-color:var(--red)}
+.toast button{background:rgba(255,255,255,.12);border:none;color:#93c5fd;font-weight:800;font-size:.78rem;padding:5px 10px;border-radius:7px;cursor:pointer}
+.toast button:hover{background:rgba(255,255,255,.24);color:#fff}
+#sTop{position:fixed;bottom:96px;right:22px;z-index:900;width:42px;height:42px;background:var(--blue);color:#fff;border:none;border-radius:10px;font-size:1.1rem;cursor:pointer;display:none;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(29,78,216,.4);transition:transform .2s,background .2s}
+#sTop.vis{display:flex}
+#sTop:hover{transform:translateY(-3px);background:var(--blue-dk)}
+
+/* ══════════════ HERO / TRIN ══════════════ */
+.co-hero{background:linear-gradient(135deg,#030a1c 0%,#0d1f45 42%,#1a3580 72%,#1d4ed8 100%);position:relative;overflow:hidden;padding:44px 28px 40px}
+.hero-blobs{position:absolute;inset:0;pointer-events:none}
+.blob{position:absolute;border-radius:50%;filter:blur(80px);opacity:.13}
+.b1{width:640px;height:640px;background:#1d4ed8;top:-260px;left:-160px;animation:blobA 13s ease-in-out infinite}
+.b2{width:440px;height:440px;background:#0ea5e9;top:-40%;right:-90px;animation:blobB 11s ease-in-out infinite}
+.b3{width:340px;height:340px;background:#8b5cf6;bottom:-180px;left:48%;animation:blobC 15s ease-in-out infinite}
+.hero-dots{position:absolute;inset:0;background-image:radial-gradient(circle at 1px 1px,rgba(255,255,255,.065) 1px,transparent 0);background-size:50px 50px}
+.co-hero-in{position:relative;max-width:var(--mw);margin:0 auto;display:grid;grid-template-columns:1fr auto;gap:34px;align-items:center;animation:fadeUp .7s ease both}
+.h-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);color:#93c5fd;padding:6px 16px;border-radius:99px;font-size:.74rem;font-weight:700;letter-spacing:.4px;margin-bottom:14px}
+.co-hero h1{font-size:clamp(1.9rem,3.4vw,2.9rem);font-weight:900;color:#fff;line-height:1.08;letter-spacing:-.5px}
+.co-hero h1 .g{background:linear-gradient(135deg,#60a5fa,#38bdf8);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.co-hero p{color:#94a3b8;font-size:.95rem;margin-top:10px;max-width:520px}
+
+.co-steps{display:flex;align-items:center;gap:6px;list-style:none;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.13);padding:12px 16px;border-radius:var(--r-lg);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.co-steps li{display:flex;align-items:center;gap:9px;padding:4px 8px;font-size:.78rem;font-weight:700;color:#94a3b8;white-space:nowrap}
+.co-steps li .n{width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,.12);color:#cbd5e1;display:grid;place-items:center;font-size:.72rem;font-weight:900;flex-shrink:0;transition:all .3s}
+.co-steps li.on{color:#fff}
+.co-steps li.on .n{background:#fff;color:var(--blue-dk);box-shadow:0 0 0 4px rgba(255,255,255,.16)}
+.co-steps li.ok{color:#6ee7b7}
+.co-steps li.ok .n{background:var(--green);color:#fff}
+.co-steps li.ok .n::after{content:'✓'}
+.co-steps li.ok .n span{display:none}
+.co-steps .bar{width:26px;height:2px;padding:0;background:rgba(255,255,255,.16);border-radius:2px;flex-shrink:0}
+.co-steps .bar.ok{background:var(--green)}
+
+/* ══════════════ DEMO/INFOBÅND ══════════════ */
+.notice{background:var(--amber-gh);border-bottom:1px solid #fde68a;color:#92400e;font-size:.82rem;font-weight:600;padding:11px 28px;text-align:center;display:none}
+.notice.show{display:block}
+
+/* ══════════════ LAYOUT ══════════════ */
+.wrap{max-width:var(--mw);margin:0 auto;padding:0 28px}
+.co-grid{display:grid;grid-template-columns:minmax(0,1fr) 396px;gap:26px;align-items:start;padding:32px 0 76px}
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--r-lg);padding:26px;margin-bottom:18px;box-shadow:var(--sh)}
+.card-hd{display:flex;align-items:center;gap:13px;padding-bottom:16px;margin-bottom:20px;border-bottom:1px solid var(--border)}
+.card-ico{width:40px;height:40px;border-radius:12px;background:var(--blue-gh);color:var(--blue);display:grid;place-items:center;font-size:1.15rem;flex-shrink:0}
+.card-hd h2{font-size:1.03rem;font-weight:800;letter-spacing:-.2px;line-height:1.3}
+.card-hd p{font-size:.77rem;color:var(--muted);font-weight:500;line-height:1.4}
+.card-hd .step-tag{margin-left:auto;font-size:.68rem;font-weight:800;color:var(--blue);background:var(--blue-gh);border:1px solid var(--blue-pale);padding:4px 10px;border-radius:99px;white-space:nowrap}
+
+/* ══════════════ FORMULAR ══════════════ */
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.f{margin-bottom:15px}
+.f:last-child{margin-bottom:0}
+.f label{display:block;font-size:.78rem;font-weight:700;color:var(--text);margin-bottom:6px}
+.f label .req{color:var(--red);margin-left:2px}
+.f label .opt{color:var(--light);font-weight:600;margin-left:5px}
+.inp{width:100%;padding:12px 14px;border:2px solid var(--border);border-radius:var(--r);font-size:.92rem;outline:none;background:var(--bg);transition:border-color .18s,background .18s,box-shadow .18s;color:var(--text)}
+.inp::placeholder{color:var(--light)}
+.inp:focus{border-color:var(--blue);background:#fff;box-shadow:0 0 0 3px rgba(29,78,216,.09)}
+.inp.bad{border-color:var(--red);background:var(--red-gh)}
+.inp.ok{border-color:var(--green);background:#fff}
+textarea.inp{resize:vertical;min-height:88px;line-height:1.6}
+.err{font-size:.75rem;color:var(--red);margin-top:5px;font-weight:600;display:none}
+.err.show{display:block;animation:fadeUp .25s ease both}
+.hint{font-size:.75rem;color:var(--muted);margin-top:5px;line-height:1.5}
+.tel-wrap{position:relative}
+.tel-wrap .pre{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:.92rem;color:var(--muted);font-weight:700;pointer-events:none}
+.tel-wrap .inp{padding-left:52px;letter-spacing:.6px}
+
+/* ══════════════ VALG-KORT (levering + betaling) ══════════════ */
+.choices{display:grid;gap:11px}
+.choices.c3{grid-template-columns:repeat(3,1fr)}
+.choice{position:relative;text-align:left;background:#fff;border:2px solid var(--border);border-radius:14px;padding:14px 14px 13px;cursor:pointer;transition:all .18s;display:flex;flex-direction:column;gap:3px}
+.choice:hover{border-color:var(--blue-lt);transform:translateY(-2px);box-shadow:var(--sh-md)}
+.choice.on{border-color:var(--blue);background:var(--blue-gh);box-shadow:0 6px 20px rgba(29,78,216,.14)}
+.choice.off{opacity:.55;cursor:not-allowed}
+.choice.off:hover{transform:none;border-color:var(--border);box-shadow:none}
+.choice-ico{font-size:1.45rem;line-height:1;margin-bottom:4px}
+.choice-t{font-size:.88rem;font-weight:800;color:var(--text)}
+.choice-s{font-size:.73rem;color:var(--muted);line-height:1.45;padding-right:26px}
+.choice-tag{position:absolute;top:-9px;right:10px;font-size:.6rem;font-weight:900;letter-spacing:.4px;text-transform:uppercase;padding:3px 8px;border-radius:99px;background:var(--blue);color:#fff;box-shadow:0 3px 10px rgba(29,78,216,.3)}
+.choice-tag.grey{background:var(--muted)}
+.choice-tag.green{background:var(--green)}
+.choice .mark{position:absolute;bottom:11px;right:12px;width:18px;height:18px;border-radius:50%;border:2px solid var(--border);background:#fff;transition:all .18s}
+.choice.on .mark{border-color:var(--blue);background:var(--blue);box-shadow:0 0 0 3px rgba(29,78,216,.16)}
+.choice.on .mark::after{content:'';position:absolute;left:4px;top:1px;width:5px;height:9px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg)}
+
+/* ══════════════ BETALINGSPANELER ══════════════ */
+.panel{display:none;margin-top:18px;animation:fadeUp .35s ease both}
+.panel.on{display:block}
+.cards-row{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px}
+.brand{height:28px;padding:0 9px;border:1px solid var(--border);border-radius:6px;font-size:.66rem;font-weight:900;letter-spacing:.3px;display:flex;align-items:center;background:#fff;color:var(--muted)}
+.brand.visa{color:#1a1f71}.brand.mc{color:#eb001b}.brand.amex{color:#007bc1}.brand.maestro{color:#00a2e5}
+.sq-box{border:2px solid var(--border);border-radius:var(--r);background:#fff;padding:14px;transition:border-color .2s}
+.sq-box.focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(29,78,216,.09)}
+#square-card{min-height:52px}
+.sq-skeleton{height:52px;border-radius:8px;background:linear-gradient(90deg,var(--bg) 25%,#eef2f7 50%,var(--bg) 75%);background-size:420px 100%;animation:shimmer 1.4s infinite linear}
+.sq-note{font-size:.74rem;color:var(--muted);margin-top:11px;line-height:1.55;display:flex;align-items:flex-start;gap:7px}
+.trust-row{display:flex;gap:16px;flex-wrap:wrap;margin-top:15px;padding-top:14px;border-top:1px dashed var(--border)}
+.trust{display:flex;align-items:center;gap:6px;font-size:.74rem;color:var(--muted);font-weight:600}
+.trust b{color:var(--text)}
+
+.wallets{margin-bottom:16px}
+.wallets-hd{display:flex;align-items:center;gap:10px;font-size:.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:11px}
+.wallets-hd::after{content:'';flex:1;height:1px;background:var(--border)}
+.wallet-btns{display:grid;gap:9px;grid-template-columns:1fr}
+#applePayBtn{display:none;height:48px;border-radius:var(--r);background:#000;color:#fff;align-items:center;justify-content:center;gap:7px;font-size:.95rem;font-weight:700;cursor:pointer;border:none;transition:transform .15s,opacity .2s}
+#applePayBtn:hover{transform:translateY(-1px);opacity:.9}
+#googlePayWrap{display:none;min-height:48px}
+.wallet-sep{display:flex;align-items:center;gap:12px;margin:16px 0 4px;font-size:.72rem;font-weight:700;color:var(--light);text-transform:uppercase;letter-spacing:.6px}
+.wallet-sep::before,.wallet-sep::after{content:'';flex:1;height:1px;background:var(--border)}
+
+.mp-box{background:linear-gradient(135deg,#4a2183 0%,#6d33be 55%,#8b4fd8 100%);border-radius:var(--r-lg);color:#fff;padding:24px;text-align:center;position:relative;overflow:hidden}
+.mp-box::after{content:'';position:absolute;width:280px;height:280px;background:rgba(255,255,255,.07);border-radius:50%;top:-140px;right:-90px}
+.mp-logo{font-size:1.55rem;font-weight:900;letter-spacing:-.8px;position:relative}
+.mp-sub{font-size:.82rem;opacity:.82;margin-bottom:16px;position:relative}
+.mp-num{font-size:1.85rem;font-weight:900;letter-spacing:1.5px;position:relative}
+.mp-lbl{font-size:.72rem;opacity:.75;text-transform:uppercase;letter-spacing:.8px;position:relative}
+.mp-amt{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.2);border-radius:12px;padding:13px;margin-top:15px;font-size:.8rem;position:relative}
+.mp-amt b{font-size:1.35rem;display:block;margin-top:3px;font-weight:900}
+.mp-steps{text-align:left;margin-top:18px;list-style:none;position:relative}
+.mp-steps li{font-size:.8rem;opacity:.94;margin-bottom:9px;display:flex;align-items:flex-start;gap:10px;line-height:1.5}
+.mp-steps li::before{content:attr(data-n);background:rgba(255,255,255,.24);border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:.68rem;font-weight:900;flex-shrink:0;margin-top:1px}
+.qr{background:#fff;border-radius:12px;padding:10px;display:inline-block;margin-bottom:12px;position:relative}
+.qr img{display:block;width:148px;height:148px}
+
+.bank-box{background:var(--bg);border:1px solid var(--border);border-radius:var(--r-lg);padding:6px 18px}
+.bank-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--border);font-size:.87rem}
+.bank-row:last-child{border-bottom:none}
+.bank-row span:first-child{color:var(--muted);font-weight:600}
+.bank-row .val{font-weight:800;text-align:right;display:flex;align-items:center;gap:8px;justify-content:flex-end}
+.copy{background:#fff;border:1.5px solid var(--border);border-radius:7px;padding:3px 9px;font-size:.68rem;font-weight:700;cursor:pointer;color:var(--muted);transition:all .15s}
+.copy:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-gh)}
+.copy.done{background:var(--green-gh);border-color:var(--green);color:var(--green)}
+
+.msg{border-radius:var(--r);padding:12px 14px;font-size:.82rem;font-weight:600;margin-top:15px;display:none;line-height:1.55}
+.msg.show{display:block}
+.msg.info{background:var(--blue-gh);border:1px solid var(--blue-pale);color:var(--blue-dk)}
+.msg.bad{background:var(--red-gh);border:1px solid #fecaca;color:#b91c1c;animation:shake .4s ease both}
+.msg.good{background:var(--green-gh);border:1px solid #a7f3d0;color:#047857}
+
+/* ══════════════ ORDREOVERSIGT ══════════════ */
+.summary{position:sticky;top:calc(var(--total-h) + 16px)}
+.sum-toggle{display:none}
+#sumHeadDesktop h2{font-size:1.03rem;font-weight:800;line-height:1.3}
+#sumHeadDesktop p{font-size:.77rem;color:var(--muted);font-weight:500}
+.line{display:flex;gap:12px;align-items:flex-start;padding:14px 0;border-bottom:1px solid var(--border)}
+.line:last-of-type{border-bottom:none}
+.line-ico{width:38px;height:38px;border-radius:10px;background:var(--blue-gh);display:grid;place-items:center;font-size:1.15rem;flex-shrink:0}
+.line-mid{flex:1;min-width:0}
+.line-n{font-size:.88rem;font-weight:800;line-height:1.35}
+.line-d{font-size:.73rem;color:var(--muted);line-height:1.45;margin-top:2px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.line-r{display:flex;flex-direction:column;align-items:flex-end;gap:8px;flex-shrink:0}
+.line-p{font-size:.9rem;font-weight:900;white-space:nowrap}
+.line-u{font-size:.68rem;color:var(--light);white-space:nowrap}
+.qty{display:inline-flex;align-items:center;border:1.5px solid var(--border);border-radius:8px;overflow:hidden;margin-top:9px}
+.qty button{width:26px;height:26px;border:none;background:var(--bg);cursor:pointer;font-size:1rem;font-weight:800;color:var(--blue);line-height:1;transition:background .15s}
+.qty button:hover{background:var(--blue-pale)}
+.qty span{min-width:30px;text-align:center;font-size:.8rem;font-weight:800}
+.rm{background:none;border:none;color:var(--light);cursor:pointer;font-size:.9rem;padding:4px 6px;border-radius:7px;transition:all .15s}
+.rm:hover{background:var(--red-gh);color:var(--red)}
+
+.empty{text-align:center;padding:14px 4px 4px}
+.empty .big{font-size:2.4rem;display:block;margin-bottom:8px}
+.empty p{font-size:.85rem;color:var(--muted);line-height:1.6;margin-bottom:16px}
+.sugg{display:grid;gap:8px;margin-top:6px}
+.sugg-item{display:flex;align-items:center;gap:10px;border:1.5px solid var(--border);border-radius:12px;padding:10px;background:#fff;cursor:pointer;text-align:left;transition:all .18s}
+.sugg-item:hover{border-color:var(--blue);background:var(--blue-gh);transform:translateY(-1px)}
+.sugg-ico{font-size:1.25rem;flex-shrink:0}
+.sugg-n{font-size:.82rem;font-weight:800;line-height:1.25}
+.sugg-p{font-size:.72rem;color:var(--blue);font-weight:800}
+.sugg-add{margin-left:auto;font-size:1.05rem;color:var(--blue);font-weight:900;flex-shrink:0}
+
+.addon{display:flex;align-items:flex-start;gap:11px;padding:13px;border:2px solid var(--border);border-radius:14px;margin-top:16px;cursor:pointer;transition:all .18s;background:#fff}
+.addon:hover{border-color:var(--blue-lt)}
+.addon.on{border-color:var(--amber);background:var(--amber-gh)}
+.addon input{margin-top:3px;accent-color:var(--blue);width:17px;height:17px;cursor:pointer;flex-shrink:0}
+.addon-t{font-size:.83rem;font-weight:800}
+.addon-s{font-size:.74rem;color:var(--muted);margin-top:2px;line-height:1.45}
+
+.coupon{display:flex;gap:8px;margin-top:15px}
+.coupon input{flex:1;padding:10px 13px;border:2px solid var(--border);border-radius:9px;font-size:.83rem;outline:none;text-transform:uppercase;background:var(--bg);letter-spacing:.5px;font-weight:700}
+.coupon input:focus{border-color:var(--blue);background:#fff}
+.coupon button{padding:10px 16px;background:var(--ink);color:#fff;border:none;border-radius:9px;font-size:.82rem;font-weight:800;cursor:pointer;transition:background .18s}
+.coupon button:hover{background:#1e293b}
+.coupon-msg{font-size:.75rem;margin-top:7px;font-weight:700;min-height:1px}
+
+.sum-div{border:none;border-top:1px solid var(--border);margin:16px 0}
+.srow{display:flex;justify-content:space-between;align-items:center;font-size:.87rem;padding:5px 0;color:var(--muted);font-weight:600}
+.srow b{color:var(--text);font-weight:800}
+.srow.free b{color:var(--green)}
+.srow.disc{color:var(--green)}
+.srow.disc b{color:var(--green)}
+.stot{display:flex;justify-content:space-between;align-items:baseline;font-size:1.28rem;font-weight:900;padding-top:14px;margin-top:8px;border-top:2px solid var(--ink)}
+.stot span:last-child{color:var(--blue)}
+.svat{font-size:.73rem;color:var(--muted);text-align:right;margin-top:2px}
+.eta{background:var(--blue-gh);border:1px solid var(--blue-pale);border-radius:12px;padding:11px 13px;font-size:.77rem;color:var(--blue-dk);margin-top:16px;display:flex;align-items:center;gap:9px;font-weight:600;line-height:1.45}
+
+.terms{display:flex;align-items:flex-start;gap:10px;margin-top:16px;font-size:.76rem;color:var(--muted);line-height:1.55}
+.terms input{margin-top:2px;width:17px;height:17px;accent-color:var(--blue);cursor:pointer;flex-shrink:0}
+.terms a{color:var(--blue);font-weight:700;text-decoration:underline;cursor:pointer}
+.terms.bad{color:var(--red)}
+
+.pay-btn{width:100%;padding:17px;margin-top:16px;background:var(--blue);color:#fff;border:none;border-radius:var(--r);font-size:1rem;font-weight:800;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:9px;box-shadow:0 8px 22px rgba(29,78,216,.28)}
+.pay-btn:hover:not(:disabled){background:var(--blue-dk);transform:translateY(-2px);box-shadow:0 12px 28px rgba(29,78,216,.34)}
+.pay-btn:active:not(:disabled){transform:translateY(0)}
+.pay-btn:disabled{background:var(--light);cursor:not-allowed;box-shadow:none;transform:none}
+.spin{width:18px;height:18px;border:2.5px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none}
+.pay-btn.busy .spin{display:block}
+.pay-btn.busy .lbl{display:none}
+.safe{text-align:center;margin-top:12px;font-size:.74rem;color:var(--muted);display:flex;align-items:center;justify-content:center;gap:6px}
+
+.help{display:flex;flex-direction:column;gap:9px}
+.help a{display:flex;align-items:center;gap:11px;padding:11px 13px;border:1px solid var(--border);border-radius:12px;font-size:.82rem;font-weight:700;transition:all .18s;background:#fff}
+.help a:hover{border-color:var(--blue);background:var(--blue-gh);color:var(--blue);transform:translateX(3px)}
+.help a span:first-child{font-size:1.1rem}
+.help a small{display:block;font-size:.7rem;color:var(--muted);font-weight:600}
+.hours{margin-top:12px;border-top:1px dashed var(--border);padding-top:12px}
+.hrow{display:flex;justify-content:space-between;font-size:.77rem;padding:3px 0;color:var(--muted)}
+.hrow b{color:var(--text)}
+.hrow .off{color:var(--red);font-weight:700}
+
+/* ══════════════ MOBIL BETALINGSBJÆLKE ══════════════ */
+.paybar{position:fixed;bottom:0;left:0;right:0;z-index:1250;background:#fff;border-top:1px solid var(--border);box-shadow:0 -6px 24px rgba(10,15,26,.1);padding:11px 16px calc(11px + env(safe-area-inset-bottom));display:none;align-items:center;gap:12px}
+.paybar-l{flex:1;min-width:0}
+.paybar-l small{display:block;font-size:.68rem;color:var(--muted);font-weight:600}
+.paybar-l b{font-size:1.05rem;font-weight:900;color:var(--blue)}
+.paybar button{padding:13px 22px;background:var(--blue);color:#fff;border:none;border-radius:var(--r);font-size:.9rem;font-weight:800;cursor:pointer;white-space:nowrap}
+.paybar button:disabled{background:var(--light)}
+
+/* ══════════════ KVITTERING ══════════════ */
+.receipt-wrap{max-width:720px;margin:0 auto;padding:40px 28px 80px}
+.receipt{background:#fff;border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--sh-lg);animation:fadeUp .5s ease both}
+.rc-hd{background:linear-gradient(135deg,#030a1c 0%,#0d1f45 45%,#1d4ed8 100%);color:#fff;padding:40px 28px 34px;text-align:center;position:relative;overflow:hidden}
+.rc-check{width:70px;height:70px;border-radius:50%;background:var(--green);display:grid;place-items:center;margin:0 auto 16px;font-size:2rem;position:relative;animation:pop .5s cubic-bezier(.34,1.56,.64,1) both;box-shadow:0 8px 26px rgba(16,185,129,.4)}
+.rc-check::before,.rc-check::after{content:'';position:absolute;inset:0;border-radius:50%;border:2px solid var(--green);animation:ring 1.9s ease-out infinite}
+.rc-check::after{animation-delay:.7s}
+.rc-hd h1{font-size:1.6rem;font-weight:900;margin-bottom:7px;position:relative}
+.rc-hd p{font-size:.9rem;color:#94a3b8;position:relative}
+.rc-hd p b{color:#93c5fd}
+.rc-body{padding:28px}
+.rc-id{background:var(--blue-gh);border:1.5px dashed var(--blue);border-radius:14px;padding:16px;text-align:center;margin-bottom:22px}
+.rc-id small{font-size:.72rem;color:var(--muted);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:.8px;font-weight:700}
+.rc-id b{font-size:1.35rem;color:var(--blue);letter-spacing:1.5px;font-weight:900}
+.rc-line{display:flex;justify-content:space-between;gap:14px;font-size:.88rem;padding:10px 0;border-bottom:1px solid var(--border)}
+.rc-tot{display:flex;justify-content:space-between;font-size:1.2rem;font-weight:900;padding-top:14px;margin-top:8px;border-top:2px solid var(--ink)}
+.rc-tot span:last-child{color:var(--blue)}
+.rc-box{background:var(--bg);border:1px solid var(--border);border-radius:14px;padding:17px;margin-top:20px;font-size:.85rem;line-height:1.75;color:var(--text)}
+.rc-box h3{font-size:.76rem;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin-bottom:9px;font-weight:800}
+.rc-box.hi{background:var(--blue-gh);border-color:var(--blue-pale)}
+.rc-steps{list-style:none;margin-top:6px}
+.rc-steps li{display:flex;gap:10px;align-items:flex-start;padding:5px 0;font-size:.85rem}
+.rc-steps li::before{content:'→';color:var(--blue);font-weight:900;flex-shrink:0}
+.rc-btns{display:flex;gap:10px;margin-top:24px;flex-wrap:wrap}
+.rc-btns .btn{flex:1 1 180px;white-space:nowrap;padding:12px 18px;font-size:.9rem}
+
+/* ══════════════ MODAL (handelsbetingelser) ══════════════ */
+.modal-ov{position:fixed;inset:0;background:rgba(10,15,26,.65);z-index:5000;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .25s;backdrop-filter:blur(4px)}
+.modal-ov.open{opacity:1;pointer-events:all}
+.modal{background:#fff;border-radius:20px;max-width:620px;width:100%;max-height:86vh;display:flex;flex-direction:column;box-shadow:var(--sh-lg);transform:scale(.96) translateY(10px);transition:transform .3s cubic-bezier(.34,1.56,.64,1);overflow:hidden}
+.modal-ov.open .modal{transform:none}
+.modal-hd{background:linear-gradient(135deg,#030a1c,#1d4ed8);padding:20px 24px;display:flex;align-items:center;justify-content:space-between;color:#fff}
+.modal-hd h3{font-size:1rem;font-weight:800}
+.modal-x{background:rgba(255,255,255,.12);border:none;color:#fff;width:30px;height:30px;border-radius:8px;cursor:pointer;font-size:1rem}
+.modal-x:hover{background:rgba(255,255,255,.24)}
+.modal-body{padding:24px;overflow-y:auto;font-size:.87rem;line-height:1.75;color:var(--text)}
+.modal-body h4{font-size:.88rem;font-weight:800;margin:18px 0 6px;color:var(--blue-dk)}
+.modal-body h4:first-child{margin-top:0}
+.modal-body p,.modal-body li{color:var(--muted)}
+.modal-body ul{margin-left:18px}
+
+/* ══════════════ FOOTER ══════════════ */
+footer{background:#08101f;color:#4b5563;padding:60px 28px 28px}
+.f-in{max-width:var(--mw);margin:0 auto}
+.f-grid{display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr;gap:38px;margin-bottom:44px}
+.f-brand p{font-size:.82rem;line-height:1.72;color:#6b7280;max-width:240px;margin-top:10px}
+.f-logo{font-size:1.1rem;font-weight:900;color:#fff}
+.f-logo span{color:var(--blue-lt)}
+.f-col h4{font-size:.77rem;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:.9px;margin-bottom:15px}
+.f-col a{display:block;font-size:.82rem;color:#6b7280;margin-bottom:9px;transition:color .2s;cursor:pointer}
+.f-col a:hover{color:#fff}
+.f-bot{border-top:1px solid #1e2d3d;padding-top:22px;display:flex;justify-content:space-between;align-items:center;font-size:.77rem;flex-wrap:wrap;gap:10px}
+.f-bot a{color:var(--blue-lt)}
+
+/* ══════════════ RESPONSIV ══════════════ */
+@media(max-width:1080px){
+  .hdr-trust{display:none}
+  .co-grid{grid-template-columns:minmax(0,1fr) 350px}
+}
+@media(max-width:900px){
+  .co-grid{grid-template-columns:1fr;padding-bottom:110px}
+  .summary{display:contents}
+  .summary>.card:first-child{order:-1;margin-bottom:18px}
+  .summary>.card:last-child{order:1}
+  .summary.fold>.card:first-child .card-hd{border-bottom:none;padding-bottom:0;margin-bottom:0}
+  .co-hero-in{grid-template-columns:1fr;gap:22px}
+  .co-steps{overflow-x:auto;justify-content:flex-start}
+  .paybar{display:flex}
+  .sum-toggle{display:flex;align-items:center;justify-content:space-between;width:100%;background:none;border:none;cursor:pointer;padding:0;text-align:left}
+  #sumHeadDesktop{display:none}
+  .sum-toggle .arrow{transition:transform .25s;color:var(--muted);font-size:.8rem}
+  .summary.fold .sum-body{display:none}
+  .summary.fold .sum-toggle .arrow{transform:rotate(-90deg)}
+}
+@media(max-width:640px){
+  :root{--hdr-h:56px;--nav-h:40px;--total-h:130px}
+  .hdr-top{padding:0 14px;gap:9px}
+  .logo-s{display:none}
+  .hbtn .hl,.hbtn .hv,.cart-btn .hl{display:none}
+  .hbtn{min-width:52px;padding:8px 10px}
+  .cart-btn{min-width:64px;padding:8px 12px}
+  .hdr-nav{padding:0 14px}
+  .wrap{padding:0 16px}
+  .co-hero{padding:32px 16px}
+  .card{padding:20px 17px;border-radius:14px}
+  .fgrid{grid-template-columns:1fr}
+  .choices.c3{grid-template-columns:1fr}
+  .receipt-wrap{padding:26px 16px 90px}
+  .rc-btns .btn{min-width:100%}
+  .sb-day{display:none}
+  .sb{justify-content:flex-start;gap:10px}
+  .toast-wrap{left:12px;right:12px;align-items:stretch}
+  .toast{max-width:none}
+  #sTop{bottom:86px;right:14px}
+  footer{padding:44px 16px 22px}
+  .f-grid{grid-template-columns:1fr;gap:26px}
+}
+
+/* ══════════════ PRINT ══════════════ */
+@media print{
+  body{padding-top:0;background:#fff}
+  .sb,.hdr,.co-hero,.toast-wrap,#sTop,.paybar,footer,.rc-btns,.notice{display:none!important}
+  .receipt-wrap{padding:0;max-width:none}
+  .receipt{border:none;box-shadow:none}
+  .rc-hd{background:#0a0f1a!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
 </style>
 </head>
 <body>
 
-<nav>
-  <div class="nav-logo">Sørensen IT <span>Kassen</span></div>
-  <a class="nav-back" href="index.html">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
-    Tilbage til shoppen
-  </a>
-</nav>
+<!-- ══════════ STATUSBAR ══════════ -->
+<div class="sb" id="statusBar"></div>
 
-<div class="demo-bar" id="demoBar" style="display:none">
-  🧪 <b>Demo-tilstand:</b> kortbetalinger bliver <b>ikke</b> gennemført rigtigt. MobilePay og bankoverførsel virker som normalt.
-</div>
-
-<div class="progress-bar">
-  <div class="step active" id="step1"><div class="step-num">1</div><div>Oplysninger</div></div>
-  <div class="step-line" id="line1"></div>
-  <div class="step" id="step2"><div class="step-num">2</div><div>Betaling</div></div>
-  <div class="step-line" id="line2"></div>
-  <div class="step" id="step3"><div class="step-num">3</div><div>Bekræftelse</div></div>
-</div>
-
-<div id="checkoutView">
-<div class="checkout-layout">
-  <div>
-    <!-- KONTAKT -->
-    <div class="card" id="section-contact">
-      <div class="card-title">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        Dine oplysninger
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label for="firstName">Fornavn <span class="req">*</span></label>
-          <input class="form-control" id="firstName" type="text" placeholder="Jonas" autocomplete="given-name">
-          <div class="error-msg" id="err-firstName">Fornavn er påkrævet</div>
-        </div>
-        <div class="form-group">
-          <label for="lastName">Efternavn <span class="req">*</span></label>
-          <input class="form-control" id="lastName" type="text" placeholder="Sørensen" autocomplete="family-name">
-          <div class="error-msg" id="err-lastName">Efternavn er påkrævet</div>
-        </div>
-      </div>
-      <div class="form-group">
-        <label for="email">E-mailadresse <span class="req">*</span></label>
-        <input class="form-control" id="email" type="email" placeholder="jonas@eksempel.dk" autocomplete="email">
-        <div class="error-msg" id="err-email">Indtast en gyldig e-mailadresse</div>
-        <div class="hint">📧 Din kvittering og ordrebekræftelse sendes hertil.</div>
-      </div>
-      <div class="form-group">
-        <label for="phone">Telefonnummer <span class="req">*</span></label>
-        <div class="phone-wrapper">
-          <span class="phone-prefix">+45</span>
-          <input class="form-control" id="phone" type="tel" placeholder="93 86 92 67" maxlength="20" autocomplete="tel" inputmode="tel">
-        </div>
-        <div class="error-msg" id="err-phone">Indtast 8 cifre — landekoden +45 er allerede udfyldt</div>
-      </div>
-      <div class="form-group">
-        <label for="address">Adresse <span class="req">*</span></label>
-        <input class="form-control" id="address" type="text" placeholder="Søndergade 12" autocomplete="street-address">
-        <div class="error-msg" id="err-address">Adresse er påkrævet</div>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label for="zip">Postnummer <span class="req">*</span></label>
-          <input class="form-control" id="zip" type="text" placeholder="8000" maxlength="4" inputmode="numeric" autocomplete="postal-code">
-          <div class="error-msg" id="err-zip">Ugyldigt postnummer (4 cifre)</div>
-        </div>
-        <div class="form-group">
-          <label for="city">By <span class="req">*</span></label>
-          <input class="form-control" id="city" type="text" placeholder="Aarhus C" autocomplete="address-level2">
-          <div class="error-msg" id="err-city">By er påkrævet</div>
-        </div>
-      </div>
+<!-- ══════════ HEADER ══════════ -->
+<div class="hdr" id="HDR">
+  <div class="hdr-top">
+    <a class="logo" href="index.html" aria-label="Til forsiden">
+      <div class="logo-n">Sørensen <em>IT</em></div>
+      <div class="logo-s">&amp; Reparation · Jonas &amp; Storm</div>
+    </a>
+    <div class="hdr-trust">
+      <span>🔒 <b>Sikker betaling</b> · SSL-krypteret</span>
+      <span>💳 Kort håndteres af <b>Square</b></span>
+      <span>⏱ Ventetid: <b id="trustVent">2-3 hverdage</b></span>
     </div>
-
-    <!-- BETALING -->
-    <div class="card" id="section-payment">
-      <div class="card-title">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
-        Betalingsmetode
-      </div>
-
-      <div class="payment-tabs">
-        <button type="button" class="pay-tab active" onclick="selectPayment('card')" id="tab-card"><span class="tab-icon">💳</span><span class="tab-label">Kort</span><span class="soon" id="cardSoon">SNART</span></button>
-        <button type="button" class="pay-tab" onclick="selectPayment('mobilepay')" id="tab-mobilepay"><span class="tab-icon">📱</span><span class="tab-label">MobilePay</span></button>
-        <button type="button" class="pay-tab" onclick="selectPayment('bank')" id="tab-bank"><span class="tab-icon">🏦</span><span class="tab-label">Bankoverførsel</span></button>
-      </div>
-
-      <!-- KORT -->
-      <div class="pay-panel active" id="panel-card">
-        <div class="card-icons">
-          <div class="card-icon visa">VISA</div><div class="card-icon mc">MC</div>
-          <div class="card-icon amex">AMEX</div><div class="card-icon maestro">Maestro</div>
-        </div>
-
-        <div id="square-card"></div>
-
-        <div id="demoCardForm" style="display:none">
-          <div class="form-group">
-            <label for="cardNumber">Kortnummer <span class="req">*</span></label>
-            <input class="form-control" id="cardNumber" type="text" placeholder="0000 0000 0000 0000" maxlength="19" inputmode="numeric" autocomplete="cc-number">
-            <div class="error-msg" id="err-cardNumber">Ugyldigt kortnummer</div>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label for="cardExpiry">Udløbsdato <span class="req">*</span></label>
-              <input class="form-control" id="cardExpiry" type="text" placeholder="MM/ÅÅ" maxlength="5" inputmode="numeric" autocomplete="cc-exp">
-              <div class="error-msg" id="err-cardExpiry">Ugyldig eller udløbet dato</div>
-            </div>
-            <div class="form-group">
-              <label for="cardCVV">CVV / CVC <span class="req">*</span></label>
-              <input class="form-control" id="cardCVV" type="text" placeholder="•••" maxlength="4" inputmode="numeric" autocomplete="cc-csc">
-              <div class="error-msg" id="err-cardCVV">Ugyldig sikkerhedskode</div>
-            </div>
-          </div>
-          <div class="form-group">
-            <label for="cardName">Navn på kort <span class="req">*</span></label>
-            <input class="form-control" id="cardName" type="text" placeholder="JONAS SØRENSEN" autocomplete="cc-name">
-            <div class="error-msg" id="err-cardName">Kortholderens navn er påkrævet</div>
-          </div>
-        </div>
-
-        <div class="square-status" id="squareStatus"></div>
-        <div class="trustmarks">
-          <div class="trustmark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>SSL-krypteret forbindelse</div>
-          <div class="trustmark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Kortdata håndteres af Square</div>
-          <div class="trustmark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>Vi gemmer aldrig dit kortnummer</div>
-        </div>
-      </div>
-
-      <!-- MOBILEPAY -->
-      <div class="pay-panel" id="panel-mobilepay">
-        <div class="mobilepay-box">
-          <div class="mp-logo">MobilePay</div>
-          <div class="mp-sub">Overfør beløbet til vores nummer</div>
-          <div id="mpQr"></div>
-          <div class="mp-phone-label">Send til nummer</div>
-          <div class="mp-phone" id="mpNumber">93 86 92 67</div>
-          <div class="mp-amount">Beløb der skal overføres<b id="mpAmount">—</b></div>
-          <ol class="mobilepay-steps">
-            <li data-n="1">Tryk "Gennemfør bestilling" nedenfor — du får et ordre-ID</li>
-            <li data-n="2">Åbn MobilePay og vælg "Send penge"</li>
-            <li data-n="3">Indtast nummeret og det præcise beløb</li>
-            <li data-n="4">Skriv dit ordre-ID i beskedfeltet</li>
-          </ol>
-        </div>
-      </div>
-
-      <!-- BANK -->
-      <div class="pay-panel" id="panel-bank">
-        <p style="font-size:13px;color:var(--g500);margin-bottom:14px">Overfør det præcise beløb til kontoen herunder. Vi bekræfter normalt betalingen inden for én bankdag.</p>
-        <div class="bank-box" id="bankBox"></div>
-      </div>
-
-      <div class="pay-info" id="payInfo"></div>
-      <div class="pay-error" id="payError"></div>
-    </div>
-
-    <!-- BESKED -->
-    <div class="card">
-      <div class="card-title">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-        Besked til os (valgfrit)
-      </div>
-      <div class="form-group" style="margin:0">
-        <textarea class="form-control" id="notes" rows="3" placeholder="F.eks. hvilken PC det drejer sig om, ønsket afhentningstidspunkt eller specifikationer..." style="resize:vertical"></textarea>
-      </div>
-    </div>
-  </div>
-
-  <!-- ORDREOVERSIGT -->
-  <div class="order-summary">
-    <div class="card">
-      <div class="card-title">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-        Ordreoversigt
-      </div>
-
-      <div id="cartItems"></div>
-
-      <label class="addon" id="expressBox">
-        <input type="checkbox" id="expressChk" onchange="toggleExpress()">
-        <div>
-          <div class="addon-t">⚡ Express-service · +100 kr.</div>
-          <div class="addon-s">Din enhed behandles samme dag i stedet for 2-3 hverdage.</div>
-        </div>
-      </label>
-
-      <div class="coupon-row">
-        <input class="coupon-input" id="couponCode" placeholder="Rabatkode" onkeypress="if(event.key==='Enter')applyCoupon()">
-        <button class="coupon-btn" onclick="applyCoupon()">Anvend</button>
-      </div>
-      <div class="coupon-msg" id="couponMsg"></div>
-
-      <hr class="summary-divider">
-      <div class="summary-row"><span>Subtotal</span><span id="subtotal">—</span></div>
-      <div class="summary-row" id="expressRow" style="display:none"><span>⚡ Express-service</span><span id="expressAmt">—</span></div>
-      <div class="summary-row" id="discountRow" style="display:none;color:var(--green)"><span id="discountLabel">Rabat</span><span id="discountAmt">—</span></div>
-      <div class="summary-row"><span>Levering / returforsendelse</span><span style="color:var(--green);font-weight:700">Gratis</span></div>
-      <div class="summary-row total"><span>I alt</span><span id="totalAmt">—</span></div>
-      <div class="summary-vat" id="vatLine">Heraf moms (25%): —</div>
-
-      <div class="summary-badge">⚡ Normalt klar inden for 2-3 hverdage</div>
-
-      <button class="submit-btn" id="submitBtn" onclick="handleCheckout()">
-        <div class="spinner"></div><span class="btn-label">Gennemfør bestilling</span>
+    <div class="hdr-acts">
+      <a href="tel:93869267" class="hbtn" title="Ring til os nu">
+        <span class="hi">📞</span><span class="hl">Ring til os</span><span class="hv">93 86 92 67</span>
+      </a>
+      <div class="hbtn-sep"></div>
+      <button class="hbtn" id="userBtn" onclick="kontoKlik()" title="Min konto">
+        <span class="hi" id="userBtnIco">👤</span>
+        <span class="hl" id="userBtnLabel">Min konto</span>
+        <span class="hv" id="userBtnVal">Log ind</span>
       </button>
-      <div class="security-notice">🔒 Sikker betaling · Dine oplysninger behandles fortroligt</div>
+      <div class="hbtn-sep"></div>
+      <button class="cart-btn" onclick="visKurv()" title="Se din ordre">
+        <span class="hi">🛒</span>
+        <span class="hl">Din ordre</span>
+        <span class="hv" id="cVal">0 kr.</span>
+        <span class="cbadge" id="cBadge">0</span>
+      </button>
     </div>
   </div>
-</div>
+  <nav class="hdr-nav">
+    <a href="index.html">Hjem</a><div class="ndiv"></div>
+    <a href="index.html#services">Services</a><div class="ndiv"></div>
+    <a href="Om-os.html">Om os</a><div class="ndiv"></div>
+    <a href="index.html#hvordan">Sådan fungerer det</a><div class="ndiv"></div>
+    <a href="gpu-fps-tester.html">Grafikkort FPS Tester</a><div class="ndiv"></div>
+    <a href="guides.html">Guider</a><div class="ndiv"></div>
+    <a href="service-indlevering.html">Indlevering &amp; Priser</a><div class="ndiv"></div>
+    <a href="index.html#faq">FAQ</a><div class="ndiv"></div>
+    <a class="act" href="checkout.html">Kassen</a>
+  </nav>
 </div>
 
+<!-- ══════════ INFOBÅND ══════════ -->
+<div class="notice" id="notice"></div>
+
+<!-- ══════════ HERO + TRIN ══════════ -->
+<section class="co-hero">
+  <div class="hero-blobs"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div></div>
+  <div class="hero-dots"></div>
+  <div class="co-hero-in">
+    <div>
+      <div class="h-badge">🔒 Sikker betaling · Square · MobilePay · Bankoverførsel</div>
+      <h1>Kassen — <span class="g">sidste skridt</span></h1>
+      <p id="heroSub">Udfyld dine oplysninger, vælg hvordan du betaler, og så går Jonas &amp; Storm i gang med det samme.</p>
+    </div>
+    <ol class="co-steps" id="coSteps">
+      <li class="on" data-s="1"><span class="n"><span>1</span></span>Oplysninger</li>
+      <li class="bar" aria-hidden="true"></li>
+      <li data-s="2"><span class="n"><span>2</span></span>Betaling</li>
+      <li class="bar" aria-hidden="true"></li>
+      <li data-s="3"><span class="n"><span>3</span></span>Bekræftelse</li>
+    </ol>
+  </div>
+</section>
+
+<!-- ══════════ CHECKOUT ══════════ -->
+<main id="checkoutView">
+<div class="wrap">
+  <div class="co-grid">
+
+    <!-- ══ VENSTRE KOLONNE ══ -->
+    <div>
+      <!-- KONTAKT -->
+      <section class="card reveal" id="kortKontakt">
+        <div class="card-hd">
+          <div class="card-ico">👤</div>
+          <div>
+            <h2>Dine oplysninger</h2>
+            <p>Så vi ved hvem enheden tilhører — og hvor kvitteringen skal sendes hen.</p>
+          </div>
+          <span class="step-tag">Trin 1</span>
+        </div>
+        <div class="fgrid">
+          <div class="f">
+            <label for="firstName">Fornavn <span class="req">*</span></label>
+            <input class="inp" id="firstName" type="text" placeholder="Jonas" autocomplete="given-name">
+            <div class="err" id="err-firstName">Skriv dit fornavn</div>
+          </div>
+          <div class="f">
+            <label for="lastName">Efternavn <span class="req">*</span></label>
+            <input class="inp" id="lastName" type="text" placeholder="Sørensen" autocomplete="family-name">
+            <div class="err" id="err-lastName">Skriv dit efternavn</div>
+          </div>
+        </div>
+        <div class="f">
+          <label for="email">E-mailadresse <span class="req">*</span></label>
+          <input class="inp" id="email" type="email" placeholder="jonas@eksempel.dk" autocomplete="email" inputmode="email">
+          <div class="err" id="err-email">Indtast en gyldig e-mailadresse</div>
+          <div class="hint">📧 Kvittering og ordrebekræftelse sendes hertil med det samme.</div>
+        </div>
+        <div class="f">
+          <label for="phone">Telefonnummer <span class="req">*</span></label>
+          <div class="tel-wrap">
+            <span class="pre">+45</span>
+            <input class="inp" id="phone" type="tel" placeholder="93 86 92 67" maxlength="20" autocomplete="tel" inputmode="tel">
+          </div>
+          <div class="err" id="err-phone">Indtast 8 cifre — landekoden +45 er allerede udfyldt</div>
+        </div>
+        <div id="adresseFelter">
+          <div class="f">
+            <label for="address">Adresse <span class="req" id="reqAddress">*</span></label>
+            <input class="inp" id="address" type="text" placeholder="Søndergade 12, 2. th" autocomplete="street-address">
+            <div class="err" id="err-address">Skriv din adresse</div>
+          </div>
+          <div class="fgrid">
+            <div class="f">
+              <label for="zip">Postnummer <span class="req" id="reqZip">*</span></label>
+              <input class="inp" id="zip" type="text" placeholder="8000" maxlength="4" inputmode="numeric" autocomplete="postal-code">
+              <div class="err" id="err-zip">Postnummeret skal være 4 cifre</div>
+            </div>
+            <div class="f">
+              <label for="city">By <span class="req" id="reqCity">*</span></label>
+              <input class="inp" id="city" type="text" placeholder="Aarhus C" autocomplete="address-level2">
+              <div class="err" id="err-city">Skriv din by</div>
+            </div>
+          </div>
+          <div class="hint" id="adresseHint">📦 Vi bruger adressen til returforsendelsen — den betaler vi.</div>
+        </div>
+      </section>
+
+      <!-- LEVERING -->
+      <section class="card reveal d1">
+        <div class="card-hd">
+          <div class="card-ico">📦</div>
+          <div>
+            <h2>Sådan får vi din enhed</h2>
+            <p>Vælg hvad der passer dig bedst — det ændrer ikke prisen.</p>
+          </div>
+        </div>
+        <div class="choices c3">
+          <button type="button" class="choice on" id="lv-send" aria-pressed="true" onclick="vaelgLevering('send')">
+            <span class="choice-ico">📮</span>
+            <span class="choice-t">Jeg sender den</span>
+            <span class="choice-s">Du betaler fragten til os — returforsendelsen er gratis.</span>
+            <span class="mark"></span>
+          </button>
+          <button type="button" class="choice" id="lv-aflever" aria-pressed="false" onclick="vaelgLevering('aflever')">
+            <span class="choice-ico">🤝</span>
+            <span class="choice-t">Jeg afleverer selv</span>
+            <span class="choice-s">Vi aftaler tid og sted, når vi ringer til dig.</span>
+            <span class="mark"></span>
+          </button>
+          <button type="button" class="choice" id="lv-fjern" aria-pressed="false" onclick="vaelgLevering('fjern')">
+            <span class="choice-ico">🖥️</span>
+            <span class="choice-t">Fjernhjælp</span>
+            <span class="choice-s">Vi løser det online via AnyDesk — ingen forsendelse.</span>
+            <span class="mark"></span>
+          </button>
+        </div>
+        <div class="msg info show" id="leveringInfo" style="margin-top:16px"></div>
+      </section>
+
+      <!-- BETALING -->
+      <section class="card reveal d2" id="kortBetaling">
+        <div class="card-hd">
+          <div class="card-ico">💳</div>
+          <div>
+            <h2>Betalingsmetode</h2>
+            <p>Kortbetaling håndteres af Square — dine kortdata rører aldrig vores server.</p>
+          </div>
+          <span class="step-tag">Trin 2</span>
+        </div>
+
+        <div class="choices c3">
+          <button type="button" class="choice on" id="pm-card" aria-pressed="true" onclick="vaelgBetaling('card')">
+            <span class="choice-tag" id="cardTag">Hurtigst</span>
+            <span class="choice-ico">💳</span>
+            <span class="choice-t">Betalingskort</span>
+            <span class="choice-s">Visa, Mastercard, Maestro &amp; Amex</span>
+            <span class="mark"></span>
+          </button>
+          <button type="button" class="choice" id="pm-mobilepay" aria-pressed="false" onclick="vaelgBetaling('mobilepay')">
+            <span class="choice-ico">📱</span>
+            <span class="choice-t">MobilePay</span>
+            <span class="choice-s">Overfør beløbet fra din telefon</span>
+            <span class="mark"></span>
+          </button>
+          <button type="button" class="choice" id="pm-bank" aria-pressed="false" onclick="vaelgBetaling('bank')">
+            <span class="choice-ico">🏦</span>
+            <span class="choice-t">Bankoverførsel</span>
+            <span class="choice-s">Bekræftes inden for én bankdag</span>
+            <span class="mark"></span>
+          </button>
+        </div>
+
+        <!-- KORT -->
+        <div class="panel on" id="panel-card">
+          <div class="wallets" id="wallets" style="display:none">
+            <div class="wallets-hd">Betal med ét tryk</div>
+            <div class="wallet-btns">
+              <button type="button" id="applePayBtn" onclick="betalMedWallet('apple')"> Betal med Apple Pay</button>
+              <div id="googlePayWrap"></div>
+            </div>
+            <div class="wallet-sep">eller betal med kort</div>
+          </div>
+
+          <div class="cards-row">
+            <div class="brand visa">VISA</div>
+            <div class="brand mc">MASTERCARD</div>
+            <div class="brand maestro">MAESTRO</div>
+            <div class="brand amex">AMEX</div>
+            <div class="brand">DANKORT*</div>
+          </div>
+
+          <div class="sq-box" id="sqBox">
+            <div id="square-card"><div class="sq-skeleton" id="sqSkeleton"></div></div>
+          </div>
+          <div class="sq-note" id="sqNote"><span>🔒</span><span>Indlæser sikkert kortfelt fra Square…</span></div>
+
+          <div id="demoKortForm" style="display:none;margin-top:16px">
+            <div class="f">
+              <label for="cardNumber">Kortnummer <span class="req">*</span></label>
+              <input class="inp" id="cardNumber" type="text" placeholder="0000 0000 0000 0000" maxlength="19" inputmode="numeric" autocomplete="cc-number">
+              <div class="err" id="err-cardNumber">Kortnummeret ser ikke rigtigt ud</div>
+            </div>
+            <div class="fgrid">
+              <div class="f">
+                <label for="cardExpiry">Udløbsdato <span class="req">*</span></label>
+                <input class="inp" id="cardExpiry" type="text" placeholder="MM/ÅÅ" maxlength="5" inputmode="numeric" autocomplete="cc-exp">
+                <div class="err" id="err-cardExpiry">Ugyldig eller udløbet dato</div>
+              </div>
+              <div class="f">
+                <label for="cardCVV">Sikkerhedskode <span class="req">*</span></label>
+                <input class="inp" id="cardCVV" type="text" placeholder="•••" maxlength="4" inputmode="numeric" autocomplete="cc-csc">
+                <div class="err" id="err-cardCVV">3-4 cifre bag på kortet</div>
+              </div>
+            </div>
+            <div class="f">
+              <label for="cardName">Navn på kortet <span class="req">*</span></label>
+              <input class="inp" id="cardName" type="text" placeholder="JONAS SØRENSEN" autocomplete="cc-name">
+              <div class="err" id="err-cardName">Skriv navnet som det står på kortet</div>
+            </div>
+          </div>
+
+          <div class="trust-row">
+            <div class="trust">🔐 <span>PCI-DSS via <b>Square</b></span></div>
+            <div class="trust">🛡️ <span><b>3D Secure</b> når din bank kræver det</span></div>
+            <div class="trust">🚫 <span>Vi gemmer <b>aldrig</b> dit kortnummer</span></div>
+          </div>
+          <div class="hint" style="margin-top:10px">*Dankort accepteres som Visa/Dankort — vælg blot kortet i din tegnebog.</div>
+        </div>
+
+        <!-- MOBILEPAY -->
+        <div class="panel" id="panel-mobilepay">
+          <div class="mp-box">
+            <div class="mp-logo">MobilePay</div>
+            <div class="mp-sub">Overfør beløbet til vores nummer</div>
+            <div id="mpQr"></div>
+            <div class="mp-lbl">Send til nummer</div>
+            <div class="mp-num" id="mpNumber">93 86 92 67</div>
+            <div class="mp-amt">Beløb der skal overføres<b id="mpAmount">—</b></div>
+            <ol class="mp-steps">
+              <li data-n="1">Tryk <b>&nbsp;Gennemfør bestilling&nbsp;</b> — du får straks et ordre-ID</li>
+              <li data-n="2">Åbn MobilePay og vælg “Send penge”</li>
+              <li data-n="3">Indtast nummeret og det præcise beløb</li>
+              <li data-n="4">Skriv dit ordre-ID i beskedfeltet — så matcher vi betalingen</li>
+            </ol>
+          </div>
+        </div>
+
+        <!-- BANK -->
+        <div class="panel" id="panel-bank">
+          <p class="hint" style="margin:0 0 14px">Overfør det præcise beløb til kontoen herunder. Vi bekræfter normalt betalingen inden for én bankdag og går i gang med det samme.</p>
+          <div class="bank-box" id="bankBox"></div>
+        </div>
+
+        <div class="msg info" id="payInfo"></div>
+        <div class="msg bad" id="payError" role="alert"></div>
+      </section>
+
+      <!-- BESKED -->
+      <section class="card reveal d3">
+        <div class="card-hd">
+          <div class="card-ico">📝</div>
+          <div>
+            <h2>Besked til værkstedet <span style="font-weight:600;color:var(--muted);font-size:.8rem">(valgfrit)</span></h2>
+            <p>Jo mere vi ved, jo hurtigere finder vi fejlen.</p>
+          </div>
+        </div>
+        <div class="f">
+          <textarea class="inp" id="notes" rows="3" placeholder="F.eks.: Lenovo Legion 5, starter ikke op — sort skærm efter Windows-logoet. Ønsker den retur inden fredag."></textarea>
+          <div class="hint">💡 Skriv gerne mærke og model, hvad der sker, og hvornår problemet startede.</div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ══ HØJRE KOLONNE — ORDREOVERSIGT ══ -->
+    <aside class="summary" id="summary">
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-hd" style="margin-bottom:6px">
+          <div class="card-ico">🛒</div>
+          <button class="sum-toggle" onclick="foldSum()" aria-expanded="true">
+            <span>
+              <span style="font-size:1.03rem;font-weight:800;display:block">Din ordre</span>
+              <span style="font-size:.77rem;color:var(--muted);font-weight:500" id="sumCount">0 varer</span>
+            </span>
+            <span class="arrow">▼</span>
+          </button>
+          <div id="sumHeadDesktop">
+            <h2>Din ordre</h2>
+            <p id="sumCountDesktop">0 varer</p>
+          </div>
+        </div>
+
+        <div class="sum-body" id="sumBody">
+          <div id="cartLines"></div>
+
+          <label class="addon" id="expressBox">
+            <input type="checkbox" id="expressChk" onchange="skiftExpress()">
+            <div>
+              <div class="addon-t">⚡ Express-service · +100 kr.</div>
+              <div class="addon-s">Din enhed behandles samme dag i stedet for 2-3 hverdage.</div>
+            </div>
+          </label>
+
+          <div class="coupon">
+            <input id="couponCode" placeholder="Rabatkode" aria-label="Rabatkode" onkeydown="if(event.key==='Enter')brugRabat()">
+            <button type="button" onclick="brugRabat()">Anvend</button>
+          </div>
+          <div class="coupon-msg" id="couponMsg"></div>
+
+          <hr class="sum-div">
+          <div class="srow"><span>Subtotal</span><b id="subtotal">—</b></div>
+          <div class="srow" id="expressRow" style="display:none"><span>⚡ Express-service</span><b id="expressAmt">—</b></div>
+          <div class="srow disc" id="discountRow" style="display:none"><span id="discountLabel">Rabat</span><b id="discountAmt">—</b></div>
+          <div class="srow free" id="fragtRow"><span>Returforsendelse</span><b>Gratis</b></div>
+          <div class="stot"><span>I alt</span><span id="totalAmt">—</span></div>
+          <div class="svat" id="vatLine">Heraf moms (25%): —</div>
+
+          <div class="eta" id="etaBox">⚡ <span>Normalt klar inden for <b>2-3 hverdage</b> — vi ringer, når den er klar.</span></div>
+
+          <label class="terms" id="termsBox">
+            <input type="checkbox" id="termsChk" onchange="opdaterKnap()">
+            <span>Jeg accepterer <a onclick="aabnVilkaar()">handelsbetingelser &amp; persondatapolitik</a> og at I kontakter mig om ordren.</span>
+          </label>
+
+          <button class="pay-btn" id="payBtn" onclick="gennemfoer()">
+            <span class="spin"></span><span class="lbl" id="payLbl">Gennemfør bestilling</span>
+          </button>
+          <div class="safe">🔒 Sikker betaling · dine oplysninger behandles fortroligt</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-hd" style="padding-bottom:13px;margin-bottom:15px">
+          <div class="card-ico">💬</div>
+          <div><h2>Brug for hjælp?</h2><p>Vi svarer med det samme i åbningstiden.</p></div>
+        </div>
+        <div class="help">
+          <a href="tel:93869267"><span>📞</span><span>93 86 92 67<small>Ring til værkstedet</small></span></a>
+          <a href="mailto:sorensenitreparation670@gmail.com"><span>✉️</span><span>Skriv til os<small>sorensenitreparation670@gmail.com</small></span></a>
+          <a href="index.html#faq"><span>❓</span><span>Ofte stillede spørgsmål<small>Priser, ventetid og forsendelse</small></span></a>
+        </div>
+        <div class="hours" id="hoursList"></div>
+      </div>
+    </aside>
+
+  </div>
+</div>
+</main>
+
+<!-- ══════════ KVITTERING ══════════ -->
 <div class="receipt-wrap" id="receiptView" style="display:none"></div>
 
+<!-- ══════════ FOOTER ══════════ -->
+<footer>
+  <div class="f-in">
+    <div class="f-grid">
+      <div class="f-brand">
+        <div class="f-logo">Sørensen <span>IT</span> &amp; Reparation</div>
+        <p>Jonas &amp; Storm bygger, reparerer og opsætter PC'er. Professionel IT-service med hurtig levering og fair priser — altid.</p>
+      </div>
+      <div class="f-col">
+        <h4>Navigation</h4>
+        <a href="index.html">Hjem</a>
+        <a href="index.html#services">Services</a>
+        <a href="Om-os.html">Om os</a>
+        <a href="index.html#picker">Konfigurator</a>
+        <a href="index.html#faq">FAQ</a>
+        <a href="index.html#kontakt">Kontakt</a>
+      </div>
+      <div class="f-col">
+        <h4>Betaling</h4>
+        <a onclick="vaelgBetaling('card')">💳 Betalingskort</a>
+        <a onclick="vaelgBetaling('mobilepay')">📱 MobilePay</a>
+        <a onclick="vaelgBetaling('bank')">🏦 Bankoverførsel</a>
+        <a onclick="aabnVilkaar()">📄 Handelsbetingelser</a>
+      </div>
+      <div class="f-col">
+        <h4>Ressourcer</h4>
+        <a href="gpu-fps-tester.html">🎮 FPS Tester</a>
+        <a href="guides.html">📖 Guider</a>
+        <a href="service-indlevering.html">📦 Indlevering</a>
+        <a href="tel:93869267">📞 93 86 92 67</a>
+        <a href="mailto:sorensenitreparation670@gmail.com">✉️ Mail os</a>
+      </div>
+    </div>
+    <div class="f-bot">
+      <span>© 2025 Sørensen IT &amp; Reparation — Alle rettigheder forbeholdes</span>
+      <span>Lavet med ❤️ af Jonas &amp; Storm · <a href="tel:93869267">93 86 92 67</a></span>
+    </div>
+  </div>
+</footer>
+
+<!-- ══════════ TOAST · TIL TOPPEN · MOBIL-BJÆLKE ══════════ -->
+<div class="toast-wrap" id="tWrap" aria-live="polite"></div>
+<button id="sTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Til toppen">↑</button>
+
+<div class="paybar" id="paybar">
+  <div class="paybar-l">
+    <small id="paybarLbl">I alt inkl. moms</small>
+    <b id="paybarTot">0 kr.</b>
+  </div>
+  <button id="paybarBtn" onclick="gennemfoer()">Gennemfør →</button>
+</div>
+
+<!-- ══════════ HANDELSBETINGELSER ══════════ -->
+<div class="modal-ov" id="vilkaarOv" onclick="if(event.target===this)lukVilkaar()">
+  <div class="modal" role="dialog" aria-modal="true" aria-label="Handelsbetingelser">
+    <div class="modal-hd">
+      <h3>📄 Handelsbetingelser &amp; persondata</h3>
+      <button class="modal-x" onclick="lukVilkaar()" aria-label="Luk">✕</button>
+    </div>
+    <div class="modal-body">
+      <h4>Sælger</h4>
+      <p>Sørensen IT &amp; Reparation · Jonas &amp; Storm · Tlf. 93 86 92 67 · sorensenitreparation670@gmail.com</p>
+      <h4>Priser og betaling</h4>
+      <p>Alle priser er i danske kroner og inklusive 25 % moms. Vi modtager betaling med kort (håndteret af Square), MobilePay og bankoverførsel. Beløbet trækkes, når ordren gennemføres — ved MobilePay og bankoverførsel når vi modtager din overførsel.</p>
+      <h4>Levering og ventetid</h4>
+      <p>Normal ventetid er 2-3 hverdage fra vi modtager din enhed. Express-service behandles samme dag. Du betaler forsendelsen til os — returforsendelsen betaler vi. Ved fjernhjælp aftales tidspunktet over telefonen.</p>
+      <h4>Fortrydelsesret</h4>
+      <p>Du har 14 dages fortrydelsesret fra aftalens indgåelse. Fortrydelsesretten bortfalder, når en service er fuldt udført med dit samtykke. Er arbejdet påbegyndt, betaler du for den del af arbejdet, der allerede er udført.</p>
+      <h4>Hvis vi ikke kan reparere</h4>
+      <p>Vurderer vi, at reparationen ikke er pengene værd, siger vi det med det samme og sender enheden retur. Du betaler kun diagnostikgebyret på 50 kr.</p>
+      <h4>Reklamation</h4>
+      <p>Der er 2 års reklamationsret på reservedele og udført arbejde efter købelovens regler. Kontakt os på 93 86 92 67, hvis noget ikke virker som aftalt.</p>
+      <h4>Data og backup</h4>
+      <p>Vi anbefaler altid, at du selv tager en backup, inden du sender din enhed. Vi behandler dine filer fortroligt og sletter alt arbejdsmateriale, når sagen er afsluttet.</p>
+      <h4>Persondata</h4>
+      <p>Vi bruger kun dine oplysninger (navn, adresse, e-mail, telefon) til at behandle din ordre og kontakte dig om den. Kortoplysninger indtastes direkte hos vores betalingsudbyder Square og passerer aldrig vores egen server. Vi videregiver aldrig dine oplysninger til tredjepart i markedsføringsøjemed. Du kan altid få indsigt i eller slettet dine data ved at skrive til os.</p>
+      <h4>Klageadgang</h4>
+      <p>Er du utilfreds, så kontakt os først — vi finder en løsning. Du kan også klage til Nævnenes Hus, Toldboden 2, 8800 Viborg (naevneneshus.dk).</p>
+    </div>
+  </div>
+</div>
+
 <script>
+/* ══════════════════════════════════════════════════════════════
+   SØRENSEN IT — KASSEN
+   Kurv · validering · Square (kort, Apple Pay, Google Pay, 3DS)
+   MobilePay · bankoverførsel · kvittering
+   ══════════════════════════════════════════════════════════════ */
+
 /* ═══════════ HJÆLPERE ═══════════ */
-const kr=n=>Number(n).toLocaleString('da-DK')+' kr.';
+const $=id=>document.getElementById(id);
+const kr=n=>Number(n||0).toLocaleString('da-DK')+' kr.';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const RABATKODER={'SORENSEN10':10,'VELKOMMEN':15,'STUDENT20':20};
-const CART_KEY='sorensen_cart';
+const v=id=>{const e=$(id);return e?e.value.trim():'';};
+const CART_KEY='sorensen_cart', INFO_KEY='sorensen_leveringsinfo', USER_KEY='sorensen_user';
 
-let cart=[], rabat=0, rabatKode='', express=false, currentPayment='card';
-let squareCard=null, squareKlar=false;
+/* ═══════════ TILSTAND ═══════════ */
+let cart=[], rabat=0, rabatKode='', express=false;
+let betaling='card', levering='send';
+let sqPayments=null, sqCard=null, sqApple=null, sqGoogle=null, sqKlar=false;
+let betalingsUrl='', kvitteringsUrl='', backendKlar=false, demoTilstand=false;
+let sender=false, faerdig=false, fortryd=null, walletTimer=null;
 
-const kortMuligt=()=>!!CONFIG.square.backendUrl||CONFIG.square.demoKort;
+const LEVERING={
+  send:{navn:'Sendes til værkstedet',
+        info:'📮 Du sender enheden til os — adresse og pakkeguide står i ordrebekræftelsen. <b>Returforsendelsen betaler vi.</b>',
+        adresse:true},
+  aflever:{navn:'Afleveres personligt',
+        info:'🤝 Du afleverer selv enheden. Vi ringer og aftaler tid og sted — som regel allerede samme dag.',
+        adresse:true},
+  fjern:{navn:'Fjernhjælp online',
+        info:'🖥️ Vi løser det online via AnyDesk eller TeamViewer. Du skal kun bruge en internetforbindelse — ingen forsendelse.',
+        adresse:false}
+};
 
-/* ═══════════ TELEFON ═══════════ */
+/* ═══════════ ÅBNINGSTIDER ═══════════ */
+function minutter(t){const[a,b]=t.split(':').map(Number);return a*60+b;}
+function erAabent(){
+  const n=new Date(), nu=n.getHours()*60+n.getMinutes();
+  const r=CONFIG.tider.find(t=>t.dage.includes(n.getDay()));
+  if(!r||r.lukket)return{aaben:false,tekst:'Lukket i dag'};
+  const aaben=nu>=minutter(r.start)&&nu<minutter(r.slut);
+  return{aaben,tekst:aaben?'ÅBENT NU':'Lukket lige nu · åbner '+r.start};
+}
+function renderTider(){
+  const s=erAabent();
+  $('statusBar').innerHTML=
+    `<span class="sb-dot${s.aaben?'':' lukket'}"></span><b>${s.tekst}</b>`+
+    `<span class="sb-sep">·</span><span>⏱ Ventetid: <b>${esc(CONFIG.ventetid)}</b></span>`+
+    CONFIG.tider.map(t=>`<span class="sb-sep sb-day">·</span><span class="sb-day">${esc(t.dag.replace('Mandag – Fredag','Man-Fre'))}: <b>${esc(t.tid)}</b></span>`).join('');
+  $('hoursList').innerHTML=CONFIG.tider.map(t=>
+    `<div class="hrow"><span>${esc(t.dag)}</span>${t.lukket?`<span class="off">${esc(t.tid)}</span>`:`<b>${esc(t.tid)}</b>`}</div>`).join('');
+}
+
+/* ═══════════ KURV ═══════════ */
+function loadCart(){
+  let c=[];
+  try{const raw=JSON.parse(localStorage.getItem(CART_KEY));if(Array.isArray(raw))c=raw;}catch{}
+  cart=c.filter(i=>i&&i.name&&Number.isFinite(Number(i.price))&&Number(i.price)>=0)
+        .map(i=>({id:i.id,name:i.name,desc:i.desc||'',ico:i.ico||'🔧',price:Number(i.price),qty:Math.min(20,Math.max(1,parseInt(i.qty)||1))}));
+}
+function saveCart(){
+  try{
+    localStorage.setItem(CART_KEY,JSON.stringify(cart));
+    const u=JSON.parse(localStorage.getItem(USER_KEY)||'null');
+    if(u&&u.email)localStorage.setItem('sorensen_cart_u_'+u.email.replace(/[^a-zA-Z0-9]/g,'_'),JSON.stringify(cart));
+  }catch{}
+}
+const antal=()=>cart.reduce((s,i)=>s+i.qty,0);
+const subtotal=()=>cart.reduce((s,i)=>s+i.price*i.qty,0);
+const rabatBelob=()=>Math.round(subtotal()*(rabat/100));
+const expressBelob=()=>express&&cart.length?CONFIG.expressPris:0;
+const total=()=>Math.max(0,subtotal()-rabatBelob()+expressBelob());
+const moms=()=>Math.round(total()*0.2);
+
+function renderCart(){
+  const box=$('cartLines'), n=antal();
+  if(!cart.length){
+    box.innerHTML=`<div class="empty">
+      <span class="big">🛒</span>
+      <p>Din kurv er tom.<br>Vælg en service herunder — eller se alle 14 på forsiden.</p>
+      <div class="sugg">${CONFIG.populaere.map((s,i)=>`
+        <button type="button" class="sugg-item" onclick="hurtigTilfoej(${i})">
+          <span class="sugg-ico">${s.ico}</span>
+          <span><span class="sugg-n">${esc(s.n)}</span><span class="sugg-p">${kr(s.p)}</span></span>
+          <span class="sugg-add">＋</span>
+        </button>`).join('')}</div>
+      <a class="btn btn-ghost btn-full" style="margin-top:12px" href="index.html#services">Se alle services →</a>
+    </div>`;
+  }else{
+    box.innerHTML=cart.map((i,idx)=>`
+      <div class="line">
+        <div class="line-ico">${i.ico||'🔧'}</div>
+        <div class="line-mid">
+          <div class="line-n">${esc(i.name)}</div>
+          <div class="line-d">${esc(i.desc||'')}</div>
+          <div class="qty">
+            <button type="button" onclick="skiftAntal(${idx},-1)" aria-label="Færre">−</button>
+            <span>${i.qty}</span>
+            <button type="button" onclick="skiftAntal(${idx},1)" aria-label="Flere">+</button>
+          </div>
+        </div>
+        <div class="line-r">
+          <button class="rm" type="button" onclick="fjernVare(${idx})" title="Fjern ${esc(i.name)}" aria-label="Fjern ${esc(i.name)}">✕</button>
+          <div class="line-p">${kr(i.price*i.qty)}</div>
+          ${i.qty>1?`<div class="line-u">${kr(i.price)} / stk.</div>`:''}
+        </div>
+      </div>`).join('');
+  }
+
+  const txt=n===1?'1 vare':n+' varer';
+  $('sumCount').textContent=cart.length?txt+' · '+kr(total()):txt;
+  $('sumCountDesktop').textContent=txt+' · klar om '+CONFIG.ventetid;
+  $('cVal').textContent=kr(total());
+  const badge=$('cBadge');badge.textContent=n;badge.style.display=n?'flex':'none';
+
+  $('subtotal').textContent=kr(subtotal());
+  $('totalAmt').textContent=kr(total());
+  $('paybarTot').textContent=kr(total());
+  $('vatLine').textContent='Heraf moms (25%): '+kr(moms());
+  $('mpAmount').textContent=kr(total());
+  const ba=$('bankAmount'); if(ba)ba.textContent=kr(total());
+
+  $('expressRow').style.display=express?'flex':'none';
+  $('expressAmt').textContent='+'+kr(CONFIG.expressPris);
+  $('expressBox').classList.toggle('on',express);
+  $('etaBox').innerHTML=express
+    ? '⚡ <span>Express: din enhed behandles <b>samme dag</b>, vi modtager den.</span>'
+    : `⏱ <span>Normalt klar inden for <b>${esc(CONFIG.ventetid)}</b> — vi ringer, når den er klar.</span>`;
+
+  const dR=$('discountRow');
+  if(rabat>0&&cart.length){
+    dR.style.display='flex';
+    $('discountLabel').textContent=`Rabat · ${rabatKode} (−${rabat}%)`;
+    $('discountAmt').textContent='−'+kr(rabatBelob());
+  }else dR.style.display='none';
+
+  $('fragtRow').style.display=levering==='fjern'?'none':'flex';
+
+  opdaterKnap();
+  renderMobilePayQR();
+  planlaegWallets();
+}
+function skiftAntal(idx,d){
+  if(!cart[idx])return;
+  cart[idx].qty+=d;
+  if(cart[idx].qty<1){fjernVare(idx);return;}
+  if(cart[idx].qty>20)cart[idx].qty=20;
+  saveCart();renderCart();
+}
+function fjernVare(idx){
+  if(!cart[idx])return;
+  fortryd={vare:cart[idx],idx};
+  cart.splice(idx,1);saveCart();renderCart();
+  toast(`🗑️ ${esc(fortryd.vare.name)} blev fjernet <button type="button" onclick="fortrydFjern()">Fortryd</button>`,'warn',6000);
+}
+function fortrydFjern(){
+  if(!fortryd)return;
+  cart.splice(Math.min(fortryd.idx,cart.length),0,fortryd.vare);
+  fortryd=null;saveCart();renderCart();
+  toast('↩️ Varen er tilbage i kurven');
+}
+function hurtigTilfoej(i){
+  const s=CONFIG.populaere[i];if(!s)return;
+  const fundet=cart.find(x=>x.id===s.id);
+  if(fundet)fundet.qty++;
+  else cart.push({id:s.id,name:s.n,desc:s.d,ico:s.ico,price:s.p,qty:1});
+  saveCart();renderCart();
+  toast('✅ '+esc(s.n)+' lagt i kurven');
+}
+function skiftExpress(){express=$('expressChk').checked;renderCart();}
+function brugRabat(){
+  const kode=v('couponCode').toUpperCase(), msg=$('couponMsg');
+  if(!kode){rabat=0;rabatKode='';msg.textContent='';renderCart();return;}
+  if(CONFIG.rabatkoder[kode]){
+    rabat=CONFIG.rabatkoder[kode];rabatKode=kode;
+    msg.style.color='var(--green)';msg.textContent=`✓ Rabatkoden ${kode} er aktiveret (−${rabat}%)`;
+    toast(`🎉 Rabatkode ${esc(kode)} aktiveret — du sparer ${kr(Math.round(subtotal()*rabat/100))}`);
+  }else{
+    rabat=0;rabatKode='';
+    msg.style.color='var(--red)';msg.textContent='✕ Vi kender ikke den kode — tjek stavemåden';
+  }
+  renderCart();
+}
+
+/* ═══════════ LEVERING ═══════════ */
+function vaelgLevering(m){
+  levering=m;
+  ['send','aflever','fjern'].forEach(x=>{
+    const el=$('lv-'+x);
+    el.classList.toggle('on',x===m);
+    el.setAttribute('aria-pressed',String(x===m));
+  });
+  const L=LEVERING[m];
+  $('leveringInfo').innerHTML=L.info;
+  $('adresseFelter').style.display=L.adresse?'block':'none';
+  ['reqAddress','reqZip','reqCity'].forEach(id=>$(id).style.display=L.adresse?'inline':'none');
+  if(!L.adresse)['address','zip','city'].forEach(id=>{$(id).classList.remove('bad');$('err-'+id).classList.remove('show');});
+  gemInfo();renderCart();
+}
+
+/* ═══════════ BETALING ═══════════ */
+function metodeLaast(m){
+  if(m!=='card')return '';
+  if(backendKlar||demoTilstand)return '';
+  return '💳 Kortbetaling er ikke aktiveret endnu på denne server. Vælg <b>MobilePay</b> eller <b>bankoverførsel</b> — begge virker med det samme.';
+}
+function vaelgBetaling(m,stille){
+  betaling=m;
+  ['card','mobilepay','bank'].forEach(x=>{
+    $('pm-'+x).classList.toggle('on',x===m);
+    $('pm-'+x).setAttribute('aria-pressed',String(x===m));
+    $('panel-'+x).classList.toggle('on',x===m);
+  });
+  $('payError').classList.remove('show');
+  opdaterKnap();
+  if(!stille){
+    if(!metodeLaast(m))saetTrin(2);
+    $('kortBetaling').scrollIntoView({behavior:'smooth',block:'nearest'});
+  }
+}
+function opdaterKnap(){
+  const laast=metodeLaast(betaling), info=$('payInfo');
+  info.innerHTML=laast;info.classList.toggle('show',!!laast);
+  const tom=!cart.length, spaerret=!!laast||tom;
+  $('payBtn').disabled=spaerret;$('paybarBtn').disabled=spaerret;
+  const t=total();
+  $('payLbl').textContent = tom ? 'Din kurv er tom'
+    : (betaling==='card'&&backendKlar) ? '🔒 Betal '+kr(t)
+    : 'Gennemfør bestilling';
+  $('paybarBtn').textContent = tom ? 'Vælg service' : (betaling==='card'&&backendKlar?'Betal':'Bestil');
+  $('paybarLbl').textContent = tom ? 'Ingen varer' : (express?'I alt inkl. express & moms':'I alt inkl. moms');
+}
+function saetTrin(n){
+  if(faerdig&&n<3)return;               /* ordren er lagt — trinnene står fast */
+  document.querySelectorAll('#coSteps li[data-s]').forEach(li=>{
+    const s=+li.dataset.s;
+    li.classList.toggle('on',s===n);
+    li.classList.toggle('ok',s<n);
+  });
+  document.querySelectorAll('#coSteps .bar').forEach((b,i)=>b.classList.toggle('ok',n>i+1));
+}
+
+/* ═══════════ VALIDERING ═══════════ */
+function mark(id,ok){
+  const el=$(id), err=$('err-'+id);
+  if(!el)return ok;
+  el.classList.toggle('bad',!ok);el.classList.toggle('ok',ok);
+  if(err)err.classList.toggle('show',!ok);
+  return ok;
+}
+function tjekKontakt(stille){
+  const kraevAdresse=LEVERING[levering].adresse;
+  const regler=[
+    ['firstName',v('firstName').length>=2],
+    ['lastName',v('lastName').length>=2],
+    ['email',/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v('email'))],
+    ['phone',/^\d{8}$/.test(v('phone').replace(/\D/g,''))]
+  ];
+  if(kraevAdresse)regler.push(['address',v('address').length>=4],['zip',/^\d{4}$/.test(v('zip'))],['city',v('city').length>=2]);
+  let ok=true, foerste=null;
+  regler.forEach(([id,gyldig])=>{
+    if(!stille)mark(id,gyldig);
+    if(!gyldig){ok=false;if(!foerste)foerste=id;}
+  });
+  if(!ok&&!stille&&foerste){
+    $('kortKontakt').scrollIntoView({behavior:'smooth',block:'start'});
+    setTimeout(()=>$(foerste).focus({preventScroll:true}),380);
+  }
+  if(ok&&!stille)saetTrin(2);
+  return ok;
+}
+function luhn(n){
+  const s=String(n).replace(/\D/g,'');if(s.length<13)return false;
+  let sum=0,alt=false;
+  for(let i=s.length-1;i>=0;i--){let d=+s[i];if(alt){d*=2;if(d>9)d-=9;}sum+=d;alt=!alt;}
+  return sum%10===0;
+}
+function tjekDemoKort(){
+  let ok=true;
+  ok=mark('cardNumber',luhn(v('cardNumber')))&&ok;
+  const[m,y]=v('cardExpiry').split('/');
+  const nu=new Date(), aar=2000+parseInt(y||'0',10);
+  const gyldig=!!m&&!!y&&+m>=1&&+m<=12&&aar>=nu.getFullYear()&&!(aar===nu.getFullYear()&&+m<nu.getMonth()+1);
+  ok=mark('cardExpiry',gyldig)&&ok;
+  ok=mark('cardCVV',/^\d{3,4}$/.test(v('cardCVV')))&&ok;
+  ok=mark('cardName',v('cardName').length>=3)&&ok;
+  return ok;
+}
 function formatTlf(raw){
   let x=String(raw).replace(/\D/g,'');
   if(x.startsWith('0045'))x=x.slice(4);
@@ -445,219 +1251,187 @@ function formatTlf(raw){
   return x.match(/.{1,2}/g)?.join(' ')||x;
 }
 
-/* ═══════════ KURV ═══════════ */
-function loadCart(){
-  try{const c=JSON.parse(localStorage.getItem(CART_KEY));if(Array.isArray(c))cart=c;}catch{}
-  cart=cart.filter(i=>i&&i.name&&Number(i.price)>=0).map(i=>({...i,qty:Math.max(1,parseInt(i.qty)||1)}));
-}
-function saveCart(){
+/* ═══════════════════════════════════════════════════════════════
+   SQUARE — https://app.squareup.com/
+   1) Developer → din app → Credentials  → Application ID + Access Token
+   2) Developer → din app → Locations    → Location ID
+   3) Access Token må KUN ligge på serveren (.env → SQUARE_ACCESS_TOKEN)
+   4) Kør serveren (node server.js) — siden finder selv /api/betaling
+   ═══════════════════════════════════════════════════════════════ */
+async function findBackend(){
+  const s=CONFIG.square;
+  if(s.backendUrl){                       /* eksplicit opsat → stol på den */
+    betalingsUrl=s.backendUrl;backendKlar=true;
+    kvitteringsUrl=CONFIG.mail.kvitteringUrl||s.backendUrl.replace(/\/betaling\/?$/,'/kvittering');
+    return true;
+  }
+  if(location.protocol!=='http:'&&location.protocol!=='https:')return false;
+  const base=location.origin;
   try{
-    localStorage.setItem(CART_KEY,JSON.stringify(cart));
-    const u=JSON.parse(localStorage.getItem('sorensen_user')||'null');
-    if(u&&u.email)localStorage.setItem('sorensen_cart_u_'+u.email.replace(/[^a-zA-Z0-9]/g,'_'),JSON.stringify(cart));
-  }catch{}
-}
-const subtotal=()=>cart.reduce((s,i)=>s+i.price*i.qty,0);
-const rabatBelob=()=>Math.round(subtotal()*(rabat/100));
-const expressBelob=()=>express?CONFIG.expressPris:0;
-const total=()=>Math.max(0,subtotal()-rabatBelob()+expressBelob());
-const moms=()=>Math.round(total()*0.20);
-
-function renderCart(){
-  const box=document.getElementById('cartItems');
-  if(!cart.length){
-    box.innerHTML='<div class="empty-cart"><span class="big">🛒</span>Din kurv er tom.<br><a href="index.html#services" style="color:var(--blue);font-weight:700">Vælg en service →</a></div>';
-  }else{
-    box.innerHTML=cart.map((i,idx)=>`
-      <div class="summary-item">
-        <div class="item-ico">${i.ico||'🔧'}</div>
-        <div class="item-info">
-          <div class="item-name">${esc(i.name)}</div>
-          <div class="item-desc">${esc(i.desc||'')}</div>
-          <div class="qty-ctrl" style="margin-top:8px">
-            <button onclick="changeQty(${idx},-1)" aria-label="Færre">−</button>
-            <span>${i.qty}</span>
-            <button onclick="changeQty(${idx},1)" aria-label="Flere">+</button>
-          </div>
-        </div>
-        <div class="item-right">
-          <button class="remove-btn" onclick="removeItem(${idx})" title="Fjern ${esc(i.name)}" aria-label="Fjern ${esc(i.name)}">✕</button>
-          <div class="item-price">${kr(i.price*i.qty)}</div>
-        </div>
-      </div>`).join('');
-  }
-
-  document.getElementById('subtotal').textContent=kr(subtotal());
-  document.getElementById('totalAmt').textContent=kr(total());
-  document.getElementById('vatLine').textContent='Heraf moms (25%): '+kr(moms());
-  document.getElementById('mpAmount').textContent=kr(total());
-  const ba=document.getElementById('bankAmount');
-  if(ba)ba.textContent=kr(total());
-
-  document.getElementById('expressRow').style.display=express?'flex':'none';
-  document.getElementById('expressAmt').textContent=kr(CONFIG.expressPris);
-  document.getElementById('expressBox').classList.toggle('on',express);
-
-  const dR=document.getElementById('discountRow');
-  if(rabat>0){
-    dR.style.display='flex';
-    document.getElementById('discountLabel').textContent=`Rabat (${rabatKode} −${rabat}%)`;
-    document.getElementById('discountAmt').textContent='−'+kr(rabatBelob());
-  }else dR.style.display='none';
-
-  opdaterKnap();
-  renderMobilePayQR();
-}
-function changeQty(idx,d){
-  if(!cart[idx])return;
-  cart[idx].qty+=d;
-  if(cart[idx].qty<1)cart.splice(idx,1);
-  saveCart();renderCart();
-}
-function removeItem(idx){
-  if(!cart[idx])return;
-  cart.splice(idx,1);saveCart();renderCart();
-}
-function toggleExpress(){express=document.getElementById('expressChk').checked;renderCart();}
-function applyCoupon(){
-  const kode=document.getElementById('couponCode').value.trim().toUpperCase();
-  const msg=document.getElementById('couponMsg');
-  if(RABATKODER[kode]){
-    rabat=RABATKODER[kode];rabatKode=kode;
-    msg.style.color='var(--green)';msg.textContent=`✓ Rabatkode aktiveret: ${kode} (−${rabat}%)`;
-  }else{
-    rabat=0;rabatKode='';
-    msg.style.color='var(--red)';msg.textContent='Ugyldig rabatkode';
-  }
-  renderCart();
-}
-function renderBank(){
-  const b=CONFIG.bank;
-  document.getElementById('bankBox').innerHTML=`
-    <div class="bank-row"><span>Bank</span><span>${esc(b.navn)}</span></div>
-    <div class="bank-row"><span>Registreringsnr.</span><span>${esc(b.reg)} <button class="copy-btn" onclick="copyText('${esc(b.reg)}',this)">Kopiér</button></span></div>
-    <div class="bank-row"><span>Kontonr.</span><span>${esc(b.konto)} <button class="copy-btn" onclick="copyText('${esc(b.konto)}',this)">Kopiér</button></span></div>
-    <div class="bank-row"><span>IBAN</span><span style="font-size:12px">${esc(b.iban)} <button class="copy-btn" onclick="copyText('${esc(b.iban)}',this)">Kopiér</button></span></div>
-    <div class="bank-row"><span>BIC/SWIFT</span><span>${esc(b.bic)} <button class="copy-btn" onclick="copyText('${esc(b.bic)}',this)">Kopiér</button></span></div>
-    <div class="bank-row"><span>Beløb</span><span id="bankAmount" style="color:var(--blue);font-weight:800">—</span></div>
-    <div class="bank-row"><span>Reference</span><span id="bankRef" style="color:var(--g500);font-weight:500">Du får dit ordre-ID når du bestiller</span></div>`;
-}
-function renderMobilePayQR(){
-  const box=document.getElementById('mpQr');
-  if(!CONFIG.mobilepay.boxUrl){box.innerHTML='';return;}
-  const url=encodeURIComponent(CONFIG.mobilepay.boxUrl);
-  box.innerHTML=`<div class="qr-wrapper"><img alt="MobilePay QR-kode" src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${url}"></div>`;
+    const ctrl=new AbortController(), t=setTimeout(()=>ctrl.abort(),4000);
+    const r=await fetch(base+'/api/status',{signal:ctrl.signal,headers:{Accept:'application/json'}});
+    clearTimeout(t);
+    if(!r.ok)return false;
+    const d=await r.json();
+    if(!d||!d.ok)return false;
+    if(d.square===false)return false;     /* server kører, men mangler Square-nøgle */
+    betalingsUrl=base+'/api/betaling';
+    kvitteringsUrl=CONFIG.mail.kvitteringUrl||(d.kvittering?base+'/api/kvittering':'');
+    backendKlar=true;
+    return true;
+  }catch{return false;}
 }
 
-/* ═══════════ BETALINGSFANER ═══════════ */
-function metodeSpaerret(m){
-  if(m==='card'&&!kortMuligt())return 'Kortbetaling åbner snart — vælg MobilePay eller bankoverførsel så længe.';
-  return '';
-}
-function selectPayment(m){
-  currentPayment=m;
-  ['card','mobilepay','bank'].forEach(x=>{
-    document.getElementById('tab-'+x).classList.toggle('active',x===m);
-    document.getElementById('panel-'+x).classList.toggle('active',x===m);
-  });
-  document.getElementById('payError').classList.remove('show');
-  opdaterKnap();
-  if(!metodeSpaerret(m))setStep(2);
-}
-function opdaterKnap(){
-  const spaerret=metodeSpaerret(currentPayment);
-  const info=document.getElementById('payInfo');
-  info.textContent=spaerret;
-  info.classList.toggle('show',!!spaerret);
-  document.getElementById('submitBtn').disabled=!!spaerret||!cart.length;
-}
-function setStep(n){
-  document.getElementById('step1').className='step '+(n>1?'done':'active');
-  document.getElementById('step2').className='step '+(n>2?'done':n===2?'active':'');
-  document.getElementById('step3').className='step '+(n===3?'active':'');
-  document.getElementById('line1').className='step-line '+(n>1?'done':'');
-  document.getElementById('line2').className='step-line '+(n>2?'done':'');
-}
-
-/* ═══════════ VALIDERING ═══════════ */
-function mark(id,ok){
-  const el=document.getElementById(id),err=document.getElementById('err-'+id);
-  if(!el)return ok;
-  el.classList.toggle('error',!ok);el.classList.toggle('valid',ok);
-  if(err)err.classList.toggle('show',!ok);
-  return ok;
-}
-const v=id=>{const e=document.getElementById(id);return e?e.value.trim():'';};
-function validateContact(){
-  let ok=true;
-  ok=mark('firstName',v('firstName').length>=2)&&ok;
-  ok=mark('lastName',v('lastName').length>=2)&&ok;
-  ok=mark('email',/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v('email')))&&ok;
-  ok=mark('phone',/^\d{8}$/.test(v('phone').replace(/\D/g,'')))&&ok;
-  ok=mark('address',v('address').length>=4)&&ok;
-  ok=mark('zip',/^\d{4}$/.test(v('zip')))&&ok;
-  ok=mark('city',v('city').length>=2)&&ok;
-  return ok;
-}
-function luhn(n){
-  const s=n.replace(/\D/g,'');if(s.length<13)return false;
-  let sum=0,alt=false;
-  for(let i=s.length-1;i>=0;i--){let d=+s[i];if(alt){d*=2;if(d>9)d-=9;}sum+=d;alt=!alt;}
-  return sum%10===0;
-}
-function validateDemoCard(){
-  let ok=true;
-  ok=mark('cardNumber',luhn(v('cardNumber')))&&ok;
-  const [m,y]=v('cardExpiry').split('/');
-  const nu=new Date(),aar=2000+parseInt(y||'0');
-  const gyldig=!!m&&!!y&&+m>=1&&+m<=12&&aar>=nu.getFullYear()&&!(aar===nu.getFullYear()&&+m<nu.getMonth()+1);
-  ok=mark('cardExpiry',gyldig)&&ok;
-  ok=mark('cardCVV',/^\d{3,4}$/.test(v('cardCVV')))&&ok;
-  ok=mark('cardName',v('cardName').length>=3)&&ok;
-  return ok;
-}
-
-/* ═══════════ SQUARE ═══════════ */
 async function initSquare(){
-  const s=CONFIG.square, status=document.getElementById('squareStatus');
+  const s=CONFIG.square, note=$('sqNote');
+  await findBackend();
+  demoTilstand=!backendKlar&&!!s.demoKort;
 
-  if(!kortMuligt()){
-    document.getElementById('tab-card').classList.add('disabled');
-    document.getElementById('cardSoon').style.display='block';
-    status.innerHTML='💳 Kortbetaling er ikke åbnet endnu. Brug MobilePay eller bankoverførsel så længe — de virker begge.';
+  if(!backendKlar&&!demoTilstand){
+    $('pm-card').classList.add('off');
+    $('cardTag').textContent='Åbner snart';
+    $('cardTag').classList.add('grey');
+    $('sqSkeleton')?.remove();
+    $('square-card').innerHTML='<div class="hint" style="padding:6px 2px">💳 Kortbetaling er ikke aktiveret på denne server endnu.<br>Vælg MobilePay eller bankoverførsel — de virker begge nu.</div>';
+    note.innerHTML='<span>ℹ️</span><span>Kortbetaling åbnes, så snart betalingsserveren er sat op med Square-nøglerne fra app.squareup.com.</span>';
+    vaelgBetaling('mobilepay',true);
     return;
   }
   if(!s.applicationId||!s.locationId){
-    document.getElementById('demoBar').style.display='block';
-    document.getElementById('demoCardForm').style.display='block';
-    status.innerHTML='🧪 Demo-tilstand — der bliver ikke trukket penge.';
+    visNotits('⚠️ Square mangler Application ID eller Location ID — hent dem på app.squareup.com → Developer → Credentials.');
+    faldTilbageTilDemo('Square er ikke konfigureret færdigt.');
     return;
   }
+
   try{
-    await new Promise((res,rej)=>{
+    await new Promise((ok,fejl)=>{
       const sc=document.createElement('script');
-      sc.src=s.environment==='production'
-        ? 'https://web.squarecdn.com/v1/square.js'
-        : 'https://sandbox.web.squarecdn.com/v1/square.js';
-      sc.onload=res;sc.onerror=()=>rej(new Error('Kunne ikke hente Square'));
+      sc.src=s.environment==='sandbox'
+        ? 'https://sandbox.web.squarecdn.com/v1/square.js'
+        : 'https://web.squarecdn.com/v1/square.js';
+      sc.onload=ok;sc.onerror=()=>fejl(new Error('Square kunne ikke hentes'));
       document.head.appendChild(sc);
     });
-    const payments=window.Square.payments(s.applicationId,s.locationId);
-    squareCard=await payments.card();
-    await squareCard.attach('#square-card');
-    document.getElementById('demoCardForm').style.display='none';
-    squareKlar=true;
-    if(s.backendUrl){
-      status.innerHTML='🔒 Kortoplysninger håndteres direkte af Square — de rører aldrig vores server.';
+    sqPayments=window.Square.payments(s.applicationId,s.locationId);
+    sqCard=await sqPayments.card({
+      style:{
+        input:{fontSize:'15px',color:'#111827',fontFamily:'Outfit, system-ui, sans-serif'},
+        'input::placeholder':{color:'#94a3b8'},
+        '.input-container':{borderColor:'#e5e7eb',borderRadius:'10px'},
+        '.input-container.is-focus':{borderColor:'#1d4ed8'},
+        '.input-container.is-error':{borderColor:'#ef4444'},
+        '.message-text':{color:'#6b7280'},
+        '.message-icon':{color:'#6b7280'},
+        '.message-text.is-error':{color:'#ef4444'},
+        '.message-icon.is-error':{color:'#ef4444'}
+      }
+    });
+    $('sqSkeleton')?.remove();
+    await sqCard.attach('#square-card');
+    sqCard.addEventListener('focusClassAdded',()=>$('sqBox').classList.add('focus'));
+    sqCard.addEventListener('focusClassRemoved',()=>$('sqBox').classList.remove('focus'));
+    sqKlar=true;
+    $('demoKortForm').style.display='none';
+
+    if(backendKlar){
+      note.innerHTML='<span>🔒</span><span>Kortfeltet kommer direkte fra <b>Square</b> — dine kortoplysninger sendes krypteret til Square og rører aldrig vores server.</span>';
+      if(s.environment==='sandbox')visNotits('🧪 Square kører i <b>sandbox</b> — brug testkort 4111 1111 1111 1111. Der trækkes ingen penge.');
     }else{
-      status.innerHTML='🧪 Demo-tilstand — ingen betalingsserver, så der trækkes ingen penge.';
-      document.getElementById('demoBar').style.display='block';
+      note.innerHTML='<span>🧪</span><span>Demo-tilstand — kortfeltet er ægte, men der bliver ikke trukket penge.</span>';
+      visNotits('🧪 <b>Demo-tilstand:</b> kortbetalinger gennemføres ikke rigtigt. MobilePay og bankoverførsel virker som normalt.');
     }
+    initWallets();
   }catch(err){
-    document.getElementById('demoBar').style.display='block';
-    document.getElementById('demoCardForm').style.display='block';
-    status.innerHTML='⚠️ Square kunne ikke indlæses ('+esc(err.message)+') — demo-formular vist i stedet.';
+    faldTilbageTilDemo('Square kunne ikke indlæses ('+esc(err.message)+').');
   }
+  opdaterKnap();
+}
+function faldTilbageTilDemo(grund){
+  sqKlar=false;
+  demoTilstand=true;
+  $('sqSkeleton')?.remove();
+  $('square-card').innerHTML='';
+  $('demoKortForm').style.display='block';
+  $('sqNote').innerHTML='<span>⚠️</span><span>'+grund+' Vi viser en demo-formular i stedet — der trækkes ingen penge.</span>';
+  visNotits('⚠️ '+grund+' Kortbetaling kører i demo-tilstand.');
+  opdaterKnap();
+}
+function visNotits(html){const n=$('notice');n.innerHTML=html;n.classList.add('show');}
+
+/* ── Apple Pay / Google Pay ── */
+function planlaegWallets(){
+  if(!sqPayments||!CONFIG.square.wallets||!backendKlar)return;
+  clearTimeout(walletTimer);
+  walletTimer=setTimeout(initWallets,450);
+}
+async function initWallets(){
+  if(!sqPayments||!CONFIG.square.wallets||!backendKlar)return;
+  const belob=total();
+  if(belob<=0){$('wallets').style.display='none';return;}
+  let req;
+  try{
+    req=sqPayments.paymentRequest({
+      countryCode:'DK',currencyCode:'DKK',
+      total:{amount:belob.toFixed(2),label:CONFIG.butik.navn}
+    });
+  }catch{return;}
+
+  try{
+    if(sqApple){await sqApple.destroy().catch(()=>{});sqApple=null;}
+    sqApple=await sqPayments.applePay(req);
+    $('applePayBtn').style.display='flex';
+    $('wallets').style.display='block';
+  }catch{ $('applePayBtn').style.display='none'; }
+
+  try{
+    if(sqGoogle){await sqGoogle.destroy().catch(()=>{});sqGoogle=null;}
+    sqGoogle=await sqPayments.googlePay(req);
+    const wrap=$('googlePayWrap');
+    wrap.innerHTML='<div id="googlePayBtn"></div>';
+    await sqGoogle.attach('#googlePayBtn',{buttonColor:'black',buttonType:'pay',buttonSizeMode:'fill'});
+    $('googlePayBtn').addEventListener('click',e=>{e.preventDefault();betalMedWallet('google');});
+    wrap.style.display='block';
+    $('wallets').style.display='block';
+  }catch{ $('googlePayWrap').style.display='none'; }
+}
+
+/* ── 3D Secure / SCA ── */
+async function verificerKoeber(token,ordre){
+  if(!sqPayments)return null;
+  const k=ordre.kunde, navn=k.navn.split(' ');
+  const detaljer={
+    amount:String(ordre.total.toFixed ? ordre.total.toFixed(2) : ordre.total),
+    currencyCode:'DKK',
+    intent:'CHARGE',
+    billingContact:{
+      givenName:navn[0]||'',
+      familyName:navn.slice(1).join(' ')||'',
+      email:k.email,
+      phone:k.tlf.replace(/\s/g,''),
+      addressLines:[k.adresse||''],
+      city:k.by||'',
+      postalCode:k.post||'',
+      countryCode:'DK'
+    }
+  };
+  try{
+    const r=await sqPayments.verifyBuyer(token,detaljer);
+    return r?.token||null;
+  }catch(err){
+    console.warn('verifyBuyer:',err);
+    return null;
+  }
+}
+
+async function sendBetaling(sourceId,verificationToken,ordre){
+  const r=await fetch(betalingsUrl,{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({sourceId,verificationToken,belob:ordre.total,valuta:'DKK',ordre})
+  });
+  const data=await r.json().catch(()=>({}));
+  if(!r.ok||data.success===false)throw new Error(data.fejl||data.message||'Betalingen blev afvist af banken.');
+  return data;
 }
 
 /* ═══════════ ORDRE ═══════════ */
@@ -665,95 +1439,133 @@ function nytOrdreId(){
   return 'SIT-'+Date.now().toString(36).toUpperCase()+'-'+Math.random().toString(36).slice(2,6).toUpperCase();
 }
 function byggOrdre(){
+  const kraevAdresse=LEVERING[levering].adresse;
   return {
     id:nytOrdreId(),
     dato:new Date().toLocaleString('da-DK'),
+    tid:new Date().toISOString(),
     kunde:{
       navn:v('firstName')+' '+v('lastName'),
       email:v('email').toLowerCase(),
       tlf:'+45 '+v('phone'),
-      adresse:v('address'), post:v('zip'), by:v('city')
+      adresse:kraevAdresse?v('address'):'—',
+      post:kraevAdresse?v('zip'):'',
+      by:kraevAdresse?v('city'):''
     },
-    varer:cart.map(i=>({navn:i.name,antal:i.qty,stkPris:i.price,linjePris:i.price*i.qty})),
+    varer:cart.map(i=>({id:i.id,navn:i.name,ico:i.ico,antal:i.qty,stkPris:i.price,linjePris:i.price*i.qty})),
+    levering:LEVERING[levering].navn,
+    leveringKode:levering,
     express, rabatKode, rabatProcent:rabat,
     subtotal:subtotal(), rabat:rabatBelob(), expressPris:expressBelob(),
     total:total(), moms:moms(),
-    betaling:{card:'Kort',mobilepay:'MobilePay',bank:'Bankoverførsel'}[currentPayment],
+    betaling:{card:'Betalingskort (Square)',mobilepay:'MobilePay',bank:'Bankoverførsel'}[betaling],
+    betalingKode:betaling,
     besked:v('notes')||'—',
     status:'Ny'
   };
 }
 
-async function handleCheckout(){
-  const btn=document.getElementById('submitBtn'), fejl=document.getElementById('payError');
+async function gennemfoer(){
+  if(sender)return;
+  const fejl=$('payError');
   fejl.classList.remove('show');
-  if(!cart.length)return;
 
-  const spaerret=metodeSpaerret(currentPayment);
-  if(spaerret){fejl.textContent='⚠️ '+spaerret;fejl.classList.add('show');return;}
-
-  if(!validateContact()){
-    document.getElementById('section-contact').scrollIntoView({behavior:'smooth',block:'start'});
+  if(!cart.length){toast('🛒 Din kurv er tom — vælg en service først.','warn');return;}
+  const laast=metodeLaast(betaling);
+  if(laast){fejl.innerHTML='⚠️ '+laast;fejl.classList.add('show');return;}
+  if(!tjekKontakt())return;
+  if(!$('termsChk').checked){
+    udfoldSum();
+    $('termsBox').classList.add('bad');
+    toast('📄 Sæt flueben i handelsbetingelserne for at fortsætte','warn');
+    setTimeout(()=>{
+      $('termsBox').scrollIntoView({behavior:'smooth',block:'center'});
+      $('termsChk').focus({preventScroll:true});
+    },120);
     return;
   }
+  $('termsBox').classList.remove('bad');
 
   const ordre=byggOrdre();
-  btn.classList.add('loading');btn.disabled=true;
+  travl(true);
 
   try{
-    if(currentPayment==='card'){
-      const rigtig=squareKlar&&!!CONFIG.square.backendUrl;
-      if(rigtig){
-        const res=await squareCard.tokenize();
-        if(res.status!=='OK')throw new Error(res.errors?.[0]?.message||'Kortet kunne ikke godkendes.');
-        const svar=await fetch(CONFIG.square.backendUrl,{
-          method:'POST',headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({sourceId:res.token,belob:ordre.total,valuta:'DKK',ordre})
-        });
-        const data=await svar.json().catch(()=>({}));
-        if(!svar.ok||data.success===false)throw new Error(data.fejl||data.message||'Betalingen blev afvist.');
+    if(betaling==='card'){
+      if(backendKlar&&sqKlar){
+        const res=await sqCard.tokenize();
+        if(res.status!=='OK'){
+          throw new Error(res.errors?.[0]?.message||'Kortoplysningerne kunne ikke godkendes — tjek nummer, udløb og kontrolcifre.');
+        }
+        const vToken=await verificerKoeber(res.token,ordre);
+        const data=await sendBetaling(res.token,vToken,ordre);
         ordre.betalingsId=data.paymentId||'';
+        ordre.kvittering=data.receiptUrl||'';
         ordre.status='Betalt';
       }else{
-        const formSynlig=document.getElementById('demoCardForm').style.display!=='none';
-        if(formSynlig&&!validateDemoCard()){
-          btn.classList.remove('loading');btn.disabled=false;
-          document.getElementById('section-payment').scrollIntoView({behavior:'smooth',block:'start'});
+        if($('demoKortForm').style.display!=='none'&&!tjekDemoKort()){
+          travl(false);
+          $('kortBetaling').scrollIntoView({behavior:'smooth',block:'start'});
           return;
         }
-        await new Promise(r=>setTimeout(r,1100));
+        if(sqKlar){const r=await sqCard.tokenize();if(r.status!=='OK')throw new Error(r.errors?.[0]?.message||'Kortet blev afvist.');}
+        await new Promise(r=>setTimeout(r,900));
         ordre.status='Demo — ikke betalt';
       }
-    }else if(currentPayment==='mobilepay'){
+    }else if(betaling==='mobilepay'){
       ordre.status='Afventer MobilePay';
     }else{
       ordre.status='Afventer bankoverførsel';
-      const ref=document.getElementById('bankRef');
-      if(ref)ref.textContent=ordre.id;
+      const ref=$('bankRef'); if(ref)ref.textContent=ordre.id;
     }
-    gemOrdreLokalt(ordre);
-    sendOrdreMail(ordre);          /* til JER */
-    sendKundeKvittering(ordre);    /* til KUNDEN */
-    cart=[];saveCart();
-    visKvittering(ordre);
+    afslut(ordre);
   }catch(err){
-    btn.classList.remove('loading');btn.disabled=false;
-    fejl.textContent='⚠️ '+(err.message||'Noget gik galt. Prøv igen eller ring på '+CONFIG.butik.tlf+'.');
+    travl(false);
+    fejl.innerHTML='⚠️ '+esc(err.message||'Noget gik galt. Prøv igen, eller ring til os på '+CONFIG.butik.tlf+'.');
     fejl.classList.add('show');
-    document.getElementById('section-payment').scrollIntoView({behavior:'smooth',block:'start'});
+    $('kortBetaling').scrollIntoView({behavior:'smooth',block:'start'});
+    toast('❌ Betalingen gik ikke igennem','bad');
   }
 }
+function travl(paa){
+  sender=paa;
+  $('payBtn').classList.toggle('busy',paa);
+  $('payBtn').disabled=paa;
+  $('paybarBtn').disabled=paa;
+  $('paybarBtn').textContent=paa?'Vent…':$('paybarBtn').textContent;
+  if(!paa)opdaterKnap();
+}
 
+function afslut(ordre){
+  gemOrdreLokalt(ordre);
+  sendOrdreMail(ordre);
+  sendKundeKvittering(ordre);
+  try{
+    sessionStorage.setItem('orderConfirmed','1');
+    sessionStorage.setItem('pendingOrderId',ordre.id);
+    sessionStorage.setItem('paymentMethod',ordre.betalingKode);
+    sessionStorage.setItem('customerEmail',ordre.kunde.email);
+    sessionStorage.setItem('customerName',ordre.kunde.navn);
+    sessionStorage.setItem('orderTotal',String(ordre.total));
+    sessionStorage.setItem('orderTimestamp',ordre.tid);
+    sessionStorage.setItem('orderItems',JSON.stringify(cart));
+  }catch{}
+  cart=[];rabat=0;rabatKode='';express=false;
+  saveCart();
+  $('expressChk').checked=false;
+  $('couponCode').value='';$('couponMsg').textContent='';
+  renderCart();
+  visKvittering(ordre);
+}
 function gemOrdreLokalt(o){
   try{
     const alle=JSON.parse(localStorage.getItem('sorensen_ordrer')||'[]');
-    alle.push(o);localStorage.setItem('sorensen_ordrer',JSON.stringify(alle));
+    alle.push(o);localStorage.setItem('sorensen_ordrer',JSON.stringify(alle.slice(-50)));
     const key='sorensen_ordrer_u_'+o.kunde.email.replace(/[^a-zA-Z0-9]/g,'_');
     const mine=JSON.parse(localStorage.getItem(key)||'[]');
-    mine.push(o);localStorage.setItem(key,JSON.stringify(mine));
+    mine.push(o);localStorage.setItem(key,JSON.stringify(mine.slice(-50)));
+    localStorage.setItem('sorensen_sidste_ordre',JSON.stringify(o));
   }catch{}
 }
-
 async function sendOrdreMail(o){
   if(!CONFIG.mail.web3formsKey)return;
   const linjer=o.varer.map(x=>`${x.antal} × ${x.navn} — ${kr(x.linjePris)}`).join('\n');
@@ -762,75 +1574,75 @@ async function sendOrdreMail(o){
       method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},
       body:JSON.stringify({
         access_key:CONFIG.mail.web3formsKey,
-        subject:`🧾 Ny ordre ${o.id} — ${kr(o.total)}`,
+        subject:`🧾 Ny ordre ${o.id} — ${kr(o.total)} (${o.status})`,
         from_name:'Sørensen IT Webshop',
         replyto:o.kunde.email,
         'Ordre-ID':o.id,'Dato':o.dato,'Status':o.status,
         'Kunde':o.kunde.navn,'E-mail':o.kunde.email,'Telefon':o.kunde.tlf,
         'Adresse':`${o.kunde.adresse}, ${o.kunde.post} ${o.kunde.by}`,
+        'Levering':o.levering,
         'Varer':linjer,
-        'Express':o.express?'Ja (+100 kr.)':'Nej',
+        'Express':o.express?`Ja (+${CONFIG.expressPris} kr.)`:'Nej',
         'Rabat':o.rabatKode?`${o.rabatKode} (−${o.rabatProcent}%)`:'Ingen',
         'Total':kr(o.total),'Heraf moms':kr(o.moms),
         'Betalingsmetode':o.betaling,
+        'Square betalings-ID':o.betalingsId||'—',
         'Besked fra kunden':o.besked
       })
     });
   }catch{}
 }
-
 async function sendKundeKvittering(o){
-  if(!CONFIG.mail.kvitteringUrl)return;
+  const url=kvitteringsUrl||CONFIG.mail.kvitteringUrl;
+  if(!url)return;
   try{
-    await fetch(CONFIG.mail.kvitteringUrl,{
+    await fetch(url,{
       method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        til:o.kunde.email,
-        emne:`Tak for din ordre ${o.id} — Sørensen IT`,
-        html:byggKvitteringHTML(o)
-      })
+      body:JSON.stringify({til:o.kunde.email,emne:`Tak for din ordre ${o.id} — Sørensen IT`,html:kvitteringsMail(o)})
     });
   }catch{}
 }
 
-/* ═══════════ DANSK TAK-MAIL ═══════════ */
-function byggKvitteringHTML(o){
+/* ═══════════ KVITTERINGSMAIL (dansk) ═══════════ */
+function naesteSkridt(o){
   const b=CONFIG.bank;
-  const linjer=o.varer.map(x=>
-    `<tr><td style="padding:8px 0;border-bottom:1px solid #eee">${esc(x.navn)} × ${x.antal}</td>
-     <td style="padding:8px 0;border-bottom:1px solid #eee;text-align:right;font-weight:700">${kr(x.linjePris)}</td></tr>`).join('');
-  const besked={
-    'Betalt':'Vi er i gang med din ordre og kontakter dig, så snart den er klar.',
-    'Afventer MobilePay':`Send <b>${kr(o.total)}</b> til <b>${esc(CONFIG.butik.tlf)}</b> via MobilePay, og skriv <b>${esc(o.id)}</b> i beskedfeltet.`,
-    'Afventer bankoverførsel':`Overfør <b>${kr(o.total)}</b> til reg. ${esc(b.reg)} konto ${esc(b.konto)} med teksten <b>${esc(o.id)}</b>.`,
-    'Demo — ikke betalt':'Dette er en testordre — der er ikke trukket penge.'
+  return {
+    'Betalt':`Betalingen er gennemført ✅ Vi går i gang med det samme og ringer til dig på <b>${esc(o.kunde.tlf)}</b>, når din enhed er klar.`,
+    'Afventer MobilePay':`Send <b>${kr(o.total)}</b> til <b>${esc(CONFIG.mobilepay.nummer)}</b> i MobilePay — skriv <b>${esc(o.id)}</b> i beskedfeltet, så matcher vi betalingen automatisk.`,
+    'Afventer bankoverførsel':`Overfør <b>${kr(o.total)}</b> til <b>reg. ${esc(b.reg)} · konto ${esc(b.konto)}</b> og skriv <b>${esc(o.id)}</b> som tekst på overførslen.`,
+    'Demo — ikke betalt':'🧪 Dette var en testordre — der er <b>ikke</b> trukket penge.'
   }[o.status]||'Vi vender tilbage hurtigst muligt.';
-
+}
+function kvitteringsMail(o){
+  const linjer=o.varer.map(x=>
+    `<tr><td style="padding:9px 0;border-bottom:1px solid #eee">${esc(x.navn)} × ${x.antal}</td>
+     <td style="padding:9px 0;border-bottom:1px solid #eee;text-align:right;font-weight:700">${kr(x.linjePris)}</td></tr>`).join('');
   return `<div style="font-family:Arial,Helvetica,sans-serif;max-width:560px;margin:0 auto;color:#111827">
-  <div style="background:#1a56db;padding:28px;text-align:center;border-radius:14px 14px 0 0">
-    <h1 style="color:#fff;font-size:21px;margin:0 0 4px">Tak for din ordre! 🎉</h1>
-    <p style="color:#c7d2fe;font-size:14px;margin:0">${esc(CONFIG.butik.navn)}</p>
+  <div style="background:linear-gradient(135deg,#030a1c,#1d4ed8);padding:30px;text-align:center;border-radius:16px 16px 0 0">
+    <h1 style="color:#fff;font-size:22px;margin:0 0 5px">Tak for din ordre! 🎉</h1>
+    <p style="color:#93c5fd;font-size:14px;margin:0">${esc(CONFIG.butik.navn)}</p>
   </div>
-  <div style="border:1px solid #e5e7eb;border-top:none;border-radius:0 0 14px 14px;padding:24px">
-    <p style="font-size:15px">Hej ${esc(o.kunde.navn.split(' ')[0])} 👋</p>
-    <p style="font-size:14px;color:#374151;line-height:1.7">Tusind tak fordi du valgte os. Vi har modtaget din ordre — herunder finder du kvitteringen.</p>
-    <div style="background:#e8f0fe;border:1px dashed #1a56db;border-radius:10px;padding:14px;text-align:center;margin:18px 0">
+  <div style="border:1px solid #e5e7eb;border-top:none;border-radius:0 0 16px 16px;padding:26px">
+    <p style="font-size:15px;margin:0 0 10px">Hej ${esc(o.kunde.navn.split(' ')[0])} 👋</p>
+    <p style="font-size:14px;color:#374151;line-height:1.7;margin:0">Tusind tak fordi du valgte os. Vi har modtaget din ordre — herunder finder du kvitteringen.</p>
+    <div style="background:#eff6ff;border:1px dashed #1d4ed8;border-radius:12px;padding:15px;text-align:center;margin:20px 0">
       <div style="font-size:12px;color:#6b7280">Dit ordre-ID</div>
-      <div style="font-size:19px;font-weight:800;color:#1a56db;letter-spacing:1px">${esc(o.id)}</div>
+      <div style="font-size:20px;font-weight:800;color:#1d4ed8;letter-spacing:1.4px">${esc(o.id)}</div>
     </div>
     <table style="width:100%;border-collapse:collapse;font-size:14px">${linjer}
-      ${o.express?`<tr><td style="padding:8px 0;border-bottom:1px solid #eee">⚡ Express-service</td><td style="padding:8px 0;border-bottom:1px solid #eee;text-align:right;font-weight:700">${kr(o.expressPris)}</td></tr>`:''}
-      ${o.rabat?`<tr><td style="padding:8px 0;color:#16a34a">Rabat (${esc(o.rabatKode)})</td><td style="padding:8px 0;text-align:right;color:#16a34a;font-weight:700">−${kr(o.rabat)}</td></tr>`:''}
-      <tr><td style="padding:12px 0;font-size:17px;font-weight:800">I alt</td><td style="padding:12px 0;text-align:right;font-size:17px;font-weight:800">${kr(o.total)}</td></tr>
+      ${o.express?`<tr><td style="padding:9px 0;border-bottom:1px solid #eee">⚡ Express-service</td><td style="padding:9px 0;border-bottom:1px solid #eee;text-align:right;font-weight:700">${kr(o.expressPris)}</td></tr>`:''}
+      ${o.rabat?`<tr><td style="padding:9px 0;color:#10b981">Rabat (${esc(o.rabatKode)})</td><td style="padding:9px 0;text-align:right;color:#10b981;font-weight:700">−${kr(o.rabat)}</td></tr>`:''}
+      <tr><td style="padding:13px 0;font-size:17px;font-weight:800">I alt</td><td style="padding:13px 0;text-align:right;font-size:17px;font-weight:800">${kr(o.total)}</td></tr>
       <tr><td colspan="2" style="text-align:right;font-size:12px;color:#6b7280">Heraf moms (25%): ${kr(o.moms)}</td></tr>
     </table>
-    <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:16px;margin-top:18px;font-size:13px;line-height:1.7">
+    <div style="background:#f8fafc;border:1px solid #e5e7eb;border-radius:12px;padding:17px;margin-top:20px;font-size:13px;line-height:1.75">
       <b>Betalingsmetode:</b> ${esc(o.betaling)}<br>
-      <b>Status:</b> ${esc(o.status)}<br><br>${besked}
+      <b>Status:</b> ${esc(o.status)}<br>
+      <b>Levering:</b> ${esc(o.levering)}<br><br>${naesteSkridt(o)}
     </div>
-    <p style="font-size:13px;color:#6b7280;line-height:1.7;margin-top:18px">
-      Har du spørgsmål, så ring på <b>${esc(CONFIG.butik.tlf)}</b> eller svar på denne mail.<br>
-      Mange hilsner<br><b>Jonas &amp; Storm — ${esc(CONFIG.butik.navn)}</b> ❤️
+    <p style="font-size:13px;color:#6b7280;line-height:1.75;margin-top:20px">
+      Har du spørgsmål, så ring på <b>${esc(CONFIG.butik.tlf)}</b> eller svar direkte på denne mail.<br>
+      Mange hilsner<br><b>${esc(CONFIG.butik.ejere)} — ${esc(CONFIG.butik.navn)}</b> ❤️
     </p>
   </div></div>`;
 }
@@ -838,116 +1650,256 @@ function byggKvitteringHTML(o){
 /* ═══════════ KVITTERING PÅ SKÆRMEN ═══════════ */
 function visKvittering(o){
   const b=CONFIG.bank;
-  setStep(3);
-  document.getElementById('checkoutView').style.display='none';
-  const el=document.getElementById('receiptView');
-  const varer=o.varer.map(x=>`<div class="rc-line"><span>${esc(x.navn)} × ${x.antal}</span><span>${kr(x.linjePris)}</span></div>`).join('');
-  const naeste={
-    'Betalt':'Betalingen er gennemført ✅ Vi går i gang med det samme og kontakter dig, når din enhed er klar.',
-    'Afventer MobilePay':`Send <b>${kr(o.total)}</b> til <b>${esc(CONFIG.butik.tlf)}</b> i MobilePay — husk at skrive <b>${esc(o.id)}</b> i beskedfeltet.`,
-    'Afventer bankoverførsel':`Overfør <b>${kr(o.total)}</b> til <b>reg. ${esc(b.reg)} · konto ${esc(b.konto)}</b> og brug <b>${esc(o.id)}</b> som tekst på overførslen.`,
-    'Demo — ikke betalt':'🧪 Dette var en testordre — der er <b>ikke</b> trukket penge.'
-  }[o.status];
+  faerdig=true;
+  saetTrin(3);
+  $('checkoutView').style.display='none';
+  $('paybar').style.display='none';
+  $('heroSub').innerHTML='Din ordre er registreret — vi har sendt en bekræftelse til <b style="color:#93c5fd">'+esc(o.kunde.email)+'</b>';
 
-  el.innerHTML=`
+  const mpLink='mobilepay://send?phone='+CONFIG.mobilepay.nummer.replace(/\D/g,'')+'&amount='+o.total+'&comment='+encodeURIComponent(o.id);
+  const knapper={
+    'Afventer MobilePay':`<a class="btn btn-blue" href="${mpLink}">📱 Åbn MobilePay og betal ${kr(o.total)}</a>`,
+    'Afventer bankoverførsel':`<button class="btn btn-blue" onclick="kopier('${esc(b.reg)} ${esc(b.konto)}',this)">🏦 Kopiér kontonummer</button>`
+  }[o.status]||'';
+
+  const detaljer=o.status==='Afventer bankoverførsel'
+    ? `<div class="rc-box"><h3>Overførselsoplysninger</h3>
+        <div class="rc-line"><span>Bank</span><span>${esc(b.navn)}</span></div>
+        <div class="rc-line"><span>Reg.nr. / konto</span><span><b>${esc(b.reg)} · ${esc(b.konto)}</b></span></div>
+        <div class="rc-line"><span>IBAN</span><span>${esc(b.iban)}</span></div>
+        <div class="rc-line"><span>BIC/SWIFT</span><span>${esc(b.bic)}</span></div>
+        <div class="rc-line"><span>Tekst på overførslen</span><span><b>${esc(o.id)}</b></span></div>
+       </div>` : '';
+
+  $('receiptView').innerHTML=`
   <div class="receipt">
-    <div class="receipt-head">
-      <img src="${esc(CONFIG.butik.logo)}" alt="Sørensen IT logo" onerror="this.style.display='none'">
-      <h1>Tak for din ordre! 🎉</h1>
-      <p>Vi har sendt en bekræftelse til ${esc(o.kunde.email)}</p>
+    <div class="rc-hd">
+      <div class="rc-check">✓</div>
+      <h1>Tak for din ordre!</h1>
+      <p>Vi har sendt en bekræftelse til <b>${esc(o.kunde.email)}</b></p>
     </div>
-    <div class="receipt-body">
-      <div class="rc-id"><small>Dit ordre-ID</small><b>${esc(o.id)}</b></div>
-      ${varer}
+    <div class="rc-body">
+      <div class="rc-id">
+        <small>Dit ordre-ID</small>
+        <b>${esc(o.id)}</b>
+        <div style="margin-top:9px"><button class="copy" onclick="kopier('${esc(o.id)}',this)">Kopiér ordre-ID</button></div>
+      </div>
+
+      ${o.varer.map(x=>`<div class="rc-line"><span>${x.ico||'🔧'} ${esc(x.navn)} × ${x.antal}</span><span>${kr(x.linjePris)}</span></div>`).join('')}
       ${o.express?`<div class="rc-line"><span>⚡ Express-service</span><span>${kr(o.expressPris)}</span></div>`:''}
       ${o.rabat?`<div class="rc-line" style="color:var(--green)"><span>Rabat (${esc(o.rabatKode)})</span><span>−${kr(o.rabat)}</span></div>`:''}
       <div class="rc-tot"><span>I alt</span><span>${kr(o.total)}</span></div>
-      <div style="text-align:right;font-size:12px;color:var(--g500);margin-top:4px">Heraf moms (25%): ${kr(o.moms)}</div>
-      <div class="rc-box"><b>Betalingsmetode:</b> ${esc(o.betaling)}<br><b>Status:</b> ${esc(o.status)}<br><br>${naeste}</div>
-      <div class="rc-box" style="background:#fff">
-        <b>Kontaktoplysninger:</b><br>
-        ${esc(o.kunde.navn)}<br>${esc(o.kunde.adresse)}<br>${esc(o.kunde.post)} ${esc(o.kunde.by)}<br>${esc(o.kunde.tlf)}
+      <div style="text-align:right;font-size:.75rem;color:var(--muted);margin-top:5px">Heraf moms (25%): ${kr(o.moms)}</div>
+
+      <div class="rc-box hi">
+        <h3>Sådan er status</h3>
+        <b>Betalingsmetode:</b> ${esc(o.betaling)}<br>
+        <b>Status:</b> ${esc(o.status)}<br>
+        <b>Levering:</b> ${esc(o.levering)}<br><br>
+        ${naesteSkridt(o)}
+        ${knapper?`<div style="margin-top:14px">${knapper}</div>`:''}
       </div>
+
+      ${detaljer}
+
+      <div class="rc-box">
+        <h3>Det sker der nu</h3>
+        <ul class="rc-steps">
+          <li>Du får en ordrebekræftelse på ${esc(o.kunde.email)}</li>
+          <li>${o.leveringKode==='fjern'?'Vi ringer og aftaler et tidspunkt for fjernhjælpen':(o.leveringKode==='aflever'?'Vi ringer og aftaler, hvornår du kan aflevere enheden':'Du sender enheden — pakkeguide står i mailen')}</li>
+          <li>${o.express?'Express: vi behandler den samme dag, vi modtager den':'Vi går i gang inden for '+esc(CONFIG.ventetid)}</li>
+          <li>Vi ringer på ${esc(o.kunde.tlf)}, så snart den er klar</li>
+        </ul>
+      </div>
+
+      <div class="rc-box">
+        <h3>Dine oplysninger</h3>
+        ${esc(o.kunde.navn)}<br>
+        ${o.kunde.adresse!=='—'?esc(o.kunde.adresse)+'<br>'+esc(o.kunde.post)+' '+esc(o.kunde.by)+'<br>':''}
+        ${esc(o.kunde.tlf)}<br>${esc(o.kunde.email)}
+        ${o.besked&&o.besked!=='—'?'<br><br><b>Din besked:</b><br>'+esc(o.besked):''}
+      </div>
+
       <div class="rc-btns">
-        <button class="rc-btn ghost" onclick="window.print()">🖨️ Gem / print kvittering</button>
-        <a class="rc-btn primary" href="index.html">Tilbage til shoppen →</a>
+        <button class="btn btn-ghost" onclick="window.print()">🖨️ Gem / print kvittering</button>
+        <a class="btn btn-ghost" href="kvittering.html">🧾 Se fuld kvittering</a>
+        <a class="btn btn-blue" href="index.html">Tilbage til shoppen →</a>
       </div>
-      <p style="font-size:12px;color:var(--g500);text-align:center;margin-top:18px;line-height:1.7">
-        Spørgsmål? Ring på <b>${esc(CONFIG.butik.tlf)}</b> eller mail <b>${esc(CONFIG.butik.mail)}</b><br>
-        Mange hilsner — Jonas &amp; Storm ❤️
+
+      <p style="font-size:.78rem;color:var(--muted);text-align:center;margin-top:20px;line-height:1.75">
+        Spørgsmål? Ring på <b>${esc(CONFIG.butik.tlf)}</b> eller skriv til <b>${esc(CONFIG.butik.mail)}</b><br>
+        Mange hilsner — ${esc(CONFIG.butik.ejere)} ❤️
       </p>
     </div>
   </div>`;
-  el.style.display='block';
+  $('receiptView').style.display='block';
   window.scrollTo({top:0,behavior:'smooth'});
+  toast('🎉 Ordre '+esc(o.id)+' er registreret!');
 }
 
-function copyText(t,btn){
-  navigator.clipboard?.writeText(t).then(()=>{
+/* ═══════════ BANK + MOBILEPAY ═══════════ */
+function renderBank(){
+  const b=CONFIG.bank;
+  const raekke=(l,val,kopi,lille)=>`<div class="bank-row"><span>${l}</span><span class="val"${lille?' style="font-size:.78rem"':''}>${esc(val)}${kopi?`<button class="copy" type="button" onclick="kopier('${esc(val)}',this)">Kopiér</button>`:''}</span></div>`;
+  $('bankBox').innerHTML=
+    raekke('Bank',b.navn,false)+
+    raekke('Registreringsnr.',b.reg,true)+
+    raekke('Kontonr.',b.konto,true)+
+    raekke('IBAN',b.iban,true,true)+
+    raekke('BIC/SWIFT',b.bic,true)+
+    `<div class="bank-row"><span>Beløb</span><span class="val" id="bankAmount" style="color:var(--blue)">—</span></div>
+     <div class="bank-row"><span>Tekst på overførslen</span><span class="val" id="bankRef" style="color:var(--muted);font-weight:600">Du får dit ordre-ID, når du bestiller</span></div>`;
+}
+function renderMobilePayQR(){
+  const box=$('mpQr');
+  if(!CONFIG.mobilepay.boxUrl){box.innerHTML='';return;}
+  box.innerHTML=`<div class="qr"><img alt="MobilePay QR-kode" loading="lazy" src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(CONFIG.mobilepay.boxUrl)}"></div>`;
+}
+
+/* ═══════════ UI-HJÆLPERE ═══════════ */
+function toast(html,type,ms){
+  const t=document.createElement('div');
+  t.className='toast'+(type?' '+type:'');
+  t.innerHTML=html;
+  $('tWrap').appendChild(t);
+  setTimeout(()=>t.classList.add('show'),10);
+  setTimeout(()=>{t.classList.remove('show');setTimeout(()=>t.remove(),400);},ms||4000);
+}
+function kopier(tekst,btn){
+  const efter=()=>{
     const org=btn.textContent;
-    btn.textContent='✓ Kopieret';btn.classList.add('copied');
-    setTimeout(()=>{btn.textContent=org;btn.classList.remove('copied');},2000);
-  }).catch(()=>{});
+    btn.textContent='✓ Kopieret';btn.classList.add('done');
+    setTimeout(()=>{btn.textContent=org;btn.classList.remove('done');},2000);
+  };
+  if(navigator.clipboard?.writeText){navigator.clipboard.writeText(tekst).then(efter).catch(()=>toast('Kunne ikke kopiere — markér teksten manuelt','warn'));}
+  else{
+    const ta=document.createElement('textarea');ta.value=tekst;document.body.appendChild(ta);ta.select();
+    try{document.execCommand('copy');efter();}catch{}
+    ta.remove();
+  }
+}
+function aabnVilkaar(){$('vilkaarOv').classList.add('open');document.body.style.overflow='hidden';}
+function lukVilkaar(){$('vilkaarOv').classList.remove('open');document.body.style.overflow='';}
+function foldSum(){
+  const s=$('summary');
+  s.classList.toggle('fold');
+  s.querySelector('.sum-toggle').setAttribute('aria-expanded',String(!s.classList.contains('fold')));
+}
+function udfoldSum(){
+  const s=$('summary');
+  if(!s.classList.contains('fold'))return;
+  s.classList.remove('fold');
+  s.querySelector('.sum-toggle')?.setAttribute('aria-expanded','true');
+}
+function visKurv(){
+  $('summary').classList.remove('fold');
+  $('summary').scrollIntoView({behavior:'smooth',block:'start'});
+}
+function kontoKlik(){
+  let u=null;try{u=JSON.parse(localStorage.getItem(USER_KEY)||'null');}catch{}
+  if(u&&u.email){
+    prefill(u);
+    toast('✅ Dine oplysninger er sat ind automatisk');
+    $('kortKontakt').scrollIntoView({behavior:'smooth',block:'start'});
+  }else{
+    location.href='index.html#konto';
+  }
+}
+function opdaterBruger(){
+  let u=null;try{u=JSON.parse(localStorage.getItem(USER_KEY)||'null');}catch{}
+  if(u&&u.email){
+    $('userBtnIco').textContent='✅';
+    $('userBtnLabel').textContent='Logget ind';
+    $('userBtnVal').textContent=(u.name||u.email.split('@')[0]).substring(0,10);
+  }
+}
+function prefill(u){
+  if(u.email&&!v('email'))$('email').value=u.email;
+  if(u.name){
+    const d=u.name.split(' ');
+    if(!v('firstName'))$('firstName').value=d[0]||'';
+    if(!v('lastName'))$('lastName').value=d.slice(1).join(' ')||'';
+  }
+}
+function gemInfo(){
+  try{
+    const d={};
+    ['firstName','lastName','email','phone','address','zip','city','notes'].forEach(id=>{const val=v(id);if(val)d[id]=val;});
+    d.levering=levering;
+    localStorage.setItem(INFO_KEY,JSON.stringify(d));
+  }catch{}
+}
+function hentInfo(){
+  let d=null;try{d=JSON.parse(localStorage.getItem(INFO_KEY)||'null');}catch{}
+  if(!d)return;
+  ['firstName','lastName','email','phone','address','zip','city','notes'].forEach(id=>{if(d[id]&&$(id))$(id).value=d[id];});
+  if(d.levering&&LEVERING[d.levering])vaelgLevering(d.levering);
 }
 
 /* ═══════════ INIT ═══════════ */
 document.addEventListener('DOMContentLoaded',()=>{
+  /* statiske værdier fra CONFIG */
+  $('trustVent').textContent=CONFIG.ventetid;
+  $('mpNumber').textContent=CONFIG.mobilepay.nummer;
+  $('expressBox').querySelector('.addon-t').textContent=`⚡ Express-service · +${CONFIG.expressPris} kr.`;
+  renderTider();setInterval(renderTider,60000);
   renderBank();
+
+  /* kurv + gemte oplysninger */
   loadCart();
-  initSquare();
+  hentInfo();
+  let u=null;try{u=JSON.parse(localStorage.getItem(USER_KEY)||'null');}catch{}
+  if(u)prefill(u);
+  opdaterBruger();
+  vaelgLevering(levering);
   renderCart();
+  saetTrin(1);
+  if(window.innerWidth<=900)$('summary').classList.add('fold');
 
-  document.getElementById('mpNumber').textContent=CONFIG.butik.tlf;
-  selectPayment(kortMuligt()?'card':'mobilepay');
-  setStep(1);
+  /* Square */
+  initSquare();
 
-  try{
-    const u=JSON.parse(localStorage.getItem('sorensen_user')||'null');
-    if(u&&u.email)document.getElementById('email').value=u.email;
-    if(u&&u.name){
-      const d=u.name.split(' ');
-      document.getElementById('firstName').value=d[0]||'';
-      document.getElementById('lastName').value=d.slice(1).join(' ')||'';
-    }
-    const gemt=JSON.parse(localStorage.getItem('sorensen_leveringsinfo')||'null');
-    if(gemt)['phone','address','zip','city'].forEach(k=>{if(gemt[k])document.getElementById(k).value=gemt[k];});
-  }catch{}
-
-  ['phone','address','zip','city'].forEach(id=>{
-    document.getElementById(id).addEventListener('change',()=>{
-      try{
-        const d=JSON.parse(localStorage.getItem('sorensen_leveringsinfo')||'{}');
-        d[id]=v(id);localStorage.setItem('sorensen_leveringsinfo',JSON.stringify(d));
-      }catch{}
-    });
-  });
-
-  const tlfEl=document.getElementById('phone');
-  tlfEl.value=formatTlf(tlfEl.value);
-  tlfEl.addEventListener('input',e=>{e.target.value=formatTlf(e.target.value);});
-  tlfEl.addEventListener('paste',e=>{
+  /* felt-opførsel */
+  const tlf=$('phone');
+  tlf.value=formatTlf(tlf.value);
+  tlf.addEventListener('input',e=>{e.target.value=formatTlf(e.target.value);});
+  tlf.addEventListener('paste',e=>{
     e.preventDefault();
     e.target.value=formatTlf((e.clipboardData||window.clipboardData).getData('text'));
   });
-
-  document.getElementById('zip').addEventListener('input',e=>{e.target.value=e.target.value.replace(/\D/g,'').slice(0,4);});
-  const cn=document.getElementById('cardNumber');
-  if(cn)cn.addEventListener('input',e=>{
-    const x=e.target.value.replace(/\D/g,'').slice(0,16);
-    e.target.value=x.match(/.{1,4}/g)?.join(' ')||x;
-  });
-  const ce=document.getElementById('cardExpiry');
-  if(ce)ce.addEventListener('input',e=>{
-    let x=e.target.value.replace(/\D/g,'');
-    if(x.length>2)x=x.slice(0,2)+'/'+x.slice(2,4);
-    e.target.value=x;
-  });
-  const cv=document.getElementById('cardCVV');
+  $('zip').addEventListener('input',e=>{e.target.value=e.target.value.replace(/\D/g,'').slice(0,4);});
+  const cn=$('cardNumber');
+  if(cn)cn.addEventListener('input',e=>{const x=e.target.value.replace(/\D/g,'').slice(0,16);e.target.value=x.match(/.{1,4}/g)?.join(' ')||x;});
+  const ce=$('cardExpiry');
+  if(ce)ce.addEventListener('input',e=>{let x=e.target.value.replace(/\D/g,'');if(x.length>2)x=x.slice(0,2)+'/'+x.slice(2,4);e.target.value=x;});
+  const cv=$('cardCVV');
   if(cv)cv.addEventListener('input',e=>{e.target.value=e.target.value.replace(/\D/g,'').slice(0,4);});
 
-  ['firstName','lastName','email','phone','address','zip','city'].forEach(id=>{
-    document.getElementById(id).addEventListener('blur',()=>{if(v(id))validateContact();});
+  ['firstName','lastName','email','phone','address','zip','city','notes'].forEach(id=>{
+    const el=$(id);if(!el)return;
+    el.addEventListener('blur',()=>{gemInfo();if(v(id))tjekKontakt(false);});
+    el.addEventListener('input',()=>{if(el.classList.contains('bad'))el.classList.remove('bad');});
   });
+  $('termsChk').addEventListener('change',()=>$('termsBox').classList.remove('bad'));
+
+  /* kurv-synk mellem faner */
+  window.addEventListener('storage',e=>{
+    if(e.key===CART_KEY){loadCart();renderCart();toast('🔄 Kurven blev opdateret i et andet vindue');}
+  });
+
+  /* scroll-effekter */
+  const ro=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in')}),{threshold:.08});
+  document.querySelectorAll('.reveal').forEach(el=>ro.observe(el));
+  /* Sikkerhedsnet: intet i kassen må nogensinde blive hængende usynligt */
+  setTimeout(()=>document.querySelectorAll('.reveal').forEach(el=>el.classList.add('in')),1200);
+  window.addEventListener('scroll',()=>{
+    $('HDR').classList.toggle('up',scrollY>10);
+    $('sTop').classList.toggle('vis',scrollY>320);
+  },{passive:true});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')lukVilkaar();});
+
+  /* advar hvis man forlader siden midt i en betaling */
+  window.addEventListener('beforeunload',e=>{if(sender){e.preventDefault();e.returnValue='';}});
 });
 </script>
 </body>

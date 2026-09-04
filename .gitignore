@@ -1,0 +1,5 @@
+node_modules/
+.env
+ordrer.jsonl
+npm-debug.log*
+.DS_Store

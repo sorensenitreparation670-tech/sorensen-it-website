@@ -408,6 +408,13 @@ const name      = sessionStorage.getItem('customerName') || 'Kunde';
 const total     = parseInt(sessionStorage.getItem('orderTotal') || '0');
 const ts        = sessionStorage.getItem('orderTimestamp') || new Date().toISOString();
 
+const methodLabels = {
+  card: { label: '💳 Kortbetaling', icon: '💳' },
+  mobilepay: { label: '📱 MobilePay', icon: '📱' },
+  bank: { label: '🏦 Bankoverførsel', icon: '🏦' },
+  klarna: { label: '🌸 Klarna', icon: '🌸' },
+};
+
 /* If no confirmed order, show blocked overlay */
 if (!confirmed || !orderId) {
   document.getElementById('blockedOverlay').style.display = 'flex';
@@ -425,17 +432,14 @@ function formatDate(iso) {
     ' kl. ' + d.toLocaleTimeString('da-DK', { hour:'2-digit', minute:'2-digit' });
 }
 
-const methodLabels = {
-  card: { label: '💳 Kortbetaling', icon: '💳' },
-  mobilepay: { label: '📱 MobilePay', icon: '📱' },
-  bank: { label: '🏦 Bankoverførsel', icon: '🏦' },
-  klarna: { label: '🌸 Klarna', icon: '🌸' },
-};
 
 function populateReceipt() {
   const CART_KEY = 'sorensen_cart';
   let cart = [];
-  try { const raw = localStorage.getItem(CART_KEY); if (raw) cart = JSON.parse(raw); } catch(e) {}
+  try {
+    const raw = sessionStorage.getItem('orderItems') || localStorage.getItem(CART_KEY);
+    if (raw) cart = JSON.parse(raw);
+  } catch(e) {}
   if (!cart.length) cart = [{ id:1, name:'HELE SETUP', desc:'PC + OS + alle drivere + software', price:1199, qty:1 }];
 
   const sub   = cart.reduce((s, i) => s + i.price * i.qty, 0);
