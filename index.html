@@ -148,6 +148,11 @@ button{font-family:'Outfit',sans-serif}
 .um-order-item span{color:var(--blue);font-weight:800}
 .um-logout{width:100%;padding:11px;background:none;border:2px solid #fee2e2;border-radius:10px;font-family:'Outfit',sans-serif;font-size:.875rem;font-weight:700;color:var(--red);cursor:pointer;transition:all .2s}
 .um-logout:hover{background:#fee2e2}
+.um-btn-ghost{border:none;cursor:pointer;width:100%;font-family:'Outfit',sans-serif}
+.um-pw-wrap{position:relative}
+.um-pw-wrap .um-input{padding-right:44px}
+.um-pw-toggle{position:absolute;right:5px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:1rem;padding:7px;color:var(--muted);line-height:1}
+.um-pw-hint{font-size:.72rem;color:var(--muted);margin:-6px 0 12px;line-height:1.4;padding:0 2px}
 
 /* ── LOGIN REMINDER ── */
 .login-reminder{position:fixed;bottom:100px;left:22px;z-index:1300;background:var(--ink);border-left:4px solid var(--blue);border-radius:14px;padding:16px;max-width:268px;box-shadow:0 8px 32px rgba(0,0,0,.32);transform:translateY(calc(100% + 28px));opacity:0;transition:transform .44s cubic-bezier(.34,1.56,.64,1),opacity .32s;pointer-events:none}
@@ -161,6 +166,23 @@ button{font-family:'Outfit',sans-serif}
 .lr-login-btn:hover{background:var(--blue-dk)}
 .lr-dismiss-btn{padding:9px 12px;background:rgba(255,255,255,.08);color:#94a3b8;border:none;border-radius:8px;font-family:'Outfit',sans-serif;font-weight:600;font-size:.82rem;cursor:pointer}
 .lr-dismiss-btn:hover{background:rgba(255,255,255,.16);color:#fff}
+
+/* ── VELKOMSTVIDEO ── */
+.wv-ov{position:fixed;inset:0;background:rgba(3,10,28,.92);z-index:6000;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .3s}
+.wv-ov.open{opacity:1;pointer-events:all}
+.wv-box{background:#000;border-radius:18px;max-width:720px;width:100%;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.5);transform:scale(.96);transition:transform .3s cubic-bezier(.34,1.56,.64,1)}
+.wv-ov.open .wv-box{transform:scale(1)}
+.wv-top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px;background:linear-gradient(135deg,#030a1c 0%,#1d4ed8 100%)}
+.wv-badge{color:#fff;font-weight:800;font-size:.9rem;display:flex;align-items:center;gap:6px}
+.wv-top-btns{display:flex;gap:8px}
+.wv-sound,.wv-skip{background:rgba(255,255,255,.12);color:#fff;border:none;padding:8px 14px;border-radius:8px;font-family:'Outfit',sans-serif;font-weight:700;font-size:.78rem;cursor:pointer;transition:background .15s;white-space:nowrap}
+.wv-sound:hover,.wv-skip:hover{background:rgba(255,255,255,.22)}
+.wv-video{display:block;width:100%;aspect-ratio:16/9;background:#000}
+.wv-bottom{padding:16px 18px;background:#0a0f1a;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.wv-txt{color:#94a3b8;font-size:.8rem;line-height:1.5;max-width:400px}
+.wv-btn{background:var(--blue);color:#fff;border:none;padding:11px 20px;border-radius:10px;font-family:'Outfit',sans-serif;font-weight:800;font-size:.85rem;cursor:pointer;white-space:nowrap;transition:background .2s;flex-shrink:0}
+.wv-btn:hover{background:var(--blue-dk)}
+@media(max-width:600px){.wv-bottom{flex-direction:column;align-items:stretch}.wv-txt{max-width:none}}
 
 /* Nav */
 .hdr-nav{height:var(--nav-h);display:flex;align-items:center;padding:0 28px;overflow-x:auto;scrollbar-width:none;border-top:1px solid var(--border)}
@@ -757,20 +779,33 @@ footer{background:#08101f;color:#4b5563;padding:60px 28px 28px}
     </div>
     <div class="um-body" id="umLoginBody">
       <div class="um-form-title">Velkommen tilbage! 👋</div>
-      <div class="um-form-sub">Indtast din e-mail for at hente din kurv og dine tidligere ordrer frem igen.</div>
-      <div class="um-field"><input type="email" id="umEmail" class="um-input" placeholder="din@mail.dk" onkeypress="if(event.key==='Enter')doUserLogin()"></div>
+      <div class="um-form-sub">Log ind med din e-mail og dit kodeord for at hente din kurv og dine tidligere ordrer frem igen.</div>
+      <div class="um-field"><input type="email" id="umEmail" class="um-input" placeholder="din@mail.dk" autocomplete="email" maxlength="120" onkeypress="if(event.key==='Enter')doUserLogin()"></div>
+      <div class="um-field um-pw-wrap">
+        <input type="password" id="umPassword" class="um-input" placeholder="Kodeord" autocomplete="current-password" maxlength="100" onkeypress="if(event.key==='Enter')doUserLogin()">
+        <button type="button" class="um-pw-toggle" onclick="toggleUmPw('umPassword',this)" aria-label="Vis kodeord">👁️</button>
+      </div>
       <div class="um-error" id="umLoginErr"></div>
       <button class="um-btn" onclick="doUserLogin()">🔓 Log ind</button>
-      <div class="um-note">🔒 Din konto gemmes lokalt i din browser på denne enhed. Vi beder aldrig om kodeord.</div>
+      <div class="um-note">🔒 Dit kodeord krypteres og gemmes aldrig i klartekst. Kontoen er knyttet til denne browser/enhed.</div>
     </div>
     <div class="um-body" id="umSignupBody" style="display:none">
       <div class="um-form-title">Opret konto ✨</div>
-      <div class="um-form-sub">Tilmeld dig for at gemme din kurv og ordrehistorik. Du behøver ikke oprette en konto — det er bare nemmere.</div>
-      <div class="um-field"><input type="text" id="umSignupName" class="um-input" placeholder="Dit navn (valgfrit)"></div>
-      <div class="um-field"><input type="email" id="umSignupEmail" class="um-input" placeholder="din@mail.dk" onkeypress="if(event.key==='Enter')doUserSignup()"></div>
+      <div class="um-form-sub">Tilmeld dig med et sikkert kodeord for at gemme din kurv og ordrehistorik. Du behøver ikke oprette en konto — det er bare nemmere.</div>
+      <div class="um-field"><input type="text" id="umSignupName" class="um-input" placeholder="Dit navn (valgfrit)" autocomplete="name" maxlength="60"></div>
+      <div class="um-field"><input type="email" id="umSignupEmail" class="um-input" placeholder="din@mail.dk" autocomplete="email" maxlength="120"></div>
+      <div class="um-field um-pw-wrap">
+        <input type="password" id="umSignupPassword" class="um-input" placeholder="Vælg et kodeord" autocomplete="new-password" maxlength="100">
+        <button type="button" class="um-pw-toggle" onclick="toggleUmPw('umSignupPassword',this)" aria-label="Vis kodeord">👁️</button>
+      </div>
+      <div class="um-pw-hint">Mindst 8 tegn — med både bogstaver og tal.</div>
+      <div class="um-field um-pw-wrap">
+        <input type="password" id="umSignupPassword2" class="um-input" placeholder="Gentag kodeord" autocomplete="new-password" maxlength="100" onkeypress="if(event.key==='Enter')doUserSignup()">
+        <button type="button" class="um-pw-toggle" onclick="toggleUmPw('umSignupPassword2',this)" aria-label="Vis kodeord">👁️</button>
+      </div>
       <div class="um-error" id="umSignupErr"></div>
       <button class="um-btn" onclick="doUserSignup()">✅ Opret konto</button>
-      <div class="um-note">🔒 Kontoen gemmes lokalt i din browser. Ingen kodeord nødvendigt.</div>
+      <div class="um-note">🔒 Dit kodeord krypteres (PBKDF2) lokalt og gemmes aldrig i klartekst.</div>
     </div>
     <div class="um-body" id="umProfileBody" style="display:none">
       <div class="um-profile-welcome">
@@ -789,7 +824,42 @@ footer{background:#08101f;color:#4b5563;padding:60px 28px 28px}
         <div class="um-orders-title">📋 Seneste ordrer</div>
         <div id="umOrdersList"></div>
       </div>
+      <button class="um-btn-ghost" style="margin-bottom:10px" onclick="showUMChangePw()">🔑 Skift kodeord</button>
       <button class="um-logout" onclick="doUserLogout()">🚪 Log ud</button>
+    </div>
+    <div class="um-body" id="umChangePwBody" style="display:none">
+      <div class="um-form-title">Skift kodeord 🔑</div>
+      <div class="um-form-sub">Indtast dit nuværende kodeord, og vælg herefter et nyt.</div>
+      <div class="um-field um-pw-wrap">
+        <input type="password" id="umOldPw" class="um-input" placeholder="Nuværende kodeord" autocomplete="current-password" maxlength="100">
+        <button type="button" class="um-pw-toggle" onclick="toggleUmPw('umOldPw',this)" aria-label="Vis kodeord">👁️</button>
+      </div>
+      <div class="um-field um-pw-wrap">
+        <input type="password" id="umNewPw" class="um-input" placeholder="Nyt kodeord" autocomplete="new-password" maxlength="100" onkeypress="if(event.key==='Enter')doChangePassword()">
+        <button type="button" class="um-pw-toggle" onclick="toggleUmPw('umNewPw',this)" aria-label="Vis kodeord">👁️</button>
+      </div>
+      <div class="um-pw-hint">Mindst 8 tegn — med både bogstaver og tal.</div>
+      <div class="um-error" id="umChangePwErr"></div>
+      <button class="um-btn" onclick="doChangePassword()">🔑 Opdatér kodeord</button>
+      <button class="um-btn-ghost" onclick="showUMProfile(getUser())">← Tilbage til profil</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ VELKOMSTVIDEO ══ -->
+<div class="wv-ov" id="wvOv" role="dialog" aria-modal="true" aria-label="Velkomstvideo">
+  <div class="wv-box">
+    <div class="wv-top">
+      <span class="wv-badge">👋 Velkommen til Sørensen IT</span>
+      <div class="wv-top-btns">
+        <button type="button" class="wv-sound" id="wvSoundBtn" onclick="toggleWvSound(this)">🔇 Slå lyd til</button>
+        <button type="button" class="wv-skip" onclick="skipWelcomeVideo()">Spring over ✕</button>
+      </div>
+    </div>
+    <video id="wvVideo" class="wv-video" src="velkomst-video.mp4" playsinline controls muted onended="onWelcomeVideoEnded()"></video>
+    <div class="wv-bottom">
+      <p class="wv-txt">Se en kort velkomstvideo om Sørensen IT & Reparation — eller spring den over. Du ser den kun denne ene gang.</p>
+      <button class="wv-btn" onclick="skipWelcomeVideo()">Fortsæt til siden →</button>
     </div>
   </div>
 </div>
@@ -992,8 +1062,20 @@ function closeUserModal(){document.getElementById('userModalOv').classList.remov
 function showUMLogin(){um('umLoginBody');setUMTab('login');}
 function showUMSignup(){um('umSignupBody');setUMTab('signup');}
 function um(show){
-  ['umLoginBody','umSignupBody','umProfileBody'].forEach(id=>document.getElementById(id).style.display=id===show?'block':'none');
-  document.getElementById('umTabs').style.display=show==='umProfileBody'?'none':'flex';
+  ['umLoginBody','umSignupBody','umProfileBody','umChangePwBody'].forEach(id=>document.getElementById(id).style.display=id===show?'block':'none');
+  document.getElementById('umTabs').style.display=(show==='umProfileBody'||show==='umChangePwBody')?'none':'flex';
+}
+function showUMChangePw(){
+  document.getElementById('umOldPw').value='';document.getElementById('umNewPw').value='';
+  document.getElementById('umChangePwErr').classList.remove('show');
+  um('umChangePwBody');
+}
+function toggleUmPw(id,btn){
+  const inp=document.getElementById(id);
+  const vis=inp.type==='password';
+  inp.type=vis?'text':'password';
+  btn.textContent=vis?'🙈':'👁️';
+  btn.setAttribute('aria-label',vis?'Skjul kodeord':'Vis kodeord');
 }
 function setUMTab(tab){document.querySelectorAll('.um-tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===tab));}
 function umSwitchTab(tab){tab==='login'?showUMLogin():showUMSignup();}
@@ -1013,34 +1095,113 @@ function showUMProfile(user){
     ? ordrer.slice(-5).reverse().map(o=>`<div class="um-order-item"><b>${esc(o.id)}</b><span>${kr(o.total)}</span></div>`).join('')
     : '<div class="um-empty-orders">Ingen ordrer endnu. Læg en service i kurven og betal i kassen!</div>';
 }
-function doUserLogin(){
+/* ═══════════ KODEORD-SIKKERHED (PBKDF2) ═══════════ */
+const PBKDF2_ITER=100000;
+const LOGIN_MAKS_FORSOEG=5, LOGIN_LAAS_MS=5*60*1000;
+function bufToHex(buf){return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');}
+function hexToBuf(hex){const a=new Uint8Array(hex.length/2);for(let i=0;i<a.length;i++)a[i]=parseInt(hex.substr(i*2,2),16);return a.buffer;}
+function randomSaltHex(){return bufToHex(crypto.getRandomValues(new Uint8Array(16)).buffer);}
+async function hashPassword(password,saltHex){
+  const enc=new TextEncoder();
+  const keyMat=await crypto.subtle.importKey('raw',enc.encode(password),{name:'PBKDF2'},false,['deriveBits']);
+  const bits=await crypto.subtle.deriveBits({name:'PBKDF2',salt:hexToBuf(saltHex),iterations:PBKDF2_ITER,hash:'SHA-256'},keyMat,256);
+  return bufToHex(bits);
+}
+const erKodeordStaerkt=pw=>typeof pw==='string'&&pw.length>=8&&/[a-zA-Z]/.test(pw)&&/[0-9]/.test(pw);
+const erLaast=ud=>!!(ud.laasIndtil&&ud.laasIndtil>Date.now());
+const laasTekst=ud=>`🔒 For mange forkerte forsøg. Prøv igen om ${Math.ceil((ud.laasIndtil-Date.now())/60000)} min.`;
+function setLoggedInUser(ud){
+  try{localStorage.setItem(USER_LS,JSON.stringify({email:ud.email,name:ud.name,oprettet:ud.oprettet,sidsteLogin:ud.sidsteLogin,antalLogins:ud.antalLogins}));}catch{}
+}
+
+async function doUserLogin(){
   const email=document.getElementById('umEmail').value.trim().toLowerCase();
+  const password=document.getElementById('umPassword').value;
   const err=document.getElementById('umLoginErr');
-  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){err.textContent='⚠️ Indtast en gyldig e-mailadresse.';err.classList.add('show');return;}
   err.classList.remove('show');
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){err.textContent='⚠️ Indtast en gyldig e-mailadresse.';err.classList.add('show');return;}
+  if(!password){err.textContent='⚠️ Indtast dit kodeord.';err.classList.add('show');return;}
   const users=getUsers();
-  const ud=users[email]||{email,name:'',oprettet:Date.now()};
+  const ud=users[email];
+  if(!ud){err.textContent='⚠️ Ingen konto fundet med denne e-mail. Opret en konto i stedet.';err.classList.add('show');return;}
+  if(erLaast(ud)){err.textContent=laasTekst(ud);err.classList.add('show');return;}
+  let ok=false;
+  try{
+    if(!ud.hash){
+      if(!erKodeordStaerkt(password)){err.textContent='⚠️ Din konto mangler et kodeord. Vælg et på mindst 8 tegn med bogstaver og tal for at fortsætte.';err.classList.add('show');return;}
+      ud.salt=randomSaltHex();
+      ud.hash=await hashPassword(password,ud.salt);
+      ok=true;
+    }else{
+      ok=(await hashPassword(password,ud.salt))===ud.hash;
+    }
+  }catch{
+    err.textContent='⚠️ Din browser understøtter ikke sikker login lige nu. Prøv igen eller brug en anden browser.';err.classList.add('show');return;
+  }
+  if(!ok){
+    ud.forsoeg=(ud.forsoeg||0)+1;
+    if(ud.forsoeg>=LOGIN_MAKS_FORSOEG){ud.laasIndtil=Date.now()+LOGIN_LAAS_MS;ud.forsoeg=0;}
+    users[email]=ud;saveUsers(users);
+    err.textContent=erLaast(ud)?laasTekst(ud):'⚠️ Forkert e-mail eller kodeord.';
+    err.classList.add('show');
+    return;
+  }
+  ud.forsoeg=0;ud.laasIndtil=0;
   ud.sidsteLogin=Date.now();
   ud.antalLogins=(ud.antalLogins||0)+1;
   users[email]=ud;saveUsers(users);
-  try{localStorage.setItem(USER_LS,JSON.stringify(ud));}catch{}
+  setLoggedInUser(ud);
+  document.getElementById('umPassword').value='';
   loadUserCart(email);updateUserBtn();updateCartUI();closeUserModal();
   showToast('👋 Velkommen tilbage, '+esc(ud.name||email.split('@')[0])+'!');
   dismissReminder();
 }
-function doUserSignup(){
+async function doUserSignup(){
   const name=document.getElementById('umSignupName').value.trim();
   const email=document.getElementById('umSignupEmail').value.trim().toLowerCase();
+  const password=document.getElementById('umSignupPassword').value;
+  const password2=document.getElementById('umSignupPassword2').value;
   const err=document.getElementById('umSignupErr');
-  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){err.textContent='⚠️ Indtast en gyldig e-mailadresse.';err.classList.add('show');return;}
   err.classList.remove('show');
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){err.textContent='⚠️ Indtast en gyldig e-mailadresse.';err.classList.add('show');return;}
   const users=getUsers();
-  const ud={email,name,oprettet:Date.now(),sidsteLogin:Date.now(),antalLogins:1};
+  if(users[email]){err.textContent='⚠️ Der findes allerede en konto med denne e-mail. Log ind i stedet.';err.classList.add('show');return;}
+  if(!erKodeordStaerkt(password)){err.textContent='⚠️ Kodeordet skal være mindst 8 tegn og indeholde både bogstaver og tal.';err.classList.add('show');return;}
+  if(password!==password2){err.textContent='⚠️ Kodeordene er ikke ens.';err.classList.add('show');return;}
+  const salt=randomSaltHex();
+  let hash;
+  try{hash=await hashPassword(password,salt);}
+  catch{err.textContent='⚠️ Din browser understøtter ikke sikker oprettelse lige nu. Prøv igen eller brug en anden browser.';err.classList.add('show');return;}
+  const ud={email,name,oprettet:Date.now(),sidsteLogin:Date.now(),antalLogins:1,salt,hash,forsoeg:0,laasIndtil:0};
   users[email]=ud;saveUsers(users);
-  try{localStorage.setItem(USER_LS,JSON.stringify(ud));}catch{}
+  setLoggedInUser(ud);
   saveUserCart(email);updateUserBtn();updateCartUI();closeUserModal();
+  document.getElementById('umSignupPassword').value='';document.getElementById('umSignupPassword2').value='';
   showToast('✅ Konto oprettet! Velkommen, '+esc(name||email.split('@')[0])+'!');
   dismissReminder();
+}
+async function doChangePassword(){
+  const cur=getUser();
+  const err=document.getElementById('umChangePwErr');
+  err.classList.remove('show');
+  if(!cur){closeUserModal();return;}
+  const oldPw=document.getElementById('umOldPw').value;
+  const newPw=document.getElementById('umNewPw').value;
+  const users=getUsers();
+  const ud=users[cur.email];
+  if(!ud){err.textContent='⚠️ Konto ikke fundet.';err.classList.add('show');return;}
+  if(erLaast(ud)){err.textContent=laasTekst(ud);err.classList.add('show');return;}
+  if(!erKodeordStaerkt(newPw)){err.textContent='⚠️ Det nye kodeord skal være mindst 8 tegn og indeholde både bogstaver og tal.';err.classList.add('show');return;}
+  let ok=false;
+  try{ok=ud.hash?(await hashPassword(oldPw,ud.salt))===ud.hash:false;}
+  catch{err.textContent='⚠️ Kunne ikke bekræfte dit nuværende kodeord. Prøv igen.';err.classList.add('show');return;}
+  if(!ok){err.textContent='⚠️ Dit nuværende kodeord er forkert.';err.classList.add('show');return;}
+  ud.salt=randomSaltHex();
+  ud.hash=await hashPassword(newPw,ud.salt);
+  users[cur.email]=ud;saveUsers(users);
+  document.getElementById('umOldPw').value='';document.getElementById('umNewPw').value='';
+  showToast('🔑 Dit kodeord er opdateret.');
+  showUMProfile(getUser());
 }
 function doUserLogout(){
   const u=getUser();if(u)saveUserCart(u.email);
@@ -1066,6 +1227,34 @@ function dismissReminder(){
   try{localStorage.setItem('sorensen_r_dismiss',String(c+1));}catch{}
 }
 
+/* ═══════════ VELKOMSTVIDEO ═══════════ */
+const WV_SEEN_KEY='sorensen_velkomst_set';
+function harSetVelkomstVideo(){try{return !!localStorage.getItem(WV_SEEN_KEY);}catch{return true;}}
+function markerVelkomstVideoSet(){try{localStorage.setItem(WV_SEEN_KEY,'1');}catch{}}
+function visVelkomstVideoHvisNy(){
+  if(harSetVelkomstVideo())return;
+  const ov=document.getElementById('wvOv');
+  if(!ov)return;
+  ov.classList.add('open');
+  document.body.style.overflow='hidden';
+  const v=document.getElementById('wvVideo');
+  v.play().catch(()=>{});
+}
+function toggleWvSound(btn){
+  const v=document.getElementById('wvVideo');
+  v.muted=!v.muted;
+  btn.textContent=v.muted?'🔇 Slå lyd til':'🔊 Slå lyd fra';
+}
+function lukVelkomstVideo(){
+  const ov=document.getElementById('wvOv');
+  ov.classList.remove('open');
+  document.body.style.overflow='';
+  const v=document.getElementById('wvVideo');
+  v.pause();
+}
+function skipWelcomeVideo(){markerVelkomstVideoSet();lukVelkomstVideo();}
+function onWelcomeVideoEnded(){markerVelkomstVideoSet();lukVelkomstVideo();}
+
 /* ═══════════ ÅBNINGSTIDER ═══════════ */
 function minutter(t){const[a,b]=t.split(':').map(Number);return a*60+b;}
 function erAabent(){
@@ -1089,7 +1278,7 @@ function renderTider(){
 document.addEventListener('DOMContentLoaded',()=>{
   renderTider();setInterval(renderTider,60000);
   renderCats();renderSvcs();renderFAQ();
-  updateCartUI();updateUserBtn();scheduleReminder();
+  updateCartUI();updateUserBtn();scheduleReminder();visVelkomstVideoHvisNy();
 
   const ro=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in')}),{threshold:.1});
   document.querySelectorAll('.reveal').forEach(el=>ro.observe(el));
@@ -1100,7 +1289,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   });
   document.addEventListener('click',e=>{if(!e.target.closest('.srch-wrap'))closeDrop();});
   document.addEventListener('keydown',e=>{
-    if(e.key==='Escape'){closeDrawer();closeUserModal();closeDrop();}
+    if(e.key==='Escape'){closeDrawer();closeUserModal();closeDrop();if(document.getElementById('wvOv').classList.contains('open'))skipWelcomeVideo();}
   });
   document.getElementById('userModalOv').addEventListener('click',function(e){if(e.target===this)closeUserModal();});
 });
