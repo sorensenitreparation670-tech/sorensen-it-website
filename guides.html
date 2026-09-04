@@ -1,0 +1,1533 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IT Guider – Sørensen IT & Reparation</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════════
+   VARIABLER & RESET
+══════════════════════════════════════════ */
+:root {
+  --accent:      #1d4ed8;
+  --accent-dark: #1e40af;
+  --bg:          #f6f9ff;
+  --card:        #ffffff;
+  --text:        #0f172a;
+  --muted:       #475569;
+  --success:     #10b981;
+  --border:      #dbeafe;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Outfit', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  padding-top: 72px;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ══════════════════════════════════════════
+   NAV
+══════════════════════════════════════════ */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 24px;
+  padding: 16px 20px;
+  background: white;
+  border-bottom: 1px solid #e5e7eb;
+  z-index: 200;
+  flex-wrap: wrap;
+}
+
+nav a {
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--text);
+  transition: color 0.2s;
+}
+
+nav a:hover, nav a.active { color: var(--accent); }
+
+/* ══════════════════════════════════════════
+   PAGE HERO
+══════════════════════════════════════════ */
+.page-hero {
+  background: radial-gradient(circle at 30% 50%, #dbeafe, var(--bg) 70%);
+  padding: 60px 20px 50px;
+  text-align: center;
+}
+
+.page-hero h1 {
+  font-size: clamp(2rem, 6vw, 3.2rem);
+  font-weight: 900;
+  letter-spacing: -0.5px;
+  margin-bottom: 14px;
+}
+
+.page-hero h1 span { color: var(--accent); }
+
+.page-hero p {
+  font-size: 1.05rem;
+  color: var(--muted);
+  max-width: 520px;
+  margin: 0 auto 32px;
+}
+
+/* ── Search bar ── */
+.search-wrap {
+  max-width: 440px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.search-wrap input {
+  width: 100%;
+  padding: 14px 20px 14px 48px;
+  border-radius: 999px;
+  border: 2px solid var(--border);
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.95rem;
+  background: white;
+  color: var(--text);
+  transition: border-color 0.2s, box-shadow 0.2s;
+  outline: none;
+}
+
+.search-wrap input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(29,78,216,.12);
+}
+
+.search-icon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.1rem;
+  pointer-events: none;
+}
+
+/* ══════════════════════════════════════════
+   FILTER TABS
+══════════════════════════════════════════ */
+.filters-wrap {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 30px 20px 0;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.filter-btn {
+  padding: 8px 18px;
+  border-radius: 999px;
+  border: 2px solid var(--border);
+  background: white;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  transition: 0.2s;
+  white-space: nowrap;
+}
+
+.filter-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+.filter-btn.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: white;
+}
+
+/* ══════════════════════════════════════════
+   GUIDES GRID
+══════════════════════════════════════════ */
+.guides-section {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px 20px 80px;
+}
+
+.result-count {
+  font-size: 0.82rem;
+  color: var(--muted);
+  margin-bottom: 20px;
+  font-weight: 500;
+}
+
+.guides-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+/* ── Guide card ── */
+.guide-card {
+  background: white;
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 16px rgba(29,78,216,.07);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.25s, box-shadow 0.25s;
+}
+
+.guide-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(29,78,216,.14);
+}
+
+.guide-card:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.card-top {
+  padding: 26px 24px 20px;
+  flex: 1;
+}
+
+.card-emoji {
+  font-size: 2.4rem;
+  display: block;
+  margin-bottom: 14px;
+  line-height: 1;
+}
+
+.card-category {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  margin-bottom: 10px;
+}
+
+.cat-hardware  { background: #dbeafe; color: #1e40af; }
+.cat-software  { background: #d1fae5; color: #065f46; }
+.cat-gaming    { background: #ede9fe; color: #5b21b6; }
+.cat-vedligehold { background: #fef3c7; color: #92400e; }
+.cat-generelt  { background: #f1f5f9; color: #475569; }
+
+.card-title {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 8px;
+  line-height: 1.3;
+}
+
+.card-subtitle {
+  font-size: 0.87rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.card-bottom {
+  padding: 16px 24px;
+  border-top: 1px solid #f1f5f9;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card-meta {
+  font-size: 0.78rem;
+  color: var(--muted);
+  font-weight: 500;
+  display: flex;
+  gap: 12px;
+}
+
+.card-meta span { display: flex; align-items: center; gap: 4px; }
+
+.btn-read {
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--accent);
+  background: var(--bg);
+  border: 2px solid var(--border);
+  padding: 7px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-read:hover {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+}
+
+/* No results */
+.no-results {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--muted);
+}
+
+.no-results p { margin-top: 8px; font-size: 0.9rem; }
+
+/* ══════════════════════════════════════════
+   ARTICLE READER (fullscreen overlay)
+══════════════════════════════════════════ */
+.reader-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  z-index: 9999;
+  overflow-y: auto;
+  transform: translateX(100%);
+  transition: transform 0.35s cubic-bezier(.4,0,.2,1);
+}
+
+.reader-overlay.open {
+  transform: translateX(0);
+}
+
+/* Reading progress bar */
+.read-progress {
+  position: fixed;
+  top: 0; left: 0;
+  height: 4px;
+  background: var(--accent);
+  z-index: 10000;
+  transition: width 0.1s linear;
+  width: 0%;
+}
+
+/* Reader top bar */
+.reader-topbar {
+  position: sticky;
+  top: 0;
+  background: rgba(255,255,255,.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 100;
+}
+
+.btn-back {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--accent);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px 0;
+  transition: gap 0.2s;
+}
+
+.btn-back:hover { gap: 10px; }
+
+.reader-topbar-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--muted);
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Reader article */
+.reader-article {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 48px 24px 100px;
+}
+
+/* Article header */
+.article-kicker {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--accent);
+  margin-bottom: 12px;
+}
+
+.article-title {
+  font-size: clamp(1.8rem, 5vw, 2.6rem);
+  font-weight: 900;
+  letter-spacing: -0.5px;
+  line-height: 1.2;
+  margin-bottom: 16px;
+}
+
+.article-meta {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 36px;
+  padding-bottom: 28px;
+  border-bottom: 2px solid var(--border);
+  font-size: 0.82rem;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.article-meta span { display: flex; align-items: center; gap: 5px; }
+
+/* ── Article body typography ── */
+.article-body { line-height: 1.8; }
+
+.article-body p {
+  font-size: 1.02rem;
+  color: var(--text);
+  margin-bottom: 20px;
+}
+
+.article-body .lead {
+  font-size: 1.12rem;
+  color: var(--muted);
+  font-weight: 400;
+  line-height: 1.7;
+  margin-bottom: 28px;
+}
+
+.article-body h2 {
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: var(--text);
+  margin: 40px 0 16px;
+  letter-spacing: -0.2px;
+}
+
+.article-body h3 {
+  font-size: 1.12rem;
+  font-weight: 700;
+  color: var(--text);
+  margin: 28px 0 10px;
+}
+
+/* Numbered step list */
+.article-body ol.steps {
+  list-style: none;
+  counter-reset: step-counter;
+  margin: 24px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.article-body ol.steps li {
+  counter-increment: step-counter;
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.article-body ol.steps li::before {
+  content: counter(step-counter);
+  background: var(--accent);
+  color: white;
+  min-width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 0.82rem;
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+
+.article-body ol.steps li .step-body { flex: 1; }
+.article-body ol.steps li .step-title { font-weight: 700; margin-bottom: 4px; }
+.article-body ol.steps li .step-desc  { font-size: 0.9rem; color: var(--muted); line-height: 1.6; }
+
+/* Plain bullet list */
+.article-body ul.bullets {
+  list-style: none;
+  margin: 16px 0 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.article-body ul.bullets li {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  font-size: 0.97rem;
+  line-height: 1.6;
+}
+
+.article-body ul.bullets li::before {
+  content: '→';
+  color: var(--accent);
+  font-weight: 800;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+/* Callout boxes */
+.tip-box, .warning-box, .info-box {
+  border-radius: 0 14px 14px 0;
+  padding: 16px 20px;
+  margin: 24px 0;
+  font-size: 0.92rem;
+  line-height: 1.6;
+}
+
+.tip-box {
+  background: #eff6ff;
+  border-left: 4px solid var(--accent);
+  color: #1e40af;
+}
+
+.tip-box strong { color: var(--accent-dark); }
+
+.warning-box {
+  background: #fef3c7;
+  border-left: 4px solid #f59e0b;
+  color: #92400e;
+}
+
+.info-box {
+  background: #f0fdf4;
+  border-left: 4px solid var(--success);
+  color: #065f46;
+}
+
+/* Comparison table */
+.compare-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 24px 0;
+  font-size: 0.9rem;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.compare-table th {
+  background: var(--accent);
+  color: white;
+  padding: 12px 16px;
+  text-align: left;
+  font-weight: 700;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.compare-table td {
+  padding: 11px 16px;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: top;
+  line-height: 1.5;
+}
+
+.compare-table tr:last-child td { border-bottom: none; }
+.compare-table tr:nth-child(even) td { background: #f8fafc; }
+
+/* CTA box at end of article */
+.article-cta {
+  background: linear-gradient(135deg, #eff6ff, #e0f2fe);
+  border: 2px solid var(--border);
+  border-radius: 18px;
+  padding: 28px;
+  margin-top: 48px;
+  text-align: center;
+}
+
+.article-cta h3 {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+
+.article-cta p {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin-bottom: 20px;
+}
+
+.article-cta .cta-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.cta-btn-primary {
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 999px;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: background 0.2s;
+}
+
+.cta-btn-primary:hover { background: var(--accent-dark); }
+
+.cta-btn-secondary {
+  background: white;
+  color: var(--accent);
+  border: 2px solid var(--accent);
+  padding: 12px 24px;
+  border-radius: 999px;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: 0.2s;
+}
+
+.cta-btn-secondary:hover { background: var(--accent); color: white; }
+
+/* ══════════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════════ */
+@media (max-width: 640px) {
+  .page-hero { padding: 40px 16px 36px; }
+  .guides-section { padding: 20px 16px 60px; }
+  .reader-article { padding: 32px 18px 80px; }
+  nav { gap: 14px; padding: 12px 16px; }
+  .compare-table { font-size: 0.8rem; }
+  .compare-table td, .compare-table th { padding: 9px 12px; }
+  .article-cta .cta-buttons { flex-direction: column; align-items: center; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav>
+  <a href="index.html">Hjem</a>
+  <a href="index.html#services">Services</a>
+          <a href="index.html#saadan-fungerer-det">Sådan fungerer det</a>
+          <a href="index.html#picker">Konfigurator</a>
+          <a href="gpu-fps-tester.html">Grafikkort FPS Tester</a>
+  <a href="guides.html" class="active">Guider</a>
+  <a href="service-indlevering.html">Indlevering & Priser</a>
+  <a href="index.html#faq">FAQ</a>
+  <a href="index.html#kontakt">Kontakt</a>
+</nav>
+
+<!-- ── PAGE HERO ── -->
+<div class="page-hero">
+  <h1>IT <span>Guider</span></h1>
+  <p>Praktiske råd og vejledninger fra Jonas & Storm — hjælp dig selv, eller lær mere om din PC.</p>
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="searchInput" placeholder="Søg i guider... fx. virus, RAM, FPS" oninput="filterGuides()">
+  </div>
+</div>
+
+<!-- ── CATEGORY FILTERS ── -->
+<div class="filters-wrap">
+  <button class="filter-btn active" onclick="setFilter('all', this)">📋 Alle guider</button>
+  <button class="filter-btn" onclick="setFilter('hardware', this)">🔧 Hardware</button>
+  <button class="filter-btn" onclick="setFilter('software', this)">💻 Software</button>
+  <button class="filter-btn" onclick="setFilter('gaming', this)">🎮 Gaming</button>
+  <button class="filter-btn" onclick="setFilter('vedligehold', this)">🧹 Vedligeholdelse</button>
+  <button class="filter-btn" onclick="setFilter('generelt', this)">📦 Generelt</button>
+</div>
+
+<!-- ── GUIDES GRID ── -->
+<div class="guides-section">
+  <div class="result-count" id="resultCount"></div>
+  <div class="guides-grid" id="guidesGrid"><!-- filled by JS --></div>
+</div>
+
+<!-- ══════════════════════════════════════
+   ARTICLE READER OVERLAY
+══════════════════════════════════════ -->
+<div class="reader-overlay" id="readerOverlay" role="dialog" aria-modal="true" aria-label="Guide læser">
+  <div class="read-progress" id="readProgress"></div>
+
+  <div class="reader-topbar">
+    <button class="btn-back" onclick="closeReader()">← Alle guider</button>
+    <span class="reader-topbar-title" id="readerTopbarTitle"></span>
+    <span></span><!-- spacer for flex layout -->
+  </div>
+
+  <div class="reader-article">
+    <div id="articleContent"><!-- injected --></div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════
+   GUIDE DATA + LOGIC
+══════════════════════════════════════ -->
+<script>
+/* ─── CTA SNIPPET (reused in every article) ───────────────── */
+const CTA = `
+<div class="article-cta">
+  <h3>🛠️ Har du stadig problemer?</h3>
+  <p>Jonas & Storm hjælper dig. Send din PC ind, og vi kigger på den inden 2-3 hverdage.</p>
+  <div class="cta-buttons">
+    <a href="service-indlevering.html" class="cta-btn-primary">📦 Send din PC ind</a>
+    <a href="tel:93869267" class="cta-btn-secondary">📞 Ring: 93 86 92 67</a>
+  </div>
+</div>`;
+
+/* ─── GUIDES DATA ─────────────────────────────────────────── */
+const guides = [
+
+  /* ══ 1 ══════════════════════════════════════════════════════ */
+  {
+    id: 1,
+    category: 'hardware',
+    categoryLabel: 'Hardware',
+    emoji: '🔧',
+    title: 'Min PC starter ikke',
+    subtitle: 'Trin-for-trin fejlfinding inden du giver op',
+    readTime: '6 min',
+    difficulty: 'Let',
+    content: `
+      <p class="lead">Din PC gider ikke starte — det er frustrerende. Men inden du sender den til os, er der en række enkle ting du selv kan tjekke. De fleste "PC starter ikke"-problemer har en simpel forklaring.</p>
+
+      <h2>Tjek det basale først</h2>
+      <p>Det lyder banalt, men over halvdelen af alle sager skyldes løse kabler eller et stik der er røget ud. Start her:</p>
+      <ol class="steps">
+        <li>
+          <div class="step-body">
+            <div class="step-title">Tjek strømkablet</div>
+            <div class="step-desc">Sørg for at strømkablet sidder solidt i både stikkontakten og bag på PC'en (eller i UPS'en). Prøv eventuelt en anden kontakt i væggen.</div>
+          </div>
+        </li>
+        <li>
+          <div class="step-body">
+            <div class="step-title">Er skærmen tændt og forbundet?</div>
+            <div class="step-desc">Skærmen skal have strøm OG være forbundet til PC'en med HDMI, DisplayPort eller lignende. Tjek at kablet sidder fast i begge ender. Prøv en anden indgang på skærmen ved at trykke "Input" eller "Source" på skærmens knapper.</div>
+          </div>
+        </li>
+        <li>
+          <div class="step-body">
+            <div class="step-title">Hold powerknappen inde i 10 sekunder</div>
+            <div class="step-desc">Nogle gange er PC'en "låst" i en dvaletilstand. Hold powerknappen inde i 10 sekunder for at tvinge den til at slukke, og tryk den derefter kortvarigt igen for at starte den.</div>
+          </div>
+        </li>
+        <li>
+          <div class="step-body">
+            <div class="step-title">Tag stikket helt ud — vent 30 sekunder</div>
+            <div class="step-desc">Tag strømkablet ud af PC'en, vent 30 sekunder og sæt det i igen. Dette tømmer kondensatorer og nulstiller strømforsyningen. En overraskende effektiv løsning.</div>
+          </div>
+        </li>
+      </ol>
+
+      <h2>Hvad siger PC'en?</h2>
+      <p>Lyt efter lyde og kig efter LED-lys, når du forsøger at starte. De fortæller meget:</p>
+      <ul class="bullets">
+        <li><strong>Ingen lyde, ingen lys:</strong> Problemet er sandsynligvis strømforsyningen (PSU) eller stikket. Tjek strøm igen.</li>
+        <li><strong>Ventilatorer kører, men ingen billede:</strong> Sandsynligvis en defekt GPU, løs RAM-stav eller bundkortproblem.</li>
+        <li><strong>Et langt bip + to korte bip:</strong> RAM-fejl. Se trin herunder.</li>
+        <li><strong>Tre korte bip:</strong> RAM-fejl eller bundkortfejl.</li>
+        <li><strong>Gentagne korte bip:</strong> CPU-fejl eller overophedning.</li>
+      </ul>
+
+      <div class="tip-box">💡 <strong>Tip:</strong> Bip-koderne varierer fra bundkort til bundkort. Søg på Google efter dit bundkorts mærke + "beep codes" for en præcis oversigt.</div>
+
+      <h2>Prøv at fjerne RAM-stavene</h2>
+      <p>RAM er den hyppigste synder bag "starter ikke"-problemer. Sådan tester du:</p>
+      <ol class="steps">
+        <li>
+          <div class="step-body">
+            <div class="step-title">Sluk PC'en og tag stikket ud</div>
+            <div class="step-desc">Sikkerhed først — aldrig rod med indmaden mens der er strøm på.</div>
+          </div>
+        </li>
+        <li>
+          <div class="step-body">
+            <div class="step-title">Find RAM-stavene</div>
+            <div class="step-desc">Åbn siden på kabinettet (typisk holdt af to skruer bagpå). RAM-stavene er lange, smalle kort der sidder lodret på bundkortet.</div>
+          </div>
+        </li>
+        <li>
+          <div class="step-body">
+            <div class="step-title">Tag stavene ud og sæt dem i igen</div>
+            <div class="step-desc">Tryk på de to klemmer i begge ender, og løft RAM ud. Rens kontakterne forsigtigt med en viskelæder, og sæt dem i igen med et klik i begge ender.</div>
+          </div>
+        </li>
+        <li>
+          <div class="step-body">
+            <div class="step-title">Test med én stav ad gangen</div>
+            <div class="step-desc">Har du to stave, prøv at starte med kun den ene i Slot 1. Starter den? Prøv den anden i stedet. På den måde finder du en defekt stav.</div>
+          </div>
+        </li>
+      </ol>
+
+      <div class="warning-box">⚠️ <strong>Stop her</strong> hvis du er usikker. Forkert håndtering af komponenter kan forværre problemet. Det er altid bedre at sende PC'en til os end at gætte sig frem.</div>
+
+      <h2>Hvornår skal du kontakte os?</h2>
+      <p>Kontakt Sørensen IT hvis ingen af ovenstående trin hjælper, eller hvis du oplever:</p>
+      <ul class="bullets">
+        <li>PC'en lugter brændt</li>
+        <li>Der er synlig skade på komponenter</li>
+        <li>PC'en er overophedet og slukket af sig selv gentagne gange</li>
+        <li>Strømforsyningen laver kliklyde</li>
+      </ul>
+      ${CTA}
+    `
+  },
+
+  /* ══ 2 ══════════════════════════════════════════════════════ */
+  {
+    id: 2,
+    category: 'hardware',
+    categoryLabel: 'Hardware',
+    emoji: '🧠',
+    title: 'Hvad er RAM — og har du brug for mere?',
+    subtitle: 'Forstå din PC\'s arbejdshukommelse på 5 minutter',
+    readTime: '5 min',
+    difficulty: 'Let',
+    content: `
+      <p class="lead">RAM (Random Access Memory) er din PC's "arbejdsbord" — det midlertidige sted hvor alt kører, mens du bruger computeren. Har du for lidt, halter alt. Har du nok, mærker du det sjældent.</p>
+
+      <h2>Hvad gør RAM egentlig?</h2>
+      <p>Forestil dig dit skrivebord derhjemme. RAM er selve bordpladen — jo større den er, jo flere ting kan du have liggende fremme på én gang uden at rode rundt i skuffer (=harddisken). Lukker du din PC, er alt på "bordpladen" væk.</p>
+      <p>RAM adskiller sig fra SSD/harddisk ved hastighed: RAM er tusindvis af gange hurtigere at læse og skrive til, men gemmer intet permanent.</p>
+
+      <h2>Typer af RAM: DDR4 og DDR5</h2>
+      <p>De fleste PC'er bruger i dag enten DDR4 eller DDR5. De er ikke kompatible med hinanden — du kan ikke sætte DDR5 RAM i et DDR4-bundkort. Tjek dit bundkorts specifikationer (eller spørg os) inden du køber.</p>
+
+      <table class="compare-table">
+        <tr><th>Type</th><th>Hastighed</th><th>Typisk PC-alder</th></tr>
+        <tr><td>DDR4</td><td>2400–4800 MHz</td><td>2017–2023</td></tr>
+        <tr><td>DDR5</td><td>4800–7200+ MHz</td><td>2022 og nyere</td></tr>
+      </table>
+
+      <h2>Hvor meget RAM har du brug for?</h2>
+      <ul class="bullets">
+        <li><strong>8 GB:</strong> Absolut minimum for Windows 11. Tilstrækkeligt til lettere browsing og kontorarbejde, men kan hurtigt blive snævert.</li>
+        <li><strong>16 GB:</strong> Det rigtige sweet-spot for de fleste. Gaming, streaming, mange browsertabs — det hele kører uden problemer. <em>Vores anbefaling til de fleste.</em></li>
+        <li><strong>32 GB:</strong> Til dig der streamer, redigerer video, eller har 40+ browsertabs åbne. Spilkompilering og tunge kreative programmer profiterer mærkbart.</li>
+        <li><strong>64 GB+:</strong> Professionelt brug — 3D-rendering, videoredigering i høj opløsning, musikproduktion med mange plug-ins.</li>
+      </ul>
+
+      <div class="tip-box">💡 <strong>Dual-channel:</strong> To RAM-stave af samme størrelse kører i "dual-channel", hvilket i praksis giver op til 10-20 % bedre ydeevne end én stor stav. Sæt altid to identiske stave i frem for én.</div>
+
+      <h2>Har du brug for en opgradering?</h2>
+      <p>Du kan have for lidt RAM hvis du oplever:</p>
+      <ul class="bullets">
+        <li>PC'en er langsom, selv med få programmer åbne</li>
+        <li>Spil stammer, selvom GPU og CPU er rigelige</li>
+        <li>Windows viser advarsler om lav hukommelse</li>
+        <li>Programmer krasher eller fryser uden årsag</li>
+      </ul>
+      <p>Åbn Task Manager (Ctrl+Shift+Esc) → fanen "Ydeevne" → RAM. Er "I brug" konstant over 80 %, vil du mærke en forskel ved opgradering.</p>
+      ${CTA}
+    `
+  },
+
+  /* ══ 3 ══════════════════════════════════════════════════════ */
+  {
+    id: 3,
+    category: 'vedligehold',
+    categoryLabel: 'Vedligeholdelse',
+    emoji: '🌡️',
+    title: 'Hold din PC kold og lydløs',
+    subtitle: 'Vedligeholdelsestips der forlænger din PCs liv',
+    readTime: '7 min',
+    difficulty: 'Let',
+    content: `
+      <p class="lead">Varme er din PC's største fjende. En varm CPU og GPU arbejder dårligere, holder kortere tid og larmer mere. Med lidt vedligeholdelse holder din PC i årevis ekstra.</p>
+
+      <h2>Støvsuget — ja, bogstaveligt</h2>
+      <p>Støv er en isolator. Det samler sig på køleribbe, ventilatorer og filtre og forhindrer varm luft i at komme ud. Resultatet: temperaturer stiger, og PC'en throttler (sænker sin hastighed for at beskytte sig selv).</p>
+      <ol class="steps">
+        <li>
+          <div class="step-body">
+            <div class="step-title">Sluk og tag stikket ud</div>
+            <div class="step-desc">Aldrig rens PC'en med strøm på.</div>
+          </div>
+        </li>
+        <li>
+          <div class="step-body">
+            <div class="step-title">Brug dåseluft (komprimeret luft)</div>
+            <div class="step-desc">Købes i elektronikbutikker for ~60 kr. Spray i korte stød på CPU-køleren, GPU-køleren, RAM-stave og bundkortet. Hold dåsen lodret.</div>
+          </div>
+        </li>
+        <li>
+          <div class="step-body">
+            <div class="step-title">Rens støvfiltrene</div>
+            <div class="step-desc">Mange kabinetter har magnetiske støvfiltre foran og under. Tag dem af og skyl dem under vandhanen. Lad dem tørre helt inden du sætter dem i igen.</div>
+          </div>
+        </li>
+        <li>
+          <div class="step-body">
+            <div class="step-title">Gentag hver 6-12 måneder</div>
+            <div class="step-desc">Eller hyppigere hvis du har kæledyr eller ryger i rummet.</div>
+          </div>
+        </li>
+      </ol>
+
+      <h2>Termisk pasta — den glemte service</h2>
+      <p>Termisk pasta sidder mellem din CPU og dens køler. Den leder varme effektivt fra chippen til metalpladen. Over tid tørrer den ud og mister sin evne — typisk efter 3-5 år.</p>
+      <p>Symptomer på gammel termisk pasta: CPU-temperaturer over 90°C under load, PC'en slukker pludselig, høj ventilatorstøj selv ved lette opgaver.</p>
+      <div class="tip-box">💡 <strong>Lad os gøre det for dig:</strong> Skift af termisk pasta kræver at CPU-køleren tages af og sættes på igen korrekt. Vi tilbyder dette som en service.</div>
+
+      <h2>Overvåg dine temperaturer</h2>
+      <p>Download <strong>HWiNFO64</strong> (gratis) for at se realtids-temperaturer. Sunde temperaturer:</p>
+      <table class="compare-table">
+        <tr><th>Komponent</th><th>Idle (inaktiv)</th><th>Under load</th><th>Alarm-niveau</th></tr>
+        <tr><td>CPU</td><td>30–45°C</td><td>60–80°C</td><td>90°C+</td></tr>
+        <tr><td>GPU</td><td>30–50°C</td><td>65–85°C</td><td>90°C+</td></tr>
+        <tr><td>SSD (NVMe)</td><td>30–40°C</td><td>50–70°C</td><td>80°C+</td></tr>
+      </table>
+
+      <h2>Airflow: Sæt din PC det rigtige sted</h2>
+      <ul class="bullets">
+        <li>Placér PC'en på et hårdt underlag — ikke tæpper eller puder der blokerer bundventilatorerne</li>
+        <li>Hold 10–15 cm afstand til vægge på alle sider med ventilationshuller</li>
+        <li>Undgå direkte sollys på kabinettet</li>
+        <li>Et rent, ordentligt kabinetsindre med ordentlig kabelstyring forbedrer airflow markant</li>
+      </ul>
+      ${CTA}
+    `
+  },
+
+  /* ══ 4 ══════════════════════════════════════════════════════ */
+  {
+    id: 4,
+    category: 'software',
+    categoryLabel: 'Software',
+    emoji: '🛡️',
+    title: 'Beskyt din PC mod virus og malware',
+    subtitle: 'Gratis og effektiv beskyttelse i 2024',
+    readTime: '6 min',
+    difficulty: 'Let',
+    content: `
+      <p class="lead">De fleste danskere overvurderer risikoen fra avancerede hackere — og undervurderer risikoen fra dårlige vaner. God PC-sikkerhed handler 80 % om adfærd og 20 % om software.</p>
+
+      <h2>Windows Defender er faktisk rigtig godt</h2>
+      <p>Du behøver ikke betale for antivirus. Windows Defenders indbyggede beskyttelse scorer konsekvent i toppen af uafhængige tests og opdateres automatisk via Windows Update. Det vigtigste er at det er aktivt og opdateret.</p>
+      <p>Tjek det under: <strong>Indstillinger → Beskyttelse mod virus og trusler</strong>. Kig efter den grønne flueben ved "Realtidsbeskyttelse".</p>
+
+      <div class="info-box">✅ <strong>Godt supplement:</strong> Malwarebytes Free er et fremragende gratis scanningsværktøj. Kør det månedligt som second opinion — det finder ting Defender kan gå glip af.</div>
+
+      <h2>De 5 vigtigste sikkerhedsvaner</h2>
+      <ol class="steps">
+        <li>
+          <div class="step-body">
+            <div class="step-title">Hold Windows og programmer opdaterede</div>
+            <div class="step-desc">De fleste angreb udnytter kendte sikkerhedshuller der allerede er patchet. Lad Windows opdatere automatisk og klik "Opdater" i dine programmer.</div>
+          </div>
+        </li>
+        <li>
+          <div class="step-body">
+            <div class="step-title">Undgå piratkopieret software</div>
+            <div class="step-desc">Crackede programmer og keygens er den hurtigste vej til malware. Det er simpelthen ikke besværet værd — mange gratis alternativer er mindst lige så gode.</div>
+          </div>
+        </li>
+        <li>
+          <div class="step-body">
+            <div class="step-title">Tænk dig om ved mails og links</div>
+            <div class="step-desc">Phishing er verdens mest brugte angrebsform. Tjek altid afsenderadressen (ikke bare afsendernavnet). Troværdige virksomheder beder ALDRIG om kodeord via mail.</div>
+          </div>
+        </li>
+        <li>
+          <div class="step-body">
+            <div class="step-title">Brug unikke kodeord — og en kodeordsmanger</div>
+            <div class="step-desc">Bitwarden (gratis) gemmer dine kodeord sikkert og genererer stærke nye. Aldrig samme kodeord to steder — så kan et datalæk på ét site ikke bruges til at kompromittere andre.</div>
+          </div>
+        </li>
+        <li>
+          <div class="step-body">
+            <div class="step-title">Aktivér to-faktor-godkendelse</div>
+            <div class="step-desc">Slå 2FA til på din mail og vigtige konti. Selv hvis nogen får dit kodeord, kan de ikke logge ind uden den ekstra kode.</div>
+          </div>
+        </li>
+      </ol>
+
+      <h2>Tegn på at din PC er inficeret</h2>
+      <ul class="bullets">
+        <li>Pludselig meget langsom uden årsag</li>
+        <li>Ukendte programmer der starter automatisk</li>
+        <li>Browseren åbner sider af sig selv</li>
+        <li>Antivirus er slået fra og kan ikke startes</li>
+        <li>Harddisken kører konstant (hørbar)</li>
+      </ul>
+      <div class="warning-box">⚠️ Opdager du ransomware (krypterede filer og en løsesumsnote), sluk PC'en med det samme og kontakt os. Kobl den fra nettet. Jo hurtigere vi handler, jo større er chancen for at redde dine data.</div>
+      ${CTA}
+    `
+  },
+
+  /* ══ 5 ══════════════════════════════════════════════════════ */
+  {
+    id: 5,
+    category: 'software',
+    categoryLabel: 'Software',
+    emoji: '🧹',
+    title: 'Ryd op i Windows — trin for trin',
+    subtitle: 'Gør en langsom PC hurtigere på under 30 minutter',
+    readTime: '7 min',
+    difficulty: 'Let',
+    content: `
+      <p class="lead">En PC der har kørt i et år eller to samler skrald op: unødvendige programmer, ubrugte filer og startprogrammer der sætter alt i stå. Her er hvad du gør.</p>
+
+      <h2>1. Diskoprydning</h2>
+      <p>Windows gemmer mange midlertidige filer, downloads til opdateringer og andre skramler. Diskoprydning fjerner dem sikkert:</p>
+      <ol class="steps">
+        <li>
+          <div class="step-body">
+            <div class="step-title">Åbn Diskoprydning</div>
+            <div class="step-desc">Tryk på Windows-tasten og skriv "Diskoprydning". Vælg dit C-drev.</div>
+          </div>
+        </li>
+        <li>
+          <div class="step-body">
+            <div class="step-title">Klik "Ryd op i systemfiler"</div>
+            <div class="step-desc">Det giver adgang til Windows Update-filer og andre systemskramler, der kan fylde mange GB.</div>
+          </div>
+        </li>
+        <li>
+          <div class="step-body">
+            <div class="step-title">Markér alle og klik OK</div>
+            <div class="step-desc">Typisk kan du frigøre 5–30 GB på en PC der ikke er blevet ryddet op i et stykke tid.</div>
+          </div>
+        </li>
+      </ol>
+
+      <h2>2. Fjern ubrugte programmer</h2>
+      <p>Gå til <strong>Indstillinger → Apps → Installerede apps</strong>. Sortér efter størrelse. Afinstallér alt du ikke bruger — særligt toolbars, "PC-optimizers" og programmer fra pc-producenter (bloatware).</p>
+      <div class="warning-box">⚠️ Afinstallér aldrig programmer du ikke kender med sikkerhed. Søg på Google hvis du er usikker på om noget er et systemprogram.</div>
+
+      <h2>3. Sæt startprogrammer i skak</h2>
+      <p>Mange programmer tilføjer sig selv til Windows-opstart — selv om du sjældent bruger dem. Resultatet: Windows tager evigheder om at starte.</p>
+      <ol class="steps">
+        <li>
+          <div class="step-body">
+            <div class="step-title">Åbn Task Manager</div>
+            <div class="step-desc">Højreklik på proceslinjen og vælg "Task Manager", eller tryk Ctrl+Shift+Esc.</div>
+          </div>
+        </li>
+        <li>
+          <div class="step-body">
+            <div class="step-title">Gå til fanen "Start"</div>
+            <div class="step-desc">Her ser du alle programmer der starter automatisk med Windows.</div>
+          </div>
+        </li>
+        <li>
+          <div class="step-body">
+            <div class="step-title">Deaktivér det unødvendige</div>
+            <div class="step-desc">Højreklik og vælg "Deaktivér" på ting som Spotify, Discord, Teams m.m. Du kan stadig åbne dem manuelt — de starter blot ikke automatisk.</div>
+          </div>
+        </li>
+      </ol>
+
+      <div class="tip-box">💡 <strong>Behold:</strong> Windows Security, dit antivirus og drivere (NVIDIA, AMD, Intel). <strong>Deaktivér trygt:</strong> Spotify, Discord, Steam, Skype, og programmer fra PC-producenter.</div>
+
+      <h2>4. Rens temp-mappen</h2>
+      <p>Tryk <strong>Windows + R</strong>, skriv <code>%temp%</code> og tryk Enter. Markér alt (Ctrl+A) og slet det. Nogle filer vil ikke lade sig slette — det er OK, spring dem over. Disse filer bruges af programmer der kører nu.</p>
+
+      <h2>5. Tjek og reparer Windows-filer</h2>
+      <p>Kør denne kommando i PowerShell som administrator for at reparere korrupte systemfiler:</p>
+      <div class="tip-box">💡 Åbn PowerShell som administrator → skriv <code>sfc /scannow</code> → tryk Enter → vent til scanningen er færdig. Det tager 10-15 minutter.</div>
+      ${CTA}
+    `
+  },
+
+  /* ══ 6 ══════════════════════════════════════════════════════ */
+  {
+    id: 6,
+    category: 'software',
+    categoryLabel: 'Software',
+    emoji: '💾',
+    title: 'Backup — mist aldrig en fil igen',
+    subtitle: '3-2-1-reglen og gratis løsninger til alle',
+    readTime: '6 min',
+    difficulty: 'Let',
+    content: `
+      <p class="lead">Data forsvinder på tre måder: hardware-fejl, ransomware og menneskelige fejl. Ingen af dem er sjældne. En god backup-strategi beskytter mod alle tre.</p>
+
+      <h2>3-2-1-reglen</h2>
+      <p>Den gyldne standard inden for backup. Enkel at huske, svær at komme udenom:</p>
+      <ul class="bullets">
+        <li><strong>3 kopier</strong> af dine data (original + 2 backups)</li>
+        <li><strong>2 forskellige medier</strong> (f.eks. PC + ekstern disk)</li>
+        <li><strong>1 offsite-kopi</strong> (cloud-løsning, som er gemt et andet sted end din bolig)</li>
+      </ul>
+      <p>En backup der sidder ved siden af din PC hjælper ikke, hvis der er indbrud, brand eller oversvømmelse. Cloud-backup løser "offsite"-problemet automatisk.</p>
+
+      <h2>Gratis cloud-backup</h2>
+      <table class="compare-table">
+        <tr><th>Tjeneste</th><th>Gratis lagerplads</th><th>Bedst til</th></tr>
+        <tr><td>OneDrive (Microsoft)</td><td>5 GB</td><td>Windows-integration, Office-filer</td></tr>
+        <tr><td>Google Drive</td><td>15 GB</td><td>Dokumenter, billeder, alt muligt</td></tr>
+        <tr><td>iCloud</td><td>5 GB</td><td>Apple-brugere</td></tr>
+        <tr><td>Backblaze</td><td>Gratis prøve</td><td>Fuld PC-backup, ~60 kr/md</td></tr>
+      </table>
+      <div class="tip-box">💡 <strong>Vores anbefaling:</strong> Brug OneDrive (allerede på din Windows-PC) til de vigtige mapper — Dokumenter, Billeder og Skrivebord. Aktivér synkronisering, og det sker automatisk.</div>
+
+      <h2>Ekstern harddisk: nødvendigt supplement</h2>
+      <p>En ekstern harddisk på 1–2 TB koster 400-600 kr. og er penge godt givet ud. Sæt en reminder til at lave backup hver måned — eller brug Windows' eget Filhistorik til at gøre det automatisk.</p>
+      <p>Aktivér Filhistorik: <strong>Indstillinger → Opdatering og sikkerhed → Sikkerhedskopiering → Tilføj et drev</strong>.</p>
+
+      <h2>Det vigtigste at backe op</h2>
+      <ul class="bullets">
+        <li>Billeder og videoer — den absolutte prioritet</li>
+        <li>Dokumenter, regneark og præsentationer</li>
+        <li>Musik du ejer (ikke streamingbiblioteker)</li>
+        <li>Projekter — kode, design, skriveprojekter</li>
+        <li>Adgangskoder (brug Bitwarden — synkroniseres automatisk)</li>
+      </ul>
+      <div class="warning-box">⚠️ <strong>Test din backup!</strong> En backup du aldrig har gendannet fra er måske ikke en fungerende backup. Download én fil fra din cloud en gang om måneden og verificer at den åbner korrekt.</div>
+      ${CTA}
+    `
+  },
+
+  /* ══ 7 ══════════════════════════════════════════════════════ */
+  {
+    id: 7,
+    category: 'hardware',
+    categoryLabel: 'Hardware',
+    emoji: '📦',
+    title: 'Din PC\'s komponenter forklaret',
+    subtitle: 'Hvad gør hvad — uden teknisk jargon',
+    readTime: '8 min',
+    difficulty: 'Let',
+    content: `
+      <p class="lead">Du behøver ikke at kende alle teknikaliteterne, men det hjælper at vide hvad de forskellige dele gør — særligt når du skal vurdere hvad der skal opgraderes, eller hvad fejlen skyldes.</p>
+
+      <h2>CPU — processoren (hjernen)</h2>
+      <p>Central Processing Unit. Det er her dine programmer "kører". CPU'en håndterer logik, beregninger og koordinerer alt det andre komponenter laver. En stærk CPU er vigtig til kodekompilering, videoredigering og simulering.</p>
+      <p>Intel og AMD er de to store producenter. Ingen er objektivt bedst — det afhænger af pris og brugssituation.</p>
+
+      <h2>GPU — grafikkortet (tegneblokken)</h2>
+      <p>Graphics Processing Unit. Dedikeret til at beregne og vise billeder på din skærm. I gaming er GPU'en oftest den vigtigste komponent — den bestemmer FPS og grafikdetaljer. GPU'en har sit eget RAM kaldet VRAM.</p>
+      <p>NVIDIA (GeForce-serien) og AMD (Radeon-serien) dominerer markedet.</p>
+
+      <div class="tip-box">💡 Har din PC ikke et dedikeret grafikkort? Mange CPU'er har integreret grafik, der kan køre Windows fint og lette videoafspilning — men ikke gaming i nogen særlig grad.</div>
+
+      <h2>RAM — arbejdshukommelsen</h2>
+      <p>Det midlertidige sted alt kører mens PC'en er tændt. Se vores separate guide om RAM for detaljer.</p>
+
+      <h2>SSD og HDD — lagring</h2>
+      <table class="compare-table">
+        <tr><th>Type</th><th>Hastighed</th><th>Pris pr. GB</th><th>Holdbarhed</th></tr>
+        <tr><td>NVMe SSD</td><td>Meget hurtig (3–7 GB/s)</td><td>Dyr</td><td>God</td></tr>
+        <tr><td>SATA SSD</td><td>Hurtig (500 MB/s)</td><td>Moderat</td><td>God</td></tr>
+        <tr><td>HDD (harddisk)</td><td>Langsom (100–200 MB/s)</td><td>Billig</td><td>Mekanisk = skrøbelig</td></tr>
+      </table>
+      <p>Anbefalingen er: Windows og spil på en NVMe SSD, arkivfiler og store filsamlinger på en HDD.</p>
+
+      <h2>PSU — strømforsyningen (det glemte hjerte)</h2>
+      <p>Power Supply Unit. Konverterer vekselstrøm fra væggen til jævnstrøm til komponenterne. En billig eller underdimensioneret PSU er årsag til mange mystiske nedbrud. Investér i en certificeret PSU (80 PLUS Bronze eller bedre).</p>
+
+      <h2>Bundkortet — samlestedet</h2>
+      <p>Bundkortet binder alle komponenter sammen. Det bestemmer hvilken CPU og RAM du kan bruge, og hvor mange SATA/NVMe-porte du har. Du skal sjældent tænke på det — medmindre du skal opgradere CPU, da det skal være kompatibelt med bundkortet.</p>
+
+      <h2>Køling</h2>
+      <p>CPU'en og GPU'en producerer varme som skal fjernes. Det sker enten med luftkøling (heatsink + ventilatorer) eller vandkøling (AIO). GPU'en har typisk sit eget kølesystem integreret.</p>
+      ${CTA}
+    `
+  },
+
+  /* ══ 8 ══════════════════════════════════════════════════════ */
+  {
+    id: 8,
+    category: 'gaming',
+    categoryLabel: 'Gaming',
+    emoji: '🎮',
+    title: 'Gaming-PC vs. kontor-PC — hvad er forskellen?',
+    subtitle: 'Køb det rigtige til det rigtige formål',
+    readTime: '5 min',
+    difficulty: 'Let',
+    content: `
+      <p class="lead">Ikke alle PC'er er skabt ens. En gaming-PC og en kontor-PC kan koste det samme — men er bygget meget forskelligt. Her er hvad du skal vide inden du køber.</p>
+
+      <h2>Den afgørende forskel: GPU vs. CPU</h2>
+      <p>En gaming-PC prioriterer GPU (grafikkortet). Det er GPU'en der beregner og tegner billeder 60, 144 eller 240 gange i sekundet. En dyr CPU med en svag GPU giver dårlige spiloplevelser.</p>
+      <p>En kontor-PC har sjældent brug for et dedikeret grafikkort. Her er CPU-power og RAM vigtigere — for at håndtere mange programmer, videomøder og databaser.</p>
+
+      <table class="compare-table">
+        <tr><th></th><th>Gaming-PC</th><th>Kontor-PC</th></tr>
+        <tr><td>Prioritet</td><td>GPU (grafikkort)</td><td>CPU + RAM</td></tr>
+        <tr><td>Skærm</td><td>Høj Hz (144+), lav responstid</td><td>Opløsning og øjenvenlighed</td></tr>
+        <tr><td>Lyd</td><td>Headset og surroundsound</td><td>Ikke nødvendigt</td></tr>
+        <tr><td>Lager</td><td>Stor SSD til spil (700–150 GB pr. spil)</td><td>Moderat SSD holder</td></tr>
+        <tr><td>Udseende</td><td>RGB, glas-sidepanel</td><td>Diskret, tæt</td></tr>
+      </table>
+
+      <h2>Kan én PC klare begge?</h2>
+      <p>Ja, absolut. En gaming-PC klarer kontorarbejde med lethed — en kontor-PC klarer gaming dårligt (eller slet ikke) uden et GPU. Hvis du er i tvivl, gå for gaming-specifikationen.</p>
+
+      <h2>Budget-guide</h2>
+      <ul class="bullets">
+        <li><strong>4.000–6.000 kr:</strong> Solid 1080p gaming-PC. Kører alle spil, men ikke på de højeste indstillinger. Perfekt for Valorant, CS2, Fortnite.</li>
+        <li><strong>6.000–9.000 kr:</strong> 1080p ultra-indstillinger eller 1440p. God GPU som en RTX 4060 eller RX 7600.</li>
+        <li><strong>9.000–14.000 kr:</strong> 1440p ultra eller 4K gaming. RTX 4070/4070 Ti eller tilsvarende.</li>
+        <li><strong>14.000+ kr:</strong> Ingen kompromiser. 4K/144 Hz gaming, streaming og content creation på samme tid.</li>
+      </ul>
+      <div class="tip-box">💡 <strong>Undgå:</strong> Bærbare gaming-laptops til samme pris som en stationær PC. Du betaler et "bærbar-tillæg" — stationære PC'er giver altid mere ydelse for pengene.</div>
+      ${CTA}
+    `
+  },
+
+  /* ══ 9 ══════════════════════════════════════════════════════ */
+  {
+    id: 9,
+    category: 'gaming',
+    categoryLabel: 'Gaming',
+    emoji: '📈',
+    title: 'Sådan forbedrer du din FPS i spil',
+    subtitle: 'Fra stamre til glidende — uden at købe nyt udstyr',
+    readTime: '8 min',
+    difficulty: 'Moderat',
+    content: `
+      <p class="lead">Lav FPS ødelægger spiloplevelsen. Men inden du køber nyt udstyr, er der adskillige gratis optimeringer der kan give dig markant bedre billeder pr. sekund.</p>
+
+      <h2>Opdater dine GPU-drivere</h2>
+      <p>Forældede drivere er en af de hyppigste årsager til dårlig ydeevne. NVIDIA og AMD optimerer løbende driverne til nye spil.</p>
+      <ul class="bullets">
+        <li><strong>NVIDIA:</strong> Åbn GeForce Experience → Drivere → Søg efter opdateringer</li>
+        <li><strong>AMD:</strong> Åbn AMD Software: Adrenalin Edition → Hjem → Tjek opdateringer</li>
+      </ul>
+
+      <h2>Luk baggrundsprogrammer</h2>
+      <p>Discord, Chrome, Spotify og andre programmer bruger RAM og CPU i baggrunden. Åbn Task Manager (Ctrl+Shift+Esc) og se hvilke processer der bruger mest ressourcer. Luk det du ikke behøver mens du spiller.</p>
+      <div class="tip-box">💡 Deaktivér startprogrammer som beskrevet i vores "Ryd op i Windows"-guide. Det hjælper markant ved spilstart.</div>
+
+      <h2>Indstil spillet korrekt</h2>
+      <p>I de fleste spil giver disse indstillinger stor FPS-gevinst mod lille visuel forskel:</p>
+      <ul class="bullets">
+        <li><strong>Kør i fullscreen</strong> (ikke vinduestilstand eller borderless windowed) — giver GPU'en fuld prioritet</li>
+        <li><strong>Sænk skygger og reflektioner</strong> — de er GPU-tunge og svære at se under kamp</li>
+        <li><strong>Slå Motion Blur fra</strong> — ingen kan lide det, og det koster FPS</li>
+        <li><strong>Sænk Ambient Occlusion til lav</strong> — markant ydelsesforbedring</li>
+        <li><strong>Slå V-Sync fra</strong> — medmindre du har skærm-tearing; brug i stedet G-Sync/FreeSync</li>
+      </ul>
+
+      <h2>Windows-indstillinger til gaming</h2>
+      <ol class="steps">
+        <li>
+          <div class="step-body">
+            <div class="step-title">Slå "Spilfunktion" til</div>
+            <div class="step-desc">Indstillinger → Gaming → Spilfunktion → Til. Windows prioriterer CPU-ressourcer til spillet.</div>
+          </div>
+        </li>
+        <li>
+          <div class="step-body">
+            <div class="step-title">Hardware-accelereret GPU-planlægning</div>
+            <div class="step-desc">Indstillinger → System → Skærm → Grafik → Skift standardindstillinger for grafik → Hardware-accelereret GPU-planlægning → Til.</div>
+          </div>
+        </li>
+        <li>
+          <div class="step-body">
+            <div class="step-title">Strømplan: Høj ydeevne</div>
+            <div class="step-desc">Søg efter "Strømplan" i startmenuen → Vælg "Høj ydeevne". Forhindrer CPU i at throttle under gaming.</div>
+          </div>
+        </li>
+        <li>
+          <div class="step-body">
+            <div class="step-title">Ryd op på din SSD/HDD</div>
+            <div class="step-desc">Har din installationsdisk under 15 % ledig plads, kan det påvirke ydeevnen. Frigør plads.</div>
+          </div>
+        </li>
+      </ol>
+
+      <h2>Tjek temperaturer under gaming</h2>
+      <p>Stammer din PC præcis 20-30 minutter inde i spillet? Det er klassisk thermal throttling — PC'en sænker sin hastighed for at beskytte mod varme. Se vores guide om PC-køling.</p>
+      ${CTA}
+    `
+  },
+
+  /* ══ 10 ══════════════════════════════════════════════════════ */
+  {
+    id: 10,
+    category: 'hardware',
+    categoryLabel: 'Hardware',
+    emoji: '💿',
+    title: 'SSD vs. HDD — hvad skal du vælge?',
+    subtitle: 'Den opgradering der forandrer alt',
+    readTime: '5 min',
+    difficulty: 'Let',
+    content: `
+      <p class="lead">At skifte fra HDD til SSD er den enkeltopgradering der gør mest ved din PC. Windows starter på sekunder i stedet for minutter. Programmer åbner øjeblikkeligt. Spil loades 3-5 gange hurtigere.</p>
+
+      <h2>Teknologien bag</h2>
+      <p>En HDD (Hard Disk Drive) er en mekanisk enhed med roterende plader og en læsearm — ligesom en gammeldags pladespiller. Den er langsom, støjer en smule og er skrøbelig over for stød.</p>
+      <p>En SSD (Solid State Drive) bruger flashhukommelse (som et USB-stik, men meget hurtigere). Ingen bevægelige dele. Lydløs. Stødresistent.</p>
+
+      <table class="compare-table">
+        <tr><th></th><th>NVMe SSD</th><th>SATA SSD</th><th>HDD</th></tr>
+        <tr><td>Læsehastighed</td><td>3.000–7.000 MB/s</td><td>~550 MB/s</td><td>~120 MB/s</td></tr>
+        <tr><td>Pris (1 TB)</td><td>600–900 kr.</td><td>400–600 kr.</td><td>250–350 kr.</td></tr>
+        <tr><td>Støj</td><td>Ingen</td><td>Ingen</td><td>Svag summen/klik</td></tr>
+        <tr><td>Stødresistent</td><td>Ja</td><td>Ja</td><td>Nej</td></tr>
+        <tr><td>Strømforbrug</td><td>Lavt</td><td>Lavt</td><td>Højere</td></tr>
+      </table>
+
+      <h2>Hvad passer til hvad?</h2>
+      <ul class="bullets">
+        <li><strong>Windows-drev:</strong> NVMe SSD — altid. Det er den opgradering der mærkes mest.</li>
+        <li><strong>Spil:</strong> NVMe eller SATA SSD. Spil loades markant hurtigere, og open-world-spil streamer assets bedre.</li>
+        <li><strong>Arkiv og backup:</strong> HDD. Perfekt til film, musikbiblioteker og andre filer du ikke tilgår ofte. Billigst pr. GB.</li>
+      </ul>
+
+      <h2>Kan min PC opgraderes?</h2>
+      <p>De fleste PC'er kan. Faktisk er skiftet fra HDD til SSD den billigste og mest effektive opgradering til en gammel PC. Vi sørger for at kopiere alle dine data over og installere Windows på den nye SSD.</p>
+      <div class="info-box">✅ Tjek om din PC har en ledig M.2-slot (til NVMe SSD) eller SATA-port — de fleste PC'er har begge. Ring til os og spørg, så hjælper vi dig med at finde ud af hvad der passer.</div>
+      ${CTA}
+    `
+  },
+
+  /* ══ 11 ══════════════════════════════════════════════════════ */
+  {
+    id: 11,
+    category: 'generelt',
+    categoryLabel: 'Generelt',
+    emoji: '♻️',
+    title: 'Hvornår er det tid til en ny PC?',
+    subtitle: 'Reparér eller erstat — hvornår giver hvad mening?',
+    readTime: '5 min',
+    difficulty: 'Let',
+    content: `
+      <p class="lead">En PC der er langsom er ikke nødvendigvis en PC der skal erstattes. Men der er et punkt, hvor reparation og opgradering ikke længere kan betale sig. Her er tegnsystemet.</p>
+
+      <h2>Alder er ikke alt</h2>
+      <p>En 6 år gammel gaming-PC med SSD og 16 GB RAM kan sagtens klare sig i mange år endnu. En 3 år gammel kontorPC med HDD og 4 GB RAM kan føles som et fortidsminde. Alder er ikke den vigtigste faktor — specifikationerne er.</p>
+
+      <h2>Tid til ny PC når...</h2>
+      <ul class="bullets">
+        <li>PC'en kan ikke opdateres til den seneste Windows-version (Windows 11 kræver TPM 2.0)</li>
+        <li>CPU og bundkort er for gammelt til at opgradere GPU'en meningsfuldt</li>
+        <li>Reparationen koster mere end halvdelen af en ny PC</li>
+        <li>PC'en er over 8-10 år gammel og er begyndt at give hardware-fejl</li>
+        <li>Spil og programmer understøtter ikke længere ældre Windows-versioner</li>
+      </ul>
+
+      <h2>Tid til opgradering/reparation når...</h2>
+      <ul class="bullets">
+        <li>PC'en er langsom men hardwaren ellers fungerer (SSD-opgradering hjælper dramatisk)</li>
+        <li>RAM er under 16 GB — opgradering er billig og effektfuld</li>
+        <li>GPU er forældet men CPU og bundkort er stadig solide</li>
+        <li>Software-problemer, virus eller Windows-fejl bremser PC'en</li>
+      </ul>
+
+      <div class="tip-box">💡 <strong>Vores tommelfingerregel:</strong> Koster en opgradering/reparation under 1/3 af en ny PC med samme eller bedre ydeevne — gør det. Det er som regel en god investering.</div>
+
+      <h2>Hvad med mine data?</h2>
+      <p>Uanset om du reparerer eller køber nyt, hjælper vi med at flytte alle dine filer, programmer og indstillinger sikkert over på den nye maskine. Det er inkluderet i vores "Hele Setup"-service.</p>
+      ${CTA}
+    `
+  },
+
+  /* ══ 12 ══════════════════════════════════════════════════════ */
+  {
+    id: 12,
+    category: 'generelt',
+    categoryLabel: 'Generelt',
+    emoji: '📮',
+    title: 'Sådan sender du din PC til os',
+    subtitle: 'Emballage, forsendelse og hvad der sker bagefter',
+    readTime: '4 min',
+    difficulty: 'Let',
+    content: `
+      <p class="lead">Du behøver ikke komme fysisk forbi. Vi modtager PC'er og laptops med post fra hele landet, reparerer dem og sender dem retur. Sådan fungerer det.</p>
+
+      <h2>Inden du sender</h2>
+      <ol class="steps">
+        <li>
+          <div class="step-body">
+            <div class="step-title">Tag en backup</div>
+            <div class="step-desc">Sørg for at dine vigtigste filer er gemt et andet sted. Vi rører ikke dine data uden tilladelse, men en backup er altid god praksis.</div>
+          </div>
+        </li>
+        <li>
+          <div class="step-body">
+            <div class="step-title">Kontakt os med en beskrivelse</div>
+            <div class="step-desc">Ring på 93 86 92 67 eller skriv en mail med en kort beskrivelse af problemet. Så er vi forberedte og kan estimere tidsforbruget på forhånd.</div>
+          </div>
+        </li>
+        <li>
+          <div class="step-body">
+            <div class="step-title">Pak enheden korrekt</div>
+            <div class="step-desc">Se pakningstips herunder.</div>
+          </div>
+        </li>
+      </ol>
+
+      <h2>Pakning af din enhed</h2>
+      <ul class="bullets">
+        <li>Brug original-emballagen hvis muligt — den er designet til formålet</li>
+        <li>Indpak enheden i mindst 5 cm bobleplast på alle sider</li>
+        <li>Fyld tomrum i kassen med papir eller bobleplast, så enheden ikke rykker sig</li>
+        <li>Medsend en seddel med dit navn, telefonnummer og en beskrivelse af problemet</li>
+        <li>Du behøver ikke sende strøm, mus, tastatur eller skærm med — medmindre problemet er direkte relateret til en af dem</li>
+      </ul>
+
+      <div class="warning-box">⚠️ Tapet kabler og løse dele fast. En GPU der flyver rundt i kabinettet under forsendelse kan forårsage nye skader.</div>
+
+      <h2>Forsendelse</h2>
+      <p>Vi anbefaler PostNord eller GLS med tracking. Du betaler for forsendelsen til os — vi betaler returforsendelsen når enheden er klar.</p>
+
+      <h2>Hvad sker der bagefter?</h2>
+      <ul class="bullets">
+        <li>Vi bekræfter modtagelse via SMS eller mail</li>
+        <li>Vi diagnosticerer enheden og sender dig en pris-godkendelse inden vi går i gang</li>
+        <li>Nuværende ventetid er 2-3 hverdage</li>
+        <li>Du modtager en faktura og din PC sendes retur med PostNord</li>
+      </ul>
+      <div class="info-box">✅ Ønsker du express-behandling (samme dag)? Det er muligt mod et tillæg på 100 kr. Ring og aftal det inden du sender.</div>
+      ${CTA}
+    `
+  }
+
+]; /* end guides array */
+
+/* ─── STATE ─────────────────────────────────────────────── */
+let activeFilter  = 'all';
+let searchQuery   = '';
+
+/* ─── RENDER CARDS ──────────────────────────────────────── */
+function renderGrid() {
+  const grid  = document.getElementById('guidesGrid');
+  const count = document.getElementById('resultCount');
+
+  const filtered = guides.filter(g => {
+    const matchCat    = activeFilter === 'all' || g.category === activeFilter;
+    const q           = searchQuery.toLowerCase();
+    const matchSearch = !q || g.title.toLowerCase().includes(q)
+                            || g.subtitle.toLowerCase().includes(q)
+                            || g.category.toLowerCase().includes(q)
+                            || g.categoryLabel.toLowerCase().includes(q);
+    return matchCat && matchSearch;
+  });
+
+  count.textContent = filtered.length === guides.length
+    ? `${guides.length} guider`
+    : `${filtered.length} af ${guides.length} guider`;
+
+  if (filtered.length === 0) {
+    grid.innerHTML = `
+      <div class="no-results">
+        <div style="font-size:2.5rem;">🔎</div>
+        <p>Ingen guider matcher din søgning.</p>
+      </div>`;
+    return;
+  }
+
+  grid.innerHTML = filtered.map(g => `
+    <div class="guide-card" tabindex="0"
+         onclick="openGuide(${g.id})"
+         onkeydown="if(event.key==='Enter')openGuide(${g.id})">
+      <div class="card-top">
+        <span class="card-emoji">${g.emoji}</span>
+        <span class="card-category cat-${g.category}">${g.categoryLabel}</span>
+        <h2 class="card-title">${g.title}</h2>
+        <p class="card-subtitle">${g.subtitle}</p>
+      </div>
+      <div class="card-bottom">
+        <div class="card-meta">
+          <span>⏱ ${g.readTime}</span>
+          <span>📊 ${g.difficulty}</span>
+        </div>
+        <button class="btn-read" onclick="event.stopPropagation();openGuide(${g.id})">Læs →</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ─── FILTER & SEARCH ───────────────────────────────────── */
+function setFilter(cat, btn) {
+  activeFilter = cat;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderGrid();
+}
+
+function filterGuides() {
+  searchQuery = document.getElementById('searchInput').value;
+  renderGrid();
+}
+
+/* ─── OPEN GUIDE ────────────────────────────────────────── */
+function openGuide(id) {
+  const guide   = guides.find(g => g.id === id);
+  if (!guide) return;
+
+  const overlay = document.getElementById('readerOverlay');
+  const content = document.getElementById('articleContent');
+
+  content.innerHTML = `
+    <p class="article-kicker">${guide.emoji} ${guide.categoryLabel}</p>
+    <h1 class="article-title">${guide.title}</h1>
+    <div class="article-meta">
+      <span>⏱ ${guide.readTime} læsetid</span>
+      <span>📊 ${guide.difficulty}</span>
+    </div>
+    <div class="article-body">${guide.content}</div>
+  `;
+
+  document.getElementById('readerTopbarTitle').textContent = guide.title;
+  document.getElementById('readProgress').style.width = '0%';
+  overlay.scrollTop = 0;
+  overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+/* ─── CLOSE READER ──────────────────────────────────────── */
+function closeReader() {
+  document.getElementById('readerOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+/* ─── READING PROGRESS BAR ──────────────────────────────── */
+document.getElementById('readerOverlay').addEventListener('scroll', function () {
+  const el      = this;
+  const scrolled = el.scrollTop;
+  const total    = el.scrollHeight - el.clientHeight;
+  const pct      = total > 0 ? (scrolled / total) * 100 : 0;
+  document.getElementById('readProgress').style.width = pct + '%';
+});
+
+/* ─── ESC to close ──────────────────────────────────────── */
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeReader();
+});
+
+/* ─── INIT ──────────────────────────────────────────────── */
+renderGrid();
+</script>
+
+</body>
+</html>

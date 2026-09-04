@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sørensen IT — Behandler betaling</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --blue: #1a56db;
+    --green: #16a34a;
+    --red: #dc2626;
+    --grey-50: #f9fafb;
+    --grey-200: #e5e7eb;
+    --grey-500: #6b7280;
+    --grey-900: #111827;
+  }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--grey-50);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    color: var(--grey-900);
+  }
+
+  .brand { font-size: 16px; font-weight: 700; color: var(--blue); margin-bottom: 40px; letter-spacing: -0.3px; }
+
+  .card {
+    background: #fff;
+    border: 1px solid var(--grey-200);
+    border-radius: 16px;
+    padding: 40px 32px;
+    max-width: 480px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 4px 24px rgba(0,0,0,.06);
+  }
+
+  /* STATUS ICON */
+  .status-icon {
+    width: 80px; height: 80px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 24px;
+    font-size: 36px;
+  }
+  .status-icon.processing { background: #eff6ff; }
+  .status-icon.success { background: #dcfce7; }
+  .status-icon.failed { background: #fee2e2; }
+
+  /* SPINNER */
+  .ring-spinner {
+    width: 80px; height: 80px; margin: 0 auto 24px;
+    position: relative;
+  }
+  .ring-spinner svg { width: 80px; height: 80px; animation: rotate 2s linear infinite; }
+  .ring-spinner .track { fill: none; stroke: #e5e7eb; stroke-width: 5; }
+  .ring-spinner .fill {
+    fill: none; stroke: var(--blue); stroke-width: 5;
+    stroke-linecap: round;
+    stroke-dasharray: 220;
+    stroke-dashoffset: 60;
+    animation: dash 1.5s ease-in-out infinite;
+    transform-origin: center;
+  }
+  @keyframes rotate { to { transform: rotate(360deg); } }
+  @keyframes dash {
+    0% { stroke-dashoffset: 200; }
+    50% { stroke-dashoffset: 40; }
+    100% { stroke-dashoffset: 200; }
+  }
+
+  h1 { font-size: 22px; font-weight: 800; margin-bottom: 8px; }
+  .subtitle { font-size: 14px; color: var(--grey-500); line-height: 1.6; margin-bottom: 28px; }
+
+  /* COUNTDOWN */
+  .countdown-wrapper {
+    margin: 20px 0 28px;
+  }
+  .countdown-track {
+    height: 8px; background: var(--grey-200); border-radius: 99px;
+    overflow: hidden; margin-bottom: 10px;
+  }
+  .countdown-fill {
+    height: 100%; border-radius: 99px;
+    background: linear-gradient(90deg, var(--blue), #60a5fa);
+    transition: width .1s linear;
+  }
+  .countdown-fill.success-fill {
+    background: linear-gradient(90deg, var(--green), #4ade80);
+  }
+  .countdown-num {
+    font-size: 36px; font-weight: 800; color: var(--blue);
+    line-height: 1; margin-bottom: 4px;
+  }
+  .countdown-label { font-size: 13px; color: var(--grey-500); }
+
+  /* ORDER DETAILS */
+  .order-box {
+    background: var(--grey-50); border: 1px solid var(--grey-200);
+    border-radius: 10px; padding: 16px; margin-bottom: 24px;
+    text-align: left;
+  }
+  .order-row {
+    display: flex; justify-content: space-between;
+    font-size: 14px; padding: 5px 0;
+    border-bottom: 1px solid var(--grey-200);
+  }
+  .order-row:last-child { border-bottom: none; }
+  .order-row span:first-child { color: var(--grey-500); }
+  .order-row span:last-child { font-weight: 600; }
+  .order-id-display {
+    font-size: 18px; font-weight: 800; letter-spacing: 1.5px;
+    color: var(--blue); padding: 10px; background: #eff6ff;
+    border-radius: 8px; margin: 8px 0 20px; text-align: center;
+    font-family: monospace;
+  }
+
+  /* STATUS STATES */
+  .phase { display: none; }
+  .phase.active { display: block; }
+
+  /* SUCCESS */
+  .success-title { color: var(--green) !important; }
+  .success-bar { background: linear-gradient(90deg, var(--green), #4ade80) !important; animation: pulse-green 1s ease-in-out; }
+  @keyframes pulse-green { 0%,100% { opacity:1; } 50% { opacity:.8; } }
+
+  /* FAILED */
+  .failed-title { color: var(--red) !important; }
+  .failed-desc { border: 1px solid #fecaca; background: #fff5f5; border-radius: 8px; padding: 12px; font-size: 13px; color: var(--red); margin-bottom: 20px; }
+
+  /* METHODS INFO */
+  .method-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 14px; border-radius: 99px;
+    background: var(--grey-50); border: 1px solid var(--grey-200);
+    font-size: 13px; font-weight: 600; margin-bottom: 20px;
+  }
+
+  /* BUTTONS */
+  .btn {
+    display: inline-block; padding: 13px 28px;
+    border-radius: 10px; font-size: 15px; font-weight: 700;
+    border: none; cursor: pointer; transition: all .15s;
+    text-decoration: none; width: 100%; text-align: center;
+    margin-bottom: 10px;
+  }
+  .btn-primary { background: var(--blue); color: #fff; }
+  .btn-primary:hover { opacity: .9; }
+  .btn-green { background: var(--green); color: #fff; }
+  .btn-green:hover { opacity: .9; }
+  .btn-outline { background: #fff; color: var(--grey-900); border: 1.5px solid var(--grey-200); }
+  .btn-outline:hover { background: var(--grey-50); }
+  .btn-red { background: var(--red); color: #fff; }
+  .btn-red:hover { opacity: .9; }
+
+  /* STEPS MINI */
+  .mini-steps { display: flex; gap: 12px; justify-content: center; margin-bottom: 24px; }
+  .mini-step {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    font-size: 11px; color: var(--grey-500);
+  }
+  .mini-dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--grey-200);
+  }
+  .mini-dot.active { background: var(--blue); }
+  .mini-dot.done { background: var(--green); }
+  .mini-line { width: 40px; height: 2px; background: var(--grey-200); margin-top: 5px; }
+  .mini-line.done { background: var(--green); }
+
+  /* MOBILEPAY SPECIAL */
+  .mp-reminder {
+    background: linear-gradient(135deg, #5a2d9c 0%, #7b3fcf 100%);
+    border-radius: 12px; padding: 16px; color: #fff; margin-bottom: 20px;
+  }
+  .mp-reminder .mp-logo { font-weight: 900; font-size: 18px; margin-bottom: 4px; }
+  .mp-reminder p { font-size: 13px; opacity: .9; }
+  .mp-phone-big { font-size: 24px; font-weight: 800; letter-spacing: 1px; margin-top: 6px; }
+</style>
+</head>
+<body>
+
+<div class="brand">Sørensen IT</div>
+
+<div class="card">
+
+  <!-- PROCESSING PHASE -->
+  <div class="phase active" id="phase-processing">
+    <div class="ring-spinner">
+      <svg viewBox="0 0 80 80">
+        <circle class="track" cx="40" cy="40" r="34"/>
+        <circle class="fill" cx="40" cy="40" r="34"/>
+      </svg>
+    </div>
+    <h1>Behandler din betaling</h1>
+    <p class="subtitle">Vent venligst mens vi verificerer din betaling. Dette tager op til 30 sekunder.</p>
+
+    <div class="countdown-wrapper">
+      <div class="countdown-track">
+        <div class="countdown-fill" id="progressBar" style="width:100%"></div>
+      </div>
+      <div class="countdown-num" id="countdownNum">30</div>
+      <div class="countdown-label">sekunder tilbage</div>
+    </div>
+
+    <div id="methodBadge" class="method-badge">💳 Kortbetaling behandles...</div>
+
+    <div class="order-box" id="processingOrderBox">
+      <div class="order-row"><span>Ordre-ID</span><span id="proc-orderId">—</span></div>
+      <div class="order-row"><span>Beløb</span><span id="proc-amount">—</span></div>
+      <div class="order-row"><span>Status</span><span style="color:var(--blue);">⏳ Verificerer...</span></div>
+    </div>
+
+    <p style="font-size:12px;color:var(--grey-500);">Luk ikke dette vindue · Din betaling behandles sikkert</p>
+  </div>
+
+  <!-- SUCCESS PHASE -->
+  <div class="phase" id="phase-success">
+    <div class="status-icon success">✅</div>
+    <h1 class="success-title">Betaling gennemført!</h1>
+    <p class="subtitle">Vi har modtaget din betaling. En kvittering er sendt til din e-mail.</p>
+
+    <div class="order-id-display" id="succ-orderId">—</div>
+
+    <div class="order-box">
+      <div class="order-row"><span>Bekræftet beløb</span><span id="succ-amount">—</span></div>
+      <div class="order-row"><span>Betalingsmetode</span><span id="succ-method">—</span></div>
+      <div class="order-row"><span>E-mail bekræftelse</span><span id="succ-email">—</span></div>
+      <div class="order-row"><span>Forventet levering</span><span style="color:var(--green);">24–48 timer</span></div>
+    </div>
+
+    <button class="btn btn-green" onclick="window.location.href='kvittering.html'">
+      📄 Se kvittering
+    </button>
+    <button class="btn btn-outline" onclick="window.location.href='index.html'">
+      ← Tilbage til forsiden
+    </button>
+  </div>
+
+  <!-- FAILED PHASE -->
+  <div class="phase" id="phase-failed">
+    <div class="status-icon failed">❌</div>
+    <h1 class="failed-title">Betaling mislykkedes</h1>
+    <p class="subtitle">Vi kunne ikke bekræfte din betaling. Ingen penge er trukket.</p>
+
+    <div class="failed-desc" id="failedReason">
+      Din betaling kunne ikke gennemføres. Prøv igen med en anden betalingsmetode.
+    </div>
+
+    <div class="order-box">
+      <div class="order-row"><span>Reference</span><span id="fail-orderId">—</span></div>
+      <div class="order-row"><span>Status</span><span style="color:var(--red);">✗ Afvist</span></div>
+    </div>
+
+    <button class="btn btn-red" onclick="window.location.href='checkout.html'">
+      🔄 Prøv igen
+    </button>
+    <button class="btn btn-outline" onclick="window.location.href='index.html'">
+      ← Tilbage til forsiden
+    </button>
+  </div>
+
+</div>
+
+<script>
+/* ── READ SESSION DATA ── */
+const orderId = sessionStorage.getItem('pendingOrderId') || 'SIT-UKENDT';
+const method  = sessionStorage.getItem('paymentMethod') || 'card';
+const email   = sessionStorage.getItem('customerEmail') || '—';
+const total   = parseInt(sessionStorage.getItem('orderTotal') || '0');
+const name    = sessionStorage.getItem('customerName') || '';
+
+const methodLabels = {
+  card: '💳 Kortbetaling',
+  mobilepay: '📱 MobilePay',
+  bank: '🏦 Bankoverførsel',
+  klarna: '🌸 Klarna'
+};
+
+/* ── FILL PROCESSING STATE ── */
+document.getElementById('proc-orderId').textContent = orderId;
+document.getElementById('proc-amount').textContent = total.toLocaleString('da-DK') + ' kr.';
+
+const badgeEl = document.getElementById('methodBadge');
+if (method === 'mobilepay') {
+  badgeEl.innerHTML = '📱 Afventer MobilePay-betaling...';
+  // Show MobilePay reminder
+  const reminder = document.createElement('div');
+  reminder.className = 'mp-reminder';
+  reminder.innerHTML = `
+    <div class="mp-logo">MobilePay</div>
+    <p>Har du husket at sende betalingen?</p>
+    <div class="mp-phone-big">93 86 92 67</div>
+    <p style="font-size:12px;margin-top:6px;opacity:.75;">Beløb: <strong>${total.toLocaleString('da-DK')} kr.</strong> · Reference: ${orderId}</p>
+  `;
+  document.getElementById('processingOrderBox').before(reminder);
+} else if (method === 'bank') {
+  badgeEl.innerHTML = '🏦 Afventer bankoverførsel...';
+} else {
+  badgeEl.innerHTML = methodLabels[method] + ' behandles...';
+}
+
+/* ── COUNTDOWN ── */
+const WAIT_SECONDS = 30;
+let remaining = WAIT_SECONDS;
+const numEl  = document.getElementById('countdownNum');
+const barEl  = document.getElementById('progressBar');
+
+const timer = setInterval(() => {
+  remaining--;
+  numEl.textContent = remaining;
+  barEl.style.width = ((remaining / WAIT_SECONDS) * 100) + '%';
+
+  if (remaining <= 0) {
+    clearInterval(timer);
+    resolvePayment();
+  }
+}, 1000);
+
+/* ── RESOLVE ── */
+function resolvePayment() {
+  // For bank/mobilepay: always show "pending" in success (no real API)
+  // For card: simulate success/failure based on test card check
+  let success = true;
+
+  // Simulate a realistic ~88% success rate for card; always show processing done for others
+  if (method === 'card') {
+    const storedNum = sessionStorage.getItem('testCardFail');
+    if (storedNum === 'fail') { success = false; }
+    else { success = Math.random() > 0.12; }
+  }
+
+  showPhase(success ? 'success' : 'failed');
+}
+
+function showPhase(phase) {
+  ['processing','success','failed'].forEach(p => {
+    document.getElementById('phase-'+p).classList.toggle('active', p===phase);
+  });
+
+  if (phase === 'success') {
+    document.getElementById('succ-orderId').textContent = orderId;
+    document.getElementById('succ-amount').textContent = total.toLocaleString('da-DK') + ' kr.';
+    document.getElementById('succ-method').textContent = methodLabels[method] || method;
+    document.getElementById('succ-email').textContent = email;
+
+    // Store for receipt
+    sessionStorage.setItem('orderConfirmed', 'true');
+    sessionStorage.setItem('orderTimestamp', new Date().toISOString());
+
+    // Auto-redirect to receipt after 3s
+    setTimeout(() => {
+      window.location.href = 'kvittering.html';
+    }, 4000);
+  }
+
+  if (phase === 'failed') {
+    document.getElementById('fail-orderId').textContent = orderId;
+    const reasons = {
+      card: 'Kortbetalingen blev afvist. Kontrollér dine kortoplysninger eller kontakt din bank.',
+      mobilepay: 'Vi modtog ingen MobilePay-betaling indenfor tidsgrænsen.',
+      bank: 'Bankoverførslen er endnu ikke modtaget.',
+      klarna: 'Klarna kunne ikke gennemføre betalingen.'
+    };
+    document.getElementById('failedReason').textContent = reasons[method] || reasons.card;
+  }
+}
+</script>
+</body>
+</html>

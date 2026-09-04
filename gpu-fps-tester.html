@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sørensen IT & Reparation - Systembygger & FPS Tester</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --accent: #1d4ed8;
+            --accent-dark: #1e40af;
+            --bg: #f6f9ff;
+            --card: #ffffff;
+            --text: #0f172a;
+            --muted: #475569;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --success: #10b981;
+            
+            /* PSU & Platform Certificeringer */
+            --bronze: #cd7f32;
+            --gold: #d4af37;
+            --platinum: #e5e4e2;
+            --purple: #a855f7;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            padding-top: 80px;
+        }
+
+        .status-bar {
+            background: var(--accent);
+            color: white;
+            text-align: center;
+            padding: 10px;
+            font-weight: 700;
+        }
+
+        nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            padding: 18px;
+            background: white;
+            border-bottom: 1px solid #e5e5e5;
+            z-index: 100;
+        }
+
+        nav a {
+            text-decoration: none;
+            font-weight: 600;
+            color: var(--text);
+            transition: color 0.2s;
+        }
+
+        nav a:hover, nav a.active { color: var(--accent); }
+
+        header {
+            min-height: 30vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 40px 20px;
+            background: radial-gradient(circle, #dbeafe, #f6f9ff);
+        }
+
+        .hero { max-width: 850px; }
+        .hero h1 { font-size: 3rem; margin-bottom: 15px; }
+        .hero p { color: var(--muted); font-size: 1.1rem; }
+        .accent { color: var(--accent); }
+
+        section {
+            max-width: 1100px;
+            margin: auto;
+            padding: 40px 20px;
+        }
+
+        .tester-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 35px;
+            border-radius: 18px;
+            border: 1px solid #dbeafe;
+            box-shadow: 0 8px 20px rgba(29, 78, 216, .08);
+        }
+
+        .full-width-card {
+            grid-column: 1 / -1;
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+        }
+
+        .dark-card {
+            background: #0f172a;
+            color: white;
+            border: none;
+        }
+
+        h3 {
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            color: var(--text);
+            border-bottom: 2px solid #f1f5f9;
+            padding-bottom: 10px;
+        }
+
+        .dark-card h3 {
+            color: white;
+            border-bottom: 2px solid #1e293b;
+        }
+
+        .form-grid-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        @media(max-width: 600px) { .form-grid-inputs { grid-template-columns: 1fr; } }
+
+        .form-group { margin-bottom: 20px; }
+        .form-group.full-span { grid-column: 1 / -1; }
+        
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--muted);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        select {
+            width: 100%;
+            padding: 14px;
+            border-radius: 10px;
+            border: 2px solid #dbeafe;
+            background-color: #f8fafc;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1rem;
+            color: var(--text);
+            font-weight: 500;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        select:focus { border-color: var(--accent); }
+
+        /* ============ FPS DISPLAY & BAR UI ============ */
+        .fps-display {
+            text-align: center;
+            padding: 30px 25px;
+            background: linear-gradient(135deg, #f8fafc 0%, #f0f6ff 100%);
+            border-radius: 16px;
+            border: 1px solid #e2e8f0;
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.02);
+            position: relative;
+        }
+
+        .fps-number-container {
+            display: inline-flex;
+            align-items: baseline;
+            gap: 5px;
+        }
+
+        .fps-number {
+            font-size: 4rem;
+            font-weight: 800;
+            color: var(--text);
+            line-height: 1;
+            letter-spacing: -1px;
+        }
+
+        .fps-suffix { font-size: 1.5rem; font-weight: 700; color: var(--accent); }
+        .fps-label { font-weight: 600; color: var(--muted); margin-top: 2px; font-size: 0.95rem; text-transform: uppercase; }
+
+        .fps-visual-wrapper { margin-top: 25px; position: relative; }
+        .fps-bar-bg { background: #e2e8f0; height: 12px; border-radius: 99px; width: 100%; overflow: hidden; }
+        .fps-bar-fill {
+            background: linear-gradient(90deg, var(--danger) 0%, var(--warning) 35%, var(--success) 65%, var(--purple) 100%);
+            height: 100%; width: 0%; border-radius: 99px; transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .fps-markers { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--muted); font-weight: 700; margin-top: 8px; }
+
+        /* ==================== GRID OG BADGES FOR ANALYSERNE ==================== */
+        .psu-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            align-items: center;
+            margin-top: 15px;
+        }
+
+        @media(max-width: 768px) { .psu-grid { grid-template-columns: 1fr; } }
+
+        .psu-output-box {
+            background: #0f172a;
+            color: white;
+            padding: 25px 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(15, 23, 42, 0.15);
+        }
+
+        .light-output-box {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            color: var(--text);
+        }
+
+        .psu-wattage { font-size: 4rem; font-weight: 800; line-height: 1; color: #38bdf8; }
+        .light-output-box .psu-wattage { color: var(--accent); }
+        .psu-label-sub { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: #94a3b8; margin-bottom: 5px; display: block; }
+        .light-output-box .psu-label-sub { color: var(--muted); }
+
+        .psu-badge-container { display: flex; flex-direction: column; align-items: center; gap: 15px; }
+
+        .badge-80plus {
+            padding: 12px 30px; font-weight: 800; font-size: 1.2rem; border-radius: 12px; text-transform: uppercase;
+            text-align: center; width: 100%; max-width: 280px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .badge-bronze { background: linear-gradient(135deg, #a75d26, #cd7f32); color: white; border: 2px solid #8c4a1b; }
+        .badge-gold { background: linear-gradient(135deg, #b59410, #d4af37); color: #2d2200; border: 2px solid #96780b; }
+        .badge-platinum { background: linear-gradient(135deg, #cbd5e1, #f1f5f9); color: #1e293b; border: 2px solid #94a3b8; }
+        .badge-future { background: linear-gradient(135deg, #7c3aed, #a855f7); color: white; border: 2px solid #6d28d9; }
+
+        .psu-advice-text {
+            font-size: 0.95rem; color: var(--muted); line-height: 1.6; background: white; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; width: 100%;
+        }
+
+        .spec-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        .spec-item { background: #f8fafc; padding: 15px; border-radius: 10px; border: 1px solid #e2e8f0; }
+        .spec-title { font-size: 0.85rem; color: var(--muted); font-weight: 500; }
+        .spec-value { font-size: 1.1rem; font-weight: 700; color: var(--text); }
+
+        .bottleneck-card { padding: 20px; border-radius: 12px; margin-top: 10px; }
+        .status-badge { display: inline-block; padding: 6px 12px; border-radius: 20px; font-weight: 700; font-size: 0.85rem; text-transform: uppercase; margin-bottom: 10px; }
+
+        .bg-success { background: #ecfdf5; color: var(--success); border: 1px solid #a7f3d0; }
+        .bg-warning { background: #fffbeb; color: var(--warning); border: 1px solid #fde68a; }
+        .bg-danger { background: #fef2f2; color: var(--danger); border: 1px solid #fca5a5; }
+        .advice-box { font-size: 0.95rem; color: var(--muted); }
+
+        footer { text-align: center; padding: 40px; color: var(--muted); border-top: 1px solid #e5e5e5; margin-top: 60px; background: white; }
+
+        @media(max-width: 768px) {
+            .tester-container { grid-template-columns: 1fr; }
+            header h1 { font-size: 2.2rem; }
+            nav { flex-wrap: wrap; gap: 10px; padding: 12px; }
+            body { padding-top: 110px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="status-bar">📊 SYSTEMKONFIGURATOR · 2026 HARDWARE STANDARDER</div>
+
+    <!-- UPDATED NAVIGATION WITH THE NEW PAGE INCLUDED -->
+    <nav>
+        <a href="index.html">Hjem</a>
+        <a href="index.html#services">Services</a>
+        <a href="index.html#picker">Konfigurator</a>
+        <a href="gpu-fps-tester.html" class="active">Grafikkort FPS Tester</a>
+        <a href="guides.html" class="active">Guider</a>
+        <a href="service-indlevering.html">Indlevering & Priser</a>
+        <a href="index.html#faq">FAQ</a>
+        <a href="index.html#kontakt">Kontakt</a>
+    </nav>
+
+    <header>
+        <div class="hero">
+            <h1>Komplet <span class="accent">PC-Match Tester</span></h1>
+            <p>Vælg dine komponenter nedenfor. Systemet beregner FPS, flaskehalse, strømforsyningskrav med fuld future-proofing samt platformens samlede levetid.</p>
+        </div>
+    </header>
+
+    <section>
+        <div class="tester-container">
+            
+            <!-- INPUT FORM -->
+            <div class="card">
+                <h3>⚙️ Konfigurer Test-PC</h3>
+                
+                <div class="form-grid-inputs">
+                    <div class="form-group full-span">
+                        <label for="gpuSelect">Grafikkort (GPU)</label>
+                        <select id="gpuSelect" onchange="calculatePerformance()">
+                            <optgroup label="NVIDIA GeForce RTX 50-serien">
+                                <option value="rtx5090" selected>NVIDIA RTX 5090 (32GB)</option>
+                                <option value="rtx5080">NVIDIA RTX 5080 (16GB)</option>
+                                <option value="rtx5070ti">NVIDIA RTX 5070 Ti (16GB)</option>
+                                <option value="rtx5070">NVIDIA RTX 5070 (12GB)</option>
+                                <option value="rtx5060ti8">NVIDIA RTX 5060 Ti (8GB)</option>
+                                <option value="rtx5060">NVIDIA RTX 5060 (8GB)</option>
+                            </optgroup>
+                            <optgroup label="AMD Radeon RX 9000-serien">
+                                <option value="rx9070xt">Radeon RX 9070 XT (16GB)</option>
+                                <option value="rx9070">Radeon RX 9070 (16GB)</option>
+                                <option value="rx9060xt16">Radeon RX 9060 XT (16GB)</option>
+                            </optgroup>
+                        </select>
+                    </div>
+
+                    <div class="form-group full-span">
+                        <label for="cpuSelect">Processor (CPU Tier)</label>
+                        <select id="cpuSelect" onchange="calculatePerformance()">
+                            <option value="highend_modern">Ryzen 7 9800X3D / 7800X3D / Core Ultra 7</option>
+                            <option value="mid_modern">Ryzen 5 9600X / 7600 / Core Ultra 5</option>
+                            <option value="budget_modern">Ryzen 5 5600 / Intel i5-12400F</option>
+                            <option value="older_cpu">Ældre generation: Ryzen 5 3600 / Core i5-10400F</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="moboSelect">Bundkort (Chipsæt)</label>
+                        <select id="moboSelect" onchange="calculatePerformance()">
+                            <optgroup label="AMD AM5 (Nyeste standarder)">
+                                <option value="am5_x870">AMD X870 / X870E (Top-tier populær)</option>
+                                <option value="am5_b850" selected>AMD B850 (Mainstream 2026 favorit)</option>
+                                <option value="am5_b650">AMD B650 (Budget-venlig AM5 classic)</option>
+                            </optgroup>
+                            <optgroup label="AMD AM4 (Budget klassikere)">
+                                <option value="am4_b550">AMD B550 (Mest populære AM4)</option>
+                                <option value="am4_x570">AMD X570 (Premium AM4)</option>
+                            </optgroup>
+                            <optgroup label="Intel LGA1851 (Nyeste generation)">
+                                <option value="intel_z890">Intel Z890 (High-end Core Ultra)</option>
+                                <option value="intel_b860">Intel B860 (Mid-range 2026 standard)</option>
+                            </optgroup>
+                            <optgroup label="Intel LGA1700 (Forrige generation)">
+                                <option value="intel_z790">Intel Z790 (Premium LGA1700)</option>
+                                <option value="intel_b760">Intel B760 (Budget Intel standard)</option>
+                            </optgroup>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="ramSelect">RAM Konfiguration</label>
+                        <select id="ramSelect" onchange="calculatePerformance()">
+                            <option value="64_ddr5">64GB DDR5 (Entusiast / Overkill)</option>
+                            <option value="32_ddr5" selected>32GB DDR5 (Optimalt til 2026 Gaming)</option>
+                            <option value="16_ddr5">16GB DDR5 (Minimum til moderne systemer)</option>
+                            <option value="32_ddr4">32GB DDR4 (Perfekt til AM4)</option>
+                            <option value="16_ddr4">16GB DDR4 (Budget standard)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="ssdSelect">Primær SSD Lagring</label>
+                        <select id="ssdSelect" onchange="calculatePerformance()">
+                            <option value="nvme_5">M.2 NVMe PCIe 5.0 (Ekstrem 12.000+ MB/s)</option>
+                            <option value="nvme_4" selected>M.2 NVMe PCIe 4.0 (Hurtig standard 7000 MB/s)</option>
+                            <option value="nvme_3">M.2 NVMe PCIe 3.0 / SATA (Ældre hastighed)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="resSelect">Skærmopløsning</label>
+                        <select id="resSelect" onchange="calculatePerformance()">
+                            <option value="1080p">1080p (Full HD)</option>
+                            <option value="1440p">1440p (Quad HD)</option>
+                            <option value="4k" selected>4K Ultra HD</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-top: 10px;">
+                    <label for="gameSelect">Spil-titel & Indstillinger</label>
+                    <select id="gameSelect" onchange="calculatePerformance()">
+                        <option value="heavy_aa">Cyberpunk 2077 / Monster Hunter Wilds (Ultra)</option>
+                        <option value="action_adv">GTA V / Red Dead Redemption 2 (Ultra)</option>
+                        <option value="esports">Counter-Strike 2 / Valorant / Fortnite (Competitive)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- OUTPUT RESULTS -->
+            <div class="card">
+                <h3>📊 Spilydeevne & Bottleneck</h3>
+                
+                <div class="result-box">
+                    <div class="fps-display">
+                        <div class="fps-number-container">
+                            <div class="fps-number" id="fpsOutput">0</div>
+                            <div class="fps-suffix">FPS</div>
+                        </div>
+                        <div class="fps-label">Gennemsnitlig Spilydeevne</div>
+                        
+                        <div class="fps-visual-wrapper">
+                            <div class="fps-bar-bg">
+                                <div class="fps-bar-fill" id="fpsVisualFill"></div>
+                            </div>
+                            <div class="fps-markers">
+                                <span>30 <small>(Konsol)</small></span>
+                                <span>60 <small>(Flydende)</small></span>
+                                <span>144+ <small>(Esport Pro)</small></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="spec-grid" style="margin-top: 25px;">
+                        <div class="spec-item">
+                            <div class="spec-title">VRAM Hukommelse</div>
+                            <div class="spec-value" id="vramOutput">-</div>
+                        </div>
+                        <div class="spec-item">
+                            <div class="spec-title">Ray Tracing Styrke</div>
+                            <div class="spec-value" id="rtOutput">-</div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h4 style="font-size: 0.95rem; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; letter-spacing: 0.5px;">Flaskehals Analyse</h4>
+                        <div id="bottleneckContainer" class="bottleneck-card bg-success">
+                            <div class="status-badge" id="statusBadge">Optimalt Match</div>
+                            <div class="advice-box" id="adviceOutput">Beregner...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STRØMBEREGNER (REALISTISK & FUTURE-PROOF) -->
+            <div class="card full-width-card dark-card">
+                <h3>🔌 Strømkrav & Realistisk PSU Købsanbefaling</h3>
+                <div class="psu-grid">
+                    
+                    <div class="psu-output-box" style="background: #1e293b;">
+                        <div style="margin-bottom: 25px; border-bottom: 1px solid #475569; padding-bottom: 15px;">
+                            <span class="psu-label-sub" style="color: #cbd5e1;">Rå Hardwareforbrug under spil (GPU+CPU)</span>
+                            <div style="font-size: 2.2rem; font-weight: 700; color: #f43f5e;" id="hardwareWattOutput">0W</div>
+                        </div>
+                        <div>
+                            <span class="psu-label-sub" style="color: #38bdf8; font-weight: 700;">ANBEFALET PSU STØRRELSE TIL BUTIKKEN:</span>
+                            <div class="psu-wattage" id="psuWattOutput" style="color: #38bdf8;">0W</div>
+                        </div>
+                    </div>
+
+                    <div class="psu-badge-container">
+                        <div class="badge-80plus" id="psuBadge">-</div>
+                        <div class="psu-advice-text" id="psuAdviceOutput" style="background: #1e293b; color: #e2e8f0; border: 1px solid #334155;">Indlæser strømanalyse...</div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- BUNDKORT, RAM OG PLATFORM ANALYSE -->
+            <div class="card full-width-card">
+                <h3>🧠 Bundkort, RAM & Lagerplads Analyse (Fremtidssikring)</h3>
+                <div class="psu-grid">
+                    
+                    <div class="psu-output-box light-output-box">
+                        <div style="margin-bottom: 25px; border-bottom: 1px solid #e2e8f0; padding-bottom: 15px;">
+                            <span class="psu-label-sub">Valgt Platformøkosystem</span>
+                            <div style="font-size: 2.2rem; font-weight: 800; color: var(--text);" id="platformNameOutput">AM5 Platform</div>
+                        </div>
+                        <div>
+                            <span class="psu-label-sub">Platformens Status</span>
+                            <div class="psu-wattage" id="platformStatusOutput" style="font-size: 2.5rem; color: var(--success);">KLAR TIL FREMTIDEN</div>
+                        </div>
+                    </div>
+
+                    <div class="psu-badge-container">
+                        <div class="badge-80plus badge-future" id="platformBadge">AM5 ECOSYSTEM</div>
+                        <div class="psu-advice-text" id="platformAdviceOutput">Beregner platformens kompatibilitet og fremtidssikring...</div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2026 Sørensen IT & Reparation | Jonas & Storm Sørensen | Tlf: 93 86 92 67</p>
+    </footer>
+
+    <script>
+        const gpuData = {
+            rtx5090: { name: "NVIDIA RTX 5090", vram: "32 GB GDDR7", rt: "Uovertruffen (DLSS 4.0)", tier: "highend", watt: 520, baseFps: { heavy_aa: 185, action_adv: 245, esports: 490 }, scaling: { "1080p": 1.15, "1440p": 1.0, "4k": 0.82 } },
+            rtx5080: { name: "NVIDIA RTX 5080", vram: "16 GB GDDR7", rt: "Ekstrem (DLSS 4.0)", tier: "highend", watt: 370, baseFps: { heavy_aa: 142, action_adv: 188, esports: 410 }, scaling: { "1080p": 1.25, "1440p": 1.0, "4k": 0.72 } },
+            rtx5070ti: { name: "NVIDIA RTX 5070 Ti", vram: "16 GB GDDR6X", rt: "Fremragende", tier: "highend", watt: 300, baseFps: { heavy_aa: 112, action_adv: 148, esports: 350 }, scaling: { "1080p": 1.32, "1440p": 1.0, "4k": 0.65 } },
+            rtx5070: { name: "NVIDIA RTX 5070", vram: "12 GB GDDR6X", rt: "Meget Høj", tier: "mid", watt: 220, baseFps: { heavy_aa: 96, action_adv: 126, esports: 300 }, scaling: { "1080p": 1.38, "1440p": 1.0, "4k": 0.58 } },
+            rtx5060ti8: { name: "NVIDIA RTX 5060 Ti (8GB)", vram: "8 GB GDDR7", rt: "Høj Hasteighed", tier: "mid", watt: 180, baseFps: { heavy_aa: 80, action_adv: 106, esports: 265 }, scaling: { "1080p": 1.40, "1440p": 1.0, "4k": 0.44 } },
+            rtx5060: { name: "NVIDIA RTX 5060", vram: "8 GB GDDR7", rt: "God Mid-Range", tier: "budget", watt: 150, baseFps: { heavy_aa: 68, action_adv: 90, esports: 220 }, scaling: { "1080p": 1.42, "1440p": 1.0, "4k": 0.40 } },
+            rx9070xt: { name: "Radeon RX 9070 XT", vram: "16 GB GDDR6", rt: "Fremragende", tier: "highend", watt: 250, baseFps: { heavy_aa: 105, action_adv: 135, esports: 310 }, scaling: { "1080p": 1.3, "1440p": 1.0, "4k": 0.62 } },
+            rx9070: { name: "Radeon RX 9070", vram: "16 GB GDDR6", rt: "Høj (RDNA 4)", tier: "highend", watt: 220, baseFps: { heavy_aa: 92, action_adv: 120, esports: 280 }, scaling: { "1080p": 1.35, "1440p": 1.0, "4k": 0.57 } },
+            rx9060xt16: { name: "Radeon RX 9060 XT", vram: "16 GB GDDR6", rt: "Medium til Høj", tier: "mid", watt: 180, baseFps: { heavy_aa: 72, action_adv: 95, esports: 230 }, scaling: { "1080p": 1.4, "1440p": 1.0, "4k": 0.48 } }
+        };
+
+        const cpuWattage = { highend_modern: 140, mid_modern: 90, budget_modern: 65, older_cpu: 85 };
+
+        function calculatePerformance() {
+            const gpuKey = document.getElementById("gpuSelect").value;
+            const cpuKey = document.getElementById("cpuSelect").value;
+            const gameKey = document.getElementById("gameSelect").value;
+            const resKey = document.getElementById("resSelect").value;
+            
+            const moboKey = document.getElementById("moboSelect").value;
+            const ramKey = document.getElementById("ramSelect").value;
+            const ssdKey = document.getElementById("ssdSelect").value;
+
+            const gpu = gpuData[gpuKey];
+            let calculatedFps = Math.round(gpu.baseFps[gameKey] * gpu.scaling[resKey]);
+
+            // 1. FPS / Bottleneck-beregning
+            let bottleneckPercent = 0;
+            let status = "optimal";
+            let advice = "Din processor og dit grafikkort passer perfekt sammen. Du får maksimal udnyttelse ud af din hardware.";
+
+            if (cpuKey === "older_cpu") {
+                if (resKey === "1080p") bottleneckPercent = gpu.tier === "highend" ? 40 : 20;
+                else if (resKey === "1440p") bottleneckPercent = gpu.tier === "highend" ? 25 : 10;
+                else if (resKey === "4k") bottleneckPercent = gpu.tier === "highend" ? 12 : 0;
+                advice = `Din ældre processor vil flaskehalse dette kort med ca. ${bottleneckPercent}% i ${resKey}. Vi anbefaler en opgradering af bundkort og CPU for fuldt udbytte.`;
+                status = bottleneckPercent > 15 ? "danger" : "warning";
+            } else if (cpuKey === "budget_modern" && gpu.tier === "highend" && resKey === "1080p") {
+                bottleneckPercent = 20; status = "warning";
+                advice = "En fin budget-CPU, men parret med dette stærke kort i 1080p trækkes frameraten ned. Skift til 1440p/4K for at udnytte kortet ordentligt.";
+            }
+
+            if (bottleneckPercent > 0) calculatedFps = Math.round(calculatedFps * (1 - (bottleneckPercent / 100)));
+            if (resKey === "4k" && gpu.vram.startsWith("8 GB")) {
+                advice = `⚠️ ADVARSEL: ${gpu.name} har kun 8GB VRAM. Moderne spil i 4K vil opleve voldsomme hak eller teksturfejl. Sænk opløsningen eller skift til et kort med mere VRAM.`;
+                status = "danger";
+            }
+
+            document.getElementById("fpsOutput").innerText = calculatedFps;
+            document.getElementById("vramOutput").innerText = gpu.vram;
+            document.getElementById("rtOutput").innerText = gpu.rt;
+            document.getElementById("fpsVisualFill").style.width = Math.min((calculatedFps / 200) * 100, 100) + "%";
+            
+            const container = document.getElementById("bottleneckContainer");
+            const badge = document.getElementById("statusBadge");
+            container.className = "bottleneck-card"; 
+            document.getElementById("adviceOutput").innerText = advice;
+
+            if (status === "optimal") { container.classList.add("bg-success"); badge.innerText = "Optimalt Match"; badge.className = "status-badge bg-success"; }
+            else if (status === "warning") { container.classList.add("bg-warning"); badge.innerText = "Mild Flaskehals"; badge.className = "status-badge bg-warning"; }
+            else { container.classList.add("bg-danger"); badge.innerText = "Tydelig Flaskehals"; badge.className = "status-badge bg-danger"; }
+
+
+            // 2. REALISTISK STRØMBEREGNING MED FUTURE-PROOFING
+            let pureHardwareWattage = gpu.watt + cpuWattage[cpuKey];
+            document.getElementById("hardwareWattOutput").innerText = pureHardwareWattage + "W";
+
+            let recommendedPSUWatt = 650;
+            
+            if (gpuKey === "rtx5090") {
+                recommendedPSUWatt = (cpuKey === "highend_modern") ? 1200 : 1000;
+            } 
+            else if (gpuKey === "rtx5080" || gpuKey === "rtx5070ti" || gpuKey === "rx9070xt") {
+                recommendedPSUWatt = (cpuKey === "highend_modern") ? 1000 : 850;
+            } 
+            else {
+                let baseWithBuffer = pureHardwareWattage + 150;
+                if (baseWithBuffer > 750) recommendedPSUWatt = 850;
+                else if (baseWithBuffer > 650) recommendedPSUWatt = 750;
+                else if (baseWithBuffer > 550) recommendedPSUWatt = 650;
+                else recommendedPSUWatt = 550;
+            }
+
+            document.getElementById("psuWattOutput").innerText = recommendedPSUWatt + "W";
+
+            const psuBadge = document.getElementById("psuBadge");
+            const psuAdviceOutput = document.getElementById("psuAdviceOutput");
+            psuBadge.className = "badge-80plus";
+
+            if (recommendedPSUWatt >= 1000) {
+                psuBadge.classList.add("badge-platinum");
+                psuBadge.innerText = "80+ PLATINUM / ATX 3.1";
+                psuAdviceOutput.innerHTML = `<strong>ULTIMATIV FREMTIDSSIKRING:</strong> Selvom komponenterne i gennemsnit bruger ${pureHardwareWattage}W, vil et high-end kort som <strong>${gpu.name}</strong> have massive kortvarige strømspidser. Vi anbefaler klart en <strong>${recommendedPSUWatt}W strømforsyning</strong> godkendt med ATX 3.1 og indbygget native 12V-2x6 kabel, så systemet aldrig crasher under pres og er klar til næste generation af opgraderinger!`;
+            } else if (recommendedPSUWatt === 850) {
+                psuBadge.classList.add("badge-gold");
+                psuBadge.innerText = "80+ GOLD / ATX 3.0";
+                psuAdviceOutput.innerHTML = `<strong>ENTUSIAST STANDARD:</strong> Forbrug ligger stabilt, men for at sikre optimal effektivitet og plads til fremtidige GPU-opgraderinger, bør du købe en kvalitets <strong>850W Gold PSU</strong>. Det holder blæseren lydløs og sikrer perfekt strømkvalitet.`;
+            } else {
+                psuBadge.classList.add("badge-bronze");
+                psuBadge.innerText = "80+ BRONZE / GOLD";
+                psuAdviceOutput.innerHTML = `<strong>FORNUFTIG BUFFER:</strong> Dit hardwareforbrug er beskedent på omkring ${pureHardwareWattage}W. En stabil <strong>${recommendedPSUWatt}W strømforsyning</strong> er mere end rigeligt, giver dig en sund sikkerhedsmargin og houdt budgettet nede.`;
+            }
+
+
+            // 3. KOMPATIBILITETSTJEK (AMD AM5, AMD AM4, INTEL LGA1851, INTEL LGA1700)
+            let isAM5 = moboKey.startsWith("am5");
+            let isAM4 = moboKey.startsWith("am4");
+            let isIntelModern = moboKey.startsWith("intel_z890") || moboKey.startsWith("intel_b860");
+            let isIntelOlder = moboKey.startsWith("intel_z790") || moboKey.startsWith("intel_b760");
+            let isDDR5 = ramKey.includes("ddr5");
+            
+            let platformName = "Ukendt Platform";
+            let platformStatus = "MERE INFO";
+            let platformAdvice = "";
+            const platformBadge = document.getElementById("platformBadge");
+
+            if (isAM5) {
+                platformName = "AMD AM5 Platform";
+                platformStatus = "FREMTIDSSIKRET 🚀";
+                platformBadge.className = "badge-80plus badge-future";
+                platformBadge.innerText = "AM5 ØKOSYSTEM";
+                platformAdvice = `Du har valgt en top-moderne AM5-platform (f.eks. det populære B850-kort). Den understøtter DDR5 og fremtidige CPU-opgraderinger helt frem til næste generation uden bundkortskift. `;
+                
+                if (!isDDR5) {
+                    platformAdvice += `<br><span style="color:var(--danger); font-weight:700;">⚠️ KONFLIKT: AM5 bundkort KRÆVER DDR5 RAM! Du har valgt DDR4. Skift dine RAM til DDR5.</span>`;
+                    platformStatus = "RAM KONFLIKT ❌";
+                }
+                if (cpuKey === "budget_modern" || cpuKey === "older_cpu") {
+                    platformAdvice += `<br><span style="color:var(--warning); font-weight:700;">⚠️ CPU KONFLIKT: Ældre AM4-processorer (f.eks. Ryzen 5600/3600) passer fysisk IKKE i et AM5 bundkort. Vælg en Ryzen 7000/9000-serie i stedet.</span>`;
+                    platformStatus = "CPU KONFLIKT ⚠️";
+                }
+            } 
+            else if (isAM4) {
+                platformName = "AMD AM4 Platform";
+                platformStatus = "BUDGET / LÅST 📦";
+                platformBadge.className = "badge-80plus badge-bronze";
+                platformBadge.innerText = "AM4 LEGACY";
+                platformAdvice = `AM4 (B550/X570) er en legendarisk og bundsolid platform til prisbevidste gamere. Den er dog låst nu, så du kan ikke opgradere to nyere generationer af CPU'er uden at udskifte bundkort og RAM senere. `;
+                
+                if (isDDR5) {
+                    platformAdvice += `<br><span style="color:var(--danger); font-weight:700;">⚠️ KONFLIKT: AM4 bundkort understøtter KUN DDR4 RAM! Du har valgt DDR5. Skift dine RAM til DDR4.</span>`;
+                    platformStatus = "RAM KONFLIKT ❌";
+                }
+                if (cpuKey === "highend_modern" || cpuKey === "mid_modern") {
+                    platformAdvice += `<br><span style="color:var(--danger); font-weight:700;">⚠️ PLATFORM FEJL: Nye store processorer som Ryzen 7800X3D/9800X3D kræver AM5 bundkort og kan ikke bruges på et AM4-kort!</span>`;
+                    platformStatus = "PLATFORM FEJL ❌";
+                }
+            } 
+            else if (isIntelModern) {
+                platformName = "Intel LGA1851 Platform";
+                platformStatus = "MODERNE INTEL 💻";
+                platformBadge.className = "badge-80plus badge-gold";
+                platformBadge.innerText = "INTEL CORE ULTRA";
+                platformAdvice = `Du har valgt den nyeste 2026 Intel LGA1851 platform (Z890/B860) til Core Ultra-processorer. Den kræver absolut DDR5 og yder fantastisk. `;
+                
+                if (!isDDR5) {
+                    platformAdvice += `<br><span style="color:var(--danger); font-weight:700;">⚠️ KONFLIKT: LGA1851 (Z890/B860) understøtter udelukkende DDR5 RAM! Skift dine RAM i listen.</span>`;
+                    platformStatus = "RAM KONFLIKT ❌";
+                }
+            }
+            else if (isIntelOlder) {
+                platformName = "Intel LGA1700 Platform";
+                platformStatus = "FORRIGE GEN 📦";
+                platformBadge.className = "badge-80plus badge-bronze";
+                platformBadge.innerText = "INTEL 12-14 GEN";
+                platformAdvice = `LGA1700 (Z790/B760) dækker over Intels 12., 13. og 14. generation. Det er en rigtig fin budget- eller mid-range løsning nu, men platformen modtager ikke flere nye CPU-opgraderinger. `;
+            }
+
+            // RAM & SSD feedback
+            if (ramKey.startsWith("16_")) {
+                platformAdvice += `<br><br>💡 <strong>RAM Note:</strong> 16GB fungerer fint nu, men store spiltitler og streaming i 2026 trives markant bedre på 32GB RAM for at undgå mikrostuttering.`;
+            }
+            if (ssdKey === "nvme_5") {
+                platformAdvice += `<br><br>🚀 <strong>SSD Status:</strong> PCIe 5.0 NVMe leverer ekstreme hastigheder. Sørg for at bruge bundkortets medfølgende heatsink (køleplade), da disse diske genererer meget varme.`;
+            }
+
+            document.getElementById("platformNameOutput").innerText = platformName;
+            document.getElementById("platformStatusOutput").innerText = platformStatus;
+            document.getElementById("platformAdviceOutput").innerHTML = platformAdvice;
+            
+            const statusEl = document.getElementById("platformStatusOutput");
+            if (platformStatus.includes("FREMTIDSSIKRET") || platformStatus.includes("MODERNE")) statusEl.style.color = "var(--success)";
+            else if (platformStatus.includes("BUDGET") || platformStatus.includes("FORRIGE") || platformStatus.includes("⚠️")) statusEl.style.color = "var(--warning)";
+            else statusEl.style.color = "var(--danger)";
+        }
+
+        window.onload = function() { calculatePerformance(); };
+    </script>
+    <!-- ========================================== -->
+<!-- TAL MED EN TEKNIKER - AI CHAT WIDGET      -->
+<!-- ========================================== -->
+<div class="ai-chat-container">
+    <!-- Flydende Chat-knap (Højre hjørne) -->
+    <button class="ai-chat-toggle" onclick="toggleAiChat()">
+        <span class="ai-chat-icon">🤖</span>
+        <span class="ai-chat-text">Tal med en Tekniker AI</span>
+    </button>
+
+    <!-- Chat Vindue -->
+    <div class="ai-chat-window" id="aiChatWindow">
+        <div class="ai-chat-header">
+            <div class="ai-tech-status">
+                <span class="status-dot"></span>
+                <div>
+                    <h4>Sørensen IT - AI Tekniker</h4>
+                    <p>Svarer med det samme</p>
+                </div>
+            </div>
+            <button class="ai-chat-close" onclick="toggleAiChat()">&times;</button>
+        </div>
+
+        <!-- Chat Beskeder -->
+        <div class="ai-chat-body" id="aiChatBody">
+            <div class="ai-msg bot-msg">
+                Hej! Jeg er Sørensen IT's lynhurtige AI-tekniker. 🛠️<br><br>
+                Hvad kan jeg hjælpe dig med i dag? Spørg mig om priser, PC-byg, eller hvordan du indleverer!
+            </div>
+        </div>
+
+        <!-- Input felt -->
+        <div class="ai-chat-footer">
+            <input type="text" id="aiChatInput" placeholder="Skriv dit spørgsmål her..." onkeypress="handleAiChatKey(event)">
+            <button onclick="sendAiMessage()">Send</button>
+        </div>
+    </div>
+</div>
+
+<!-- STYLING TIL CHATTEN (Sikrer at den ligger flot i siden af skærmen) -->
+<style>
+    .ai-chat-container {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        z-index: 9999;
+        font-family: 'Outfit', sans-serif;
+    }
+
+    /* Flydende knap */
+    .ai-chat-toggle {
+        background: #1d4ed8;
+        color: white;
+        border: none;
+        padding: 14px 22px;
+        border-radius: 30px;
+        font-size: 1rem;
+        font-weight: 700;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        box-shadow: 0 8px 24px rgba(29, 78, 216, 0.3);
+        transition: transform 0.2s, background 0.2s;
+    }
+
+    .ai-chat-toggle:hover {
+        transform: translateY(-3px);
+        background: #1e40af;
+    }
+
+    .ai-chat-icon { font-size: 1.3rem; }
+
+    /* Chat vinduet */
+    .ai-chat-window {
+        position: absolute;
+        bottom: 75px;
+        right: 0;
+        width: 360px;
+        height: 480px;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 12px 40px rgba(15, 23, 42, 0.15);
+        border: 1px solid #e2e8f0;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        transform: translateY(20px);
+        opacity: 0;
+        pointer-events: none;
+        transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+
+    .ai-chat-window.open {
+        transform: translateY(0);
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    /* Header */
+    .ai-chat-header {
+        background: #0f172a;
+        color: white;
+        padding: 15px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 2px solid #1d4ed8;
+    }
+
+    .ai-tech-status { display: flex; align-items: center; gap: 10px; }
+    .status-dot { width: 10px; height: 10px; background: #10b981; border-radius: 50%; display: inline-block; }
+    .ai-tech-status h4 { font-size: 0.95rem; font-weight: 700; }
+    .ai-tech-status p { font-size: 0.75rem; color: #94a3b8; }
+    .ai-chat-close { background: none; border: none; color: #94a3b8; font-size: 1.8rem; cursor: pointer; transition: color 0.2s; }
+    .ai-chat-close:hover { color: white; }
+
+    /* Besked område */
+    .ai-chat-body {
+        flex: 1;
+        padding: 20px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        background: #f8fafc;
+    }
+
+    .ai-msg {
+        max-width: 85%;
+        padding: 12px 16px;
+        border-radius: 16px;
+        font-size: 0.95rem;
+        line-height: 1.4;
+    }
+
+    .bot-msg { background: white; color: #0f172a; border-bottom-left-radius: 4px; border: 1px solid #e2e8f0; align-self: flex-start; }
+    .user-msg { background: #1d4ed8; color: white; border-bottom-right-radius: 4px; align-self: flex-end; }
+
+    /* Skriver... indikator */
+    .typing-indicator { color: var(--muted); font-style: italic; font-size: 0.85rem; align-self: flex-start; }
+
+    /* Footer / Input */
+    .ai-chat-footer { padding: 12px; background: white; border-top: 1px solid #e2e8f0; display: flex; gap: 8px; }
+    .ai-chat-footer input {
+        flex: 1; padding: 10px 14px; border-radius: 10px; border: 2px solid #e2e8f0; outline: none; font-size: 0.9rem;
+    }
+    .ai-chat-footer input:focus { border-color: #1d4ed8; }
+    .ai-chat-footer button {
+        background: #1d4ed8; color: white; border: none; padding: 0 16px; border-radius: 10px; font-weight: 700; cursor: pointer;
+    }
+    .ai-chat-footer button:hover { background: #1e40af; }
+</style>
+
+<!-- INTELLIGENT SCRIPT (Svarer automatisk baseret på jeres ydelser, Jonas og priser) -->
+<script>
+    function toggleAiChat() {
+        document.getElementById("aiChatWindow").classList.toggle("open");
+    }
+
+    function handleAiChatKey(event) {
+        if (event.key === "Enter") { sendAiMessage(); }
+    }
+
+    function sendAiMessage() {
+        const input = document.getElementById("aiChatInput");
+        const msgText = input.value.trim();
+        if (msgText === "") return;
+
+        const chatBody = document.getElementById("aiChatBody");
+
+        // 1. Tilføj brugerens besked
+        const userMsgDiv = document.createElement("div");
+        userMsgDiv.className = "ai-msg user-msg";
+        userMsgDiv.innerText = msgText;
+        chatBody.appendChild(userMsgDiv);
+        
+        input.value = ""; // Tøm feltet
+        chatBody.scrollTop = chatBody.scrollHeight; // Scroll ned
+
+        // 2. Vis at AI'en skriver...
+        const typingDiv = document.createElement("div");
+        typingDiv.className = "ai-msg bot-msg typing-indicator";
+        typingDiv.innerText = "Tekniker AI tænker...";
+        chatBody.appendChild(typingDiv);
+        chatBody.scrollTop = chatBody.scrollHeight;
+
+        // 3. Generer intelligent svar baseret på kodeord efter 1 sekund
+        setTimeout(() => {
+            chatBody.removeChild(typingDiv); // Fjern indikatoren
+            
+            const botMsgDiv = document.createElement("div");
+            botMsgDiv.className = "ai-msg bot-msg";
+            botMsgDiv.innerHTML = getAiResponse(msgText.toLowerCase());
+            
+            chatBody.appendChild(botMsgDiv);
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }, 1000);
+    }
+
+    // AI'ens hjerne (Skræddersyet til jeres forretning)
+    function getAiResponse(query) {
+        if (query.includes("pris") || query.includes("koster") || query.includes("hvad koster")) {
+            return "Vores officielle priser er faste og gennemskuelige:<br>• <b>PC Samling:</b> 399 kr.<br>• <b>HELE SETUP:</b> 649 kr. (Inkl. OS & drivere)<br>• <b>Reparation/fejlfix:</b> 299 kr.<br>• <b>Software installation:</b> 149-249 kr.<br><br>Se alle detaljer på siden 'Indlevering & Priser'!";
+        }
+        if (query.includes("jonas") || query.includes("hvem bygger") || query.includes("tålmodig")) {
+            return "Det er <b>Jonas</b>, der er vores hovedtekniker! Han har en enorm passion for hardware og elsker at bygge computere helt fra bunden. Kunderne elsker ham, fordi han er ekstremt tålmodig og giver sig altid tid til at løse problemerne helt perfekt. 🛠️";
+        }
+        if (query.includes("samle") || query.includes("byg") || query.includes("computer")) {
+            return "Vi elsker at samle PC'er! Hvis du selv køber delene, tager vi <b>399,- kr.</b> for at samle hardwaren professionelt. Vil du have installeret Windows, lynhurtige drivere og have den fuldstændig stress-testet, anbefaler vi vores <b>HELE SETUP til 649,- kr.</b>!";
+        }
+        if (query.includes("indlever") || query.includes("send") || query.includes("adresse") || query.includes("hvor")) {
+            return "Det er super nemt! Du går bare ind på vores side <b>'Indlevering & Priser'</b>, udfylder formularen i bunden, og så modtager du instruktioner til, hvordan du pakker computeren/delene ned og sender dem sikkert til vores værksted.";
+        }
+        if (query.includes("reparation") || query.includes("fejl") || query.includes("crasher") || query.includes("virker ikke")) {
+            return "Det kan vi helt sikkert fikse! Vores standard fejlfinding og reparation af hardware/software koster kun <b>299,- kr.</b> Opret en sag under 'Indlevering & Priser', så tager vi et kig på den med det samme på værkstedet.";
+        }
+        if (query.includes("kontakt") || query.includes("nummer") || query.includes("telefon")) {
+            return "Du kan altid ringe direkte til os på <b>93 86 92 67</b>, hvis du har spørgsmål til en opgave!";
+        }
+        
+        // Standardsvar hvis den ikke forstår ordet
+        return "Det er et godt spørgsmål! Jeg er en AI, så for specifikke sager er det bedst at oprette en sag på vores <b>'Indlevering & Priser'</b>-side, eller ringe direkte til værkstedet på tlf: <b>93 86 92 67</b>, så svarer vi dig med det samme! 🤝";
+    }
+</script>
+</body>
+</html>

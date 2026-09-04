@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sørensen IT — Kassen</title>
+<link rel="icon" href="content.ico" type="image/x-icon">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+<!-- ══════════════════════════════════════════════════════
+     ⚙️  INDSTILLINGER — det er KUN her du skal rette noget
+     ══════════════════════════════════════════════════════ -->
+<script>
+const CONFIG={
+  square:{
+    applicationId:'sq0idp-siTzG67F--guwAkszyhGwQ',        /* ← Application ID herind (sq0idp-...) */
+    locationId:'L56T6E4PA9CF6',           /* ← Location ID herind */
+    environment:'production',
+    backendUrl:'',           /* ← https://din-server.dk/api/betaling */
+    demoKort:false           /* true = test kort-flowet uden rigtige penge */
+  },
+  butik:{
+    navn:'Sørensen IT & Reparation',
+    tlf:'93 86 92 67',
+    mail:'sorensenitreparation670@gmail.com',
+    logo:'content.ico'
+  },
+  bank:{ navn:'Jyske Bank', reg:'5069', konto:'0002341897', iban:'DK6350690002341897', bic:'JYBADKKK' },
+  mail:{
+    web3formsKey:'bf51c0b3-b42e-442f-970c-b70bb047adf0',   /* ordren til JER */
+    kvitteringUrl:''                                        /* ← https://din-server.dk/api/kvittering */
+  },
+  mobilepay:{ boxUrl:'' },
+  expressPris:100
+};
+</script>
+
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue:#1a56db;--blue-dark:#1341b8;--blue-light:#e8f0fe;
+  --green:#16a34a;--green-light:#dcfce7;--red:#dc2626;--red-light:#fee2e2;
+  --amber:#b45309;--amber-light:#fef3c7;
+  --g50:#f9fafb;--g100:#f3f4f6;--g200:#e5e7eb;--g300:#d1d5db;
+  --g500:#6b7280;--g700:#374151;--g900:#111827;--radius:10px;
+}
+body{font-family:'Inter',sans-serif;background:var(--g50);color:var(--g900);min-height:100vh;-webkit-font-smoothing:antialiased}
+:focus-visible{outline:3px solid var(--blue);outline-offset:2px;border-radius:6px}
+
+nav{background:#fff;border-bottom:1px solid var(--g200);padding:0 24px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.nav-logo{font-weight:800;font-size:18px;color:var(--blue);letter-spacing:-.3px}
+.nav-logo span{color:var(--g500);font-weight:400;font-size:13px;margin-left:6px}
+.nav-back{display:flex;align-items:center;gap:6px;color:var(--blue);font-size:14px;font-weight:600;text-decoration:none;cursor:pointer;border:none;background:none;font-family:inherit}
+.nav-back:hover{opacity:.8}
+.nav-back svg{width:16px;height:16px}
+
+.demo-bar{background:var(--amber-light);border-bottom:1px solid #fde68a;color:var(--amber);font-size:13px;font-weight:600;padding:9px 24px;text-align:center}
+
+.progress-bar{background:#fff;border-bottom:1px solid var(--g200);padding:14px 24px;display:flex;justify-content:center;align-items:center}
+.step{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--g500)}
+.step.active{color:var(--blue)}
+.step.done{color:var(--green)}
+.step-num{width:24px;height:24px;border-radius:50%;background:var(--g200);color:var(--g500);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800}
+.step.active .step-num{background:var(--blue);color:#fff}
+.step.done .step-num{background:var(--green);color:#fff}
+.step-line{width:40px;height:2px;background:var(--g200);margin:0 10px}
+.step-line.done{background:var(--green)}
+
+.checkout-layout{max-width:1100px;margin:32px auto;padding:0 20px;display:grid;grid-template-columns:1fr 380px;gap:28px;align-items:start}
+@media(max-width:860px){.checkout-layout{grid-template-columns:1fr}.order-summary{order:-1;position:static!important}}
+
+.card{background:#fff;border:1px solid var(--g200);border-radius:var(--radius);padding:24px;margin-bottom:16px}
+.card-title{font-size:16px;font-weight:800;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--g100);display:flex;align-items:center;gap:8px}
+.card-title svg{width:20px;height:20px;color:var(--blue)}
+
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:520px){.form-row{grid-template-columns:1fr}}
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-size:13px;font-weight:600;color:var(--g700);margin-bottom:6px}
+.form-group label .req{color:var(--red);margin-left:2px}
+.form-control{width:100%;padding:11px 14px;border:1.5px solid var(--g300);border-radius:8px;font-size:14px;font-family:inherit;outline:none;transition:border-color .15s,box-shadow .15s;background:#fff}
+.form-control:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(26,86,219,.1)}
+.form-control.error{border-color:var(--red);box-shadow:0 0 0 3px rgba(220,38,38,.1)}
+.form-control.valid{border-color:var(--green)}
+.error-msg{font-size:12px;color:var(--red);margin-top:5px;display:none;font-weight:500}
+.error-msg.show{display:block}
+.hint{font-size:12px;color:var(--g500);margin-top:5px}
+
+.payment-tabs{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.pay-tab{flex:1;min-width:110px;border:2px solid var(--g200);border-radius:10px;padding:12px 8px;cursor:pointer;text-align:center;background:#fff;transition:all .15s;display:flex;flex-direction:column;align-items:center;gap:6px;position:relative;font-family:inherit}
+.pay-tab:hover{border-color:var(--blue);background:var(--blue-light)}
+.pay-tab.active{border-color:var(--blue);background:var(--blue-light)}
+.pay-tab .tab-icon{font-size:22px}
+.pay-tab .tab-label{font-size:12px;font-weight:700;color:var(--g700)}
+.pay-tab.active .tab-label{color:var(--blue)}
+.pay-tab.disabled{opacity:.55}
+.pay-tab .soon{position:absolute;top:-8px;right:-6px;background:var(--g500);color:#fff;font-size:9px;font-weight:800;padding:2px 6px;border-radius:99px;display:none}
+.pay-panel{display:none}
+.pay-panel.active{display:block}
+
+.card-icons{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.card-icon{height:28px;padding:3px 8px;border:1px solid var(--g200);border-radius:5px;font-size:11px;font-weight:800;display:flex;align-items:center;background:#fff;color:var(--g700)}
+.card-icon.visa{color:#1a1f71}.card-icon.mc{color:#eb001b}.card-icon.amex{color:#007bc1}
+.card-icon.maestro{color:#00a2e5}
+
+#square-card:not(:empty){min-height:90px;padding:4px 0}
+.square-status{font-size:12px;color:var(--g500);margin-top:10px;line-height:1.6}
+
+.mobilepay-box{text-align:center;padding:22px;background:linear-gradient(135deg,#5a2d9c 0%,#7b3fcf 100%);border-radius:12px;color:#fff}
+.mp-logo{font-size:28px;font-weight:900;letter-spacing:-1px;margin-bottom:4px}
+.mp-sub{font-size:13px;opacity:.85;margin-bottom:16px}
+.mp-phone-label{font-size:12px;opacity:.75;margin-bottom:4px}
+.mp-phone{font-size:26px;font-weight:900;letter-spacing:1px}
+.mp-amount{background:rgba(255,255,255,.16);border-radius:10px;padding:12px;margin-top:14px;font-size:15px;font-weight:700}
+.mp-amount b{font-size:20px;display:block;margin-top:2px}
+.mobilepay-steps{text-align:left;margin-top:18px;list-style:none}
+.mobilepay-steps li{font-size:13px;opacity:.92;margin-bottom:8px;display:flex;align-items:flex-start;gap:9px}
+.mobilepay-steps li::before{content:attr(data-n);background:rgba(255,255,255,.25);border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0;margin-top:1px}
+.qr-wrapper{background:#fff;border-radius:12px;padding:12px;display:inline-block;margin-bottom:12px}
+.qr-wrapper img{display:block;width:150px;height:150px}
+
+.bank-box{background:var(--g50);border:1px solid var(--g200);border-radius:10px;padding:18px}
+.bank-row{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--g200);font-size:14px}
+.bank-row:last-child{border-bottom:none}
+.bank-row span:first-child{color:var(--g500);font-weight:500}
+.bank-row span:last-child{font-weight:700;text-align:right}
+.copy-btn{background:none;border:1px solid var(--g300);border-radius:5px;padding:2px 8px;font-size:11px;cursor:pointer;color:var(--g700);margin-left:8px;font-family:inherit}
+.copy-btn:hover{background:var(--g100)}
+.copy-btn.copied{background:var(--green-light);border-color:var(--green);color:var(--green)}
+
+.trustmarks{display:flex;gap:16px;margin-top:16px;flex-wrap:wrap}
+.trustmark{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--g500)}
+.trustmark svg{width:14px;height:14px;color:var(--green)}
+
+.order-summary{position:sticky;top:80px}
+.summary-item{display:flex;justify-content:space-between;align-items:flex-start;padding:14px 0;border-bottom:1px solid var(--g100);gap:10px}
+.summary-item:last-of-type{border-bottom:none}
+.item-ico{font-size:20px;flex-shrink:0;line-height:1.3}
+.item-info{flex:1;min-width:0}
+.item-name{font-size:14px;font-weight:700;margin-bottom:2px}
+.item-desc{font-size:12px;color:var(--g500);line-height:1.45}
+.item-right{display:flex;flex-direction:column;align-items:flex-end;gap:8px;flex-shrink:0}
+.item-price{font-size:14px;font-weight:800;white-space:nowrap}
+.qty-ctrl{display:inline-flex;align-items:center;border:1.5px solid var(--g200);border-radius:7px;overflow:hidden}
+.qty-ctrl button{width:24px;height:24px;border:none;background:var(--g50);cursor:pointer;font-size:14px;font-weight:800;color:var(--blue);line-height:1;font-family:inherit}
+.qty-ctrl button:hover{background:var(--blue-light)}
+.qty-ctrl span{min-width:26px;text-align:center;font-size:12px;font-weight:800}
+.remove-btn{background:none;border:none;color:var(--g300);cursor:pointer;font-size:15px;line-height:1;padding:3px 5px;border-radius:6px;transition:all .15s;font-family:inherit;align-self:flex-start}
+.remove-btn:hover{background:var(--red-light);color:var(--red)}
+.empty-cart{text-align:center;padding:28px 10px;color:var(--g500);font-size:14px;line-height:1.7}
+.empty-cart .big{font-size:34px;display:block;margin-bottom:10px}
+
+.addon{display:flex;align-items:flex-start;gap:10px;padding:12px;border:1.5px solid var(--g200);border-radius:10px;margin-top:14px;cursor:pointer;transition:all .15s}
+.addon:hover{border-color:var(--blue)}
+.addon.on{border-color:var(--blue);background:var(--blue-light)}
+.addon input{margin-top:3px;accent-color:var(--blue);width:16px;height:16px;cursor:pointer}
+.addon-t{font-size:13px;font-weight:700}
+.addon-s{font-size:12px;color:var(--g500);margin-top:2px}
+
+.summary-divider{border:none;border-top:1px solid var(--g200);margin:14px 0}
+.summary-row{display:flex;justify-content:space-between;font-size:14px;padding:4px 0;color:var(--g700)}
+.summary-row.total{font-size:19px;font-weight:800;color:var(--g900);padding-top:12px;margin-top:6px;border-top:2px solid var(--g900)}
+.summary-vat{font-size:12px;color:var(--g500);text-align:right;margin-top:2px}
+.summary-badge{background:var(--amber-light);border:1px solid #fde68a;border-radius:8px;padding:9px 12px;font-size:12px;color:var(--amber);margin-top:14px;display:flex;align-items:center;gap:6px;font-weight:600}
+
+.coupon-row{display:flex;gap:8px;margin-top:14px}
+.coupon-input{flex:1;padding:9px 12px;border:1.5px solid var(--g300);border-radius:7px;font-size:13px;font-family:inherit;outline:none;text-transform:uppercase}
+.coupon-input:focus{border-color:var(--blue)}
+.coupon-btn{padding:9px 14px;background:var(--g100);border:1px solid var(--g300);border-radius:7px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
+.coupon-btn:hover{background:var(--g200)}
+.coupon-msg{font-size:12px;margin-top:7px;font-weight:600}
+
+.submit-btn{width:100%;padding:16px;margin-top:20px;background:var(--blue);color:#fff;border:none;border-radius:var(--radius);font-size:16px;font-weight:800;cursor:pointer;transition:background .15s,transform .1s;display:flex;align-items:center;justify-content:center;gap:8px;font-family:inherit}
+.submit-btn:hover{background:var(--blue-dark)}
+.submit-btn:active{transform:scale(.99)}
+.submit-btn:disabled{background:var(--g300);cursor:not-allowed;transform:none}
+.spinner{width:18px;height:18px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none}
+.submit-btn.loading .spinner{display:block}
+.submit-btn.loading .btn-label{display:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+.security-notice{text-align:center;margin-top:12px;font-size:12px;color:var(--g500);display:flex;align-items:center;justify-content:center;gap:5px}
+.pay-error{background:var(--red-light);border:1px solid #fecaca;color:var(--red);font-size:13px;font-weight:600;border-radius:8px;padding:11px;margin-top:14px;display:none}
+.pay-error.show{display:block}
+.pay-info{background:var(--blue-light);border:1px solid #c7d7fb;color:var(--blue-dark);font-size:13px;font-weight:600;border-radius:8px;padding:11px;margin-top:14px;display:none}
+.pay-info.show{display:block}
+
+.phone-wrapper{position:relative}
+.phone-prefix{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:14px;color:var(--g500);font-weight:500;pointer-events:none}
+.phone-wrapper .form-control{padding-left:46px;letter-spacing:.5px}
+
+.receipt-wrap{max-width:640px;margin:40px auto;padding:0 20px}
+.receipt{background:#fff;border:1px solid var(--g200);border-radius:14px;overflow:hidden}
+.receipt-head{background:linear-gradient(135deg,#030a1c,#1a56db);color:#fff;padding:32px 26px;text-align:center}
+.receipt-head img{width:52px;height:52px;border-radius:12px;background:#fff;padding:6px;object-fit:contain;margin-bottom:12px}
+.receipt-head h1{font-size:22px;font-weight:800;margin-bottom:6px}
+.receipt-head p{font-size:14px;opacity:.85}
+.receipt-body{padding:26px}
+.rc-id{background:var(--blue-light);border:1px dashed var(--blue);border-radius:10px;padding:14px;text-align:center;margin-bottom:20px}
+.rc-id small{font-size:12px;color:var(--g500);display:block;margin-bottom:3px}
+.rc-id b{font-size:19px;color:var(--blue);letter-spacing:1px}
+.rc-line{display:flex;justify-content:space-between;font-size:14px;padding:8px 0;border-bottom:1px solid var(--g100);gap:12px}
+.rc-tot{display:flex;justify-content:space-between;font-size:18px;font-weight:800;padding-top:12px;margin-top:6px;border-top:2px solid var(--g900)}
+.rc-box{background:var(--g50);border:1px solid var(--g200);border-radius:10px;padding:16px;margin-top:20px;font-size:13px;line-height:1.75;color:var(--g700)}
+.rc-btns{display:flex;gap:10px;margin-top:22px;flex-wrap:wrap}
+.rc-btn{flex:1;min-width:150px;padding:13px;border-radius:9px;font-size:14px;font-weight:700;cursor:pointer;text-align:center;text-decoration:none;border:2px solid var(--blue);font-family:inherit}
+.rc-btn.primary{background:var(--blue);color:#fff}
+.rc-btn.ghost{background:#fff;color:var(--blue)}
+@media print{nav,.demo-bar,.progress-bar,.rc-btns{display:none!important}}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">Sørensen IT <span>Kassen</span></div>
+  <a class="nav-back" href="index.html">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    Tilbage til shoppen
+  </a>
+</nav>
+
+<div class="demo-bar" id="demoBar" style="display:none">
+  🧪 <b>Demo-tilstand:</b> kortbetalinger bliver <b>ikke</b> gennemført rigtigt. MobilePay og bankoverførsel virker som normalt.
+</div>
+
+<div class="progress-bar">
+  <div class="step active" id="step1"><div class="step-num">1</div><div>Oplysninger</div></div>
+  <div class="step-line" id="line1"></div>
+  <div class="step" id="step2"><div class="step-num">2</div><div>Betaling</div></div>
+  <div class="step-line" id="line2"></div>
+  <div class="step" id="step3"><div class="step-num">3</div><div>Bekræftelse</div></div>
+</div>
+
+<div id="checkoutView">
+<div class="checkout-layout">
+  <div>
+    <!-- KONTAKT -->
+    <div class="card" id="section-contact">
+      <div class="card-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Dine oplysninger
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="firstName">Fornavn <span class="req">*</span></label>
+          <input class="form-control" id="firstName" type="text" placeholder="Jonas" autocomplete="given-name">
+          <div class="error-msg" id="err-firstName">Fornavn er påkrævet</div>
+        </div>
+        <div class="form-group">
+          <label for="lastName">Efternavn <span class="req">*</span></label>
+          <input class="form-control" id="lastName" type="text" placeholder="Sørensen" autocomplete="family-name">
+          <div class="error-msg" id="err-lastName">Efternavn er påkrævet</div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="email">E-mailadresse <span class="req">*</span></label>
+        <input class="form-control" id="email" type="email" placeholder="jonas@eksempel.dk" autocomplete="email">
+        <div class="error-msg" id="err-email">Indtast en gyldig e-mailadresse</div>
+        <div class="hint">📧 Din kvittering og ordrebekræftelse sendes hertil.</div>
+      </div>
+      <div class="form-group">
+        <label for="phone">Telefonnummer <span class="req">*</span></label>
+        <div class="phone-wrapper">
+          <span class="phone-prefix">+45</span>
+          <input class="form-control" id="phone" type="tel" placeholder="93 86 92 67" maxlength="20" autocomplete="tel" inputmode="tel">
+        </div>
+        <div class="error-msg" id="err-phone">Indtast 8 cifre — landekoden +45 er allerede udfyldt</div>
+      </div>
+      <div class="form-group">
+        <label for="address">Adresse <span class="req">*</span></label>
+        <input class="form-control" id="address" type="text" placeholder="Søndergade 12" autocomplete="street-address">
+        <div class="error-msg" id="err-address">Adresse er påkrævet</div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="zip">Postnummer <span class="req">*</span></label>
+          <input class="form-control" id="zip" type="text" placeholder="8000" maxlength="4" inputmode="numeric" autocomplete="postal-code">
+          <div class="error-msg" id="err-zip">Ugyldigt postnummer (4 cifre)</div>
+        </div>
+        <div class="form-group">
+          <label for="city">By <span class="req">*</span></label>
+          <input class="form-control" id="city" type="text" placeholder="Aarhus C" autocomplete="address-level2">
+          <div class="error-msg" id="err-city">By er påkrævet</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BETALING -->
+    <div class="card" id="section-payment">
+      <div class="card-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+        Betalingsmetode
+      </div>
+
+      <div class="payment-tabs">
+        <button type="button" class="pay-tab active" onclick="selectPayment('card')" id="tab-card"><span class="tab-icon">💳</span><span class="tab-label">Kort</span><span class="soon" id="cardSoon">SNART</span></button>
+        <button type="button" class="pay-tab" onclick="selectPayment('mobilepay')" id="tab-mobilepay"><span class="tab-icon">📱</span><span class="tab-label">MobilePay</span></button>
+        <button type="button" class="pay-tab" onclick="selectPayment('bank')" id="tab-bank"><span class="tab-icon">🏦</span><span class="tab-label">Bankoverførsel</span></button>
+      </div>
+
+      <!-- KORT -->
+      <div class="pay-panel active" id="panel-card">
+        <div class="card-icons">
+          <div class="card-icon visa">VISA</div><div class="card-icon mc">MC</div>
+          <div class="card-icon amex">AMEX</div><div class="card-icon maestro">Maestro</div>
+        </div>
+
+        <div id="square-card"></div>
+
+        <div id="demoCardForm" style="display:none">
+          <div class="form-group">
+            <label for="cardNumber">Kortnummer <span class="req">*</span></label>
+            <input class="form-control" id="cardNumber" type="text" placeholder="0000 0000 0000 0000" maxlength="19" inputmode="numeric" autocomplete="cc-number">
+            <div class="error-msg" id="err-cardNumber">Ugyldigt kortnummer</div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="cardExpiry">Udløbsdato <span class="req">*</span></label>
+              <input class="form-control" id="cardExpiry" type="text" placeholder="MM/ÅÅ" maxlength="5" inputmode="numeric" autocomplete="cc-exp">
+              <div class="error-msg" id="err-cardExpiry">Ugyldig eller udløbet dato</div>
+            </div>
+            <div class="form-group">
+              <label for="cardCVV">CVV / CVC <span class="req">*</span></label>
+              <input class="form-control" id="cardCVV" type="text" placeholder="•••" maxlength="4" inputmode="numeric" autocomplete="cc-csc">
+              <div class="error-msg" id="err-cardCVV">Ugyldig sikkerhedskode</div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="cardName">Navn på kort <span class="req">*</span></label>
+            <input class="form-control" id="cardName" type="text" placeholder="JONAS SØRENSEN" autocomplete="cc-name">
+            <div class="error-msg" id="err-cardName">Kortholderens navn er påkrævet</div>
+          </div>
+        </div>
+
+        <div class="square-status" id="squareStatus"></div>
+        <div class="trustmarks">
+          <div class="trustmark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>SSL-krypteret forbindelse</div>
+          <div class="trustmark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Kortdata håndteres af Square</div>
+          <div class="trustmark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>Vi gemmer aldrig dit kortnummer</div>
+        </div>
+      </div>
+
+      <!-- MOBILEPAY -->
+      <div class="pay-panel" id="panel-mobilepay">
+        <div class="mobilepay-box">
+          <div class="mp-logo">MobilePay</div>
+          <div class="mp-sub">Overfør beløbet til vores nummer</div>
+          <div id="mpQr"></div>
+          <div class="mp-phone-label">Send til nummer</div>
+          <div class="mp-phone" id="mpNumber">93 86 92 67</div>
+          <div class="mp-amount">Beløb der skal overføres<b id="mpAmount">—</b></div>
+          <ol class="mobilepay-steps">
+            <li data-n="1">Tryk "Gennemfør bestilling" nedenfor — du får et ordre-ID</li>
+            <li data-n="2">Åbn MobilePay og vælg "Send penge"</li>
+            <li data-n="3">Indtast nummeret og det præcise beløb</li>
+            <li data-n="4">Skriv dit ordre-ID i beskedfeltet</li>
+          </ol>
+        </div>
+      </div>
+
+      <!-- BANK -->
+      <div class="pay-panel" id="panel-bank">
+        <p style="font-size:13px;color:var(--g500);margin-bottom:14px">Overfør det præcise beløb til kontoen herunder. Vi bekræfter normalt betalingen inden for én bankdag.</p>
+        <div class="bank-box" id="bankBox"></div>
+      </div>
+
+      <div class="pay-info" id="payInfo"></div>
+      <div class="pay-error" id="payError"></div>
+    </div>
+
+    <!-- BESKED -->
+    <div class="card">
+      <div class="card-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        Besked til os (valgfrit)
+      </div>
+      <div class="form-group" style="margin:0">
+        <textarea class="form-control" id="notes" rows="3" placeholder="F.eks. hvilken PC det drejer sig om, ønsket afhentningstidspunkt eller specifikationer..." style="resize:vertical"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- ORDREOVERSIGT -->
+  <div class="order-summary">
+    <div class="card">
+      <div class="card-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+        Ordreoversigt
+      </div>
+
+      <div id="cartItems"></div>
+
+      <label class="addon" id="expressBox">
+        <input type="checkbox" id="expressChk" onchange="toggleExpress()">
+        <div>
+          <div class="addon-t">⚡ Express-service · +100 kr.</div>
+          <div class="addon-s">Din enhed behandles samme dag i stedet for 2-3 hverdage.</div>
+        </div>
+      </label>
+
+      <div class="coupon-row">
+        <input class="coupon-input" id="couponCode" placeholder="Rabatkode" onkeypress="if(event.key==='Enter')applyCoupon()">
+        <button class="coupon-btn" onclick="applyCoupon()">Anvend</button>
+      </div>
+      <div class="coupon-msg" id="couponMsg"></div>
+
+      <hr class="summary-divider">
+      <div class="summary-row"><span>Subtotal</span><span id="subtotal">—</span></div>
+      <div class="summary-row" id="expressRow" style="display:none"><span>⚡ Express-service</span><span id="expressAmt">—</span></div>
+      <div class="summary-row" id="discountRow" style="display:none;color:var(--green)"><span id="discountLabel">Rabat</span><span id="discountAmt">—</span></div>
+      <div class="summary-row"><span>Levering / returforsendelse</span><span style="color:var(--green);font-weight:700">Gratis</span></div>
+      <div class="summary-row total"><span>I alt</span><span id="totalAmt">—</span></div>
+      <div class="summary-vat" id="vatLine">Heraf moms (25%): —</div>
+
+      <div class="summary-badge">⚡ Normalt klar inden for 2-3 hverdage</div>
+
+      <button class="submit-btn" id="submitBtn" onclick="handleCheckout()">
+        <div class="spinner"></div><span class="btn-label">Gennemfør bestilling</span>
+      </button>
+      <div class="security-notice">🔒 Sikker betaling · Dine oplysninger behandles fortroligt</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<div class="receipt-wrap" id="receiptView" style="display:none"></div>
+
+<script>
+/* ═══════════ HJÆLPERE ═══════════ */
+const kr=n=>Number(n).toLocaleString('da-DK')+' kr.';
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const RABATKODER={'SORENSEN10':10,'VELKOMMEN':15,'STUDENT20':20};
+const CART_KEY='sorensen_cart';
+
+let cart=[], rabat=0, rabatKode='', express=false, currentPayment='card';
+let squareCard=null, squareKlar=false;
+
+const kortMuligt=()=>!!CONFIG.square.backendUrl||CONFIG.square.demoKort;
+
+/* ═══════════ TELEFON ═══════════ */
+function formatTlf(raw){
+  let x=String(raw).replace(/\D/g,'');
+  if(x.startsWith('0045'))x=x.slice(4);
+  else if(x.length>8&&x.startsWith('45'))x=x.slice(2);
+  x=x.slice(0,8);
+  return x.match(/.{1,2}/g)?.join(' ')||x;
+}
+
+/* ═══════════ KURV ═══════════ */
+function loadCart(){
+  try{const c=JSON.parse(localStorage.getItem(CART_KEY));if(Array.isArray(c))cart=c;}catch{}
+  cart=cart.filter(i=>i&&i.name&&Number(i.price)>=0).map(i=>({...i,qty:Math.max(1,parseInt(i.qty)||1)}));
+}
+function saveCart(){
+  try{
+    localStorage.setItem(CART_KEY,JSON.stringify(cart));
+    const u=JSON.parse(localStorage.getItem('sorensen_user')||'null');
+    if(u&&u.email)localStorage.setItem('sorensen_cart_u_'+u.email.replace(/[^a-zA-Z0-9]/g,'_'),JSON.stringify(cart));
+  }catch{}
+}
+const subtotal=()=>cart.reduce((s,i)=>s+i.price*i.qty,0);
+const rabatBelob=()=>Math.round(subtotal()*(rabat/100));
+const expressBelob=()=>express?CONFIG.expressPris:0;
+const total=()=>Math.max(0,subtotal()-rabatBelob()+expressBelob());
+const moms=()=>Math.round(total()*0.20);
+
+function renderCart(){
+  const box=document.getElementById('cartItems');
+  if(!cart.length){
+    box.innerHTML='<div class="empty-cart"><span class="big">🛒</span>Din kurv er tom.<br><a href="index.html#services" style="color:var(--blue);font-weight:700">Vælg en service →</a></div>';
+  }else{
+    box.innerHTML=cart.map((i,idx)=>`
+      <div class="summary-item">
+        <div class="item-ico">${i.ico||'🔧'}</div>
+        <div class="item-info">
+          <div class="item-name">${esc(i.name)}</div>
+          <div class="item-desc">${esc(i.desc||'')}</div>
+          <div class="qty-ctrl" style="margin-top:8px">
+            <button onclick="changeQty(${idx},-1)" aria-label="Færre">−</button>
+            <span>${i.qty}</span>
+            <button onclick="changeQty(${idx},1)" aria-label="Flere">+</button>
+          </div>
+        </div>
+        <div class="item-right">
+          <button class="remove-btn" onclick="removeItem(${idx})" title="Fjern ${esc(i.name)}" aria-label="Fjern ${esc(i.name)}">✕</button>
+          <div class="item-price">${kr(i.price*i.qty)}</div>
+        </div>
+      </div>`).join('');
+  }
+
+  document.getElementById('subtotal').textContent=kr(subtotal());
+  document.getElementById('totalAmt').textContent=kr(total());
+  document.getElementById('vatLine').textContent='Heraf moms (25%): '+kr(moms());
+  document.getElementById('mpAmount').textContent=kr(total());
+  const ba=document.getElementById('bankAmount');
+  if(ba)ba.textContent=kr(total());
+
+  document.getElementById('expressRow').style.display=express?'flex':'none';
+  document.getElementById('expressAmt').textContent=kr(CONFIG.expressPris);
+  document.getElementById('expressBox').classList.toggle('on',express);
+
+  const dR=document.getElementById('discountRow');
+  if(rabat>0){
+    dR.style.display='flex';
+    document.getElementById('discountLabel').textContent=`Rabat (${rabatKode} −${rabat}%)`;
+    document.getElementById('discountAmt').textContent='−'+kr(rabatBelob());
+  }else dR.style.display='none';
+
+  opdaterKnap();
+  renderMobilePayQR();
+}
+function changeQty(idx,d){
+  if(!cart[idx])return;
+  cart[idx].qty+=d;
+  if(cart[idx].qty<1)cart.splice(idx,1);
+  saveCart();renderCart();
+}
+function removeItem(idx){
+  if(!cart[idx])return;
+  cart.splice(idx,1);saveCart();renderCart();
+}
+function toggleExpress(){express=document.getElementById('expressChk').checked;renderCart();}
+function applyCoupon(){
+  const kode=document.getElementById('couponCode').value.trim().toUpperCase();
+  const msg=document.getElementById('couponMsg');
+  if(RABATKODER[kode]){
+    rabat=RABATKODER[kode];rabatKode=kode;
+    msg.style.color='var(--green)';msg.textContent=`✓ Rabatkode aktiveret: ${kode} (−${rabat}%)`;
+  }else{
+    rabat=0;rabatKode='';
+    msg.style.color='var(--red)';msg.textContent='Ugyldig rabatkode';
+  }
+  renderCart();
+}
+function renderBank(){
+  const b=CONFIG.bank;
+  document.getElementById('bankBox').innerHTML=`
+    <div class="bank-row"><span>Bank</span><span>${esc(b.navn)}</span></div>
+    <div class="bank-row"><span>Registreringsnr.</span><span>${esc(b.reg)} <button class="copy-btn" onclick="copyText('${esc(b.reg)}',this)">Kopiér</button></span></div>
+    <div class="bank-row"><span>Kontonr.</span><span>${esc(b.konto)} <button class="copy-btn" onclick="copyText('${esc(b.konto)}',this)">Kopiér</button></span></div>
+    <div class="bank-row"><span>IBAN</span><span style="font-size:12px">${esc(b.iban)} <button class="copy-btn" onclick="copyText('${esc(b.iban)}',this)">Kopiér</button></span></div>
+    <div class="bank-row"><span>BIC/SWIFT</span><span>${esc(b.bic)} <button class="copy-btn" onclick="copyText('${esc(b.bic)}',this)">Kopiér</button></span></div>
+    <div class="bank-row"><span>Beløb</span><span id="bankAmount" style="color:var(--blue);font-weight:800">—</span></div>
+    <div class="bank-row"><span>Reference</span><span id="bankRef" style="color:var(--g500);font-weight:500">Du får dit ordre-ID når du bestiller</span></div>`;
+}
+function renderMobilePayQR(){
+  const box=document.getElementById('mpQr');
+  if(!CONFIG.mobilepay.boxUrl){box.innerHTML='';return;}
+  const url=encodeURIComponent(CONFIG.mobilepay.boxUrl);
+  box.innerHTML=`<div class="qr-wrapper"><img alt="MobilePay QR-kode" src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${url}"></div>`;
+}
+
+/* ═══════════ BETALINGSFANER ═══════════ */
+function metodeSpaerret(m){
+  if(m==='card'&&!kortMuligt())return 'Kortbetaling åbner snart — vælg MobilePay eller bankoverførsel så længe.';
+  return '';
+}
+function selectPayment(m){
+  currentPayment=m;
+  ['card','mobilepay','bank'].forEach(x=>{
+    document.getElementById('tab-'+x).classList.toggle('active',x===m);
+    document.getElementById('panel-'+x).classList.toggle('active',x===m);
+  });
+  document.getElementById('payError').classList.remove('show');
+  opdaterKnap();
+  if(!metodeSpaerret(m))setStep(2);
+}
+function opdaterKnap(){
+  const spaerret=metodeSpaerret(currentPayment);
+  const info=document.getElementById('payInfo');
+  info.textContent=spaerret;
+  info.classList.toggle('show',!!spaerret);
+  document.getElementById('submitBtn').disabled=!!spaerret||!cart.length;
+}
+function setStep(n){
+  document.getElementById('step1').className='step '+(n>1?'done':'active');
+  document.getElementById('step2').className='step '+(n>2?'done':n===2?'active':'');
+  document.getElementById('step3').className='step '+(n===3?'active':'');
+  document.getElementById('line1').className='step-line '+(n>1?'done':'');
+  document.getElementById('line2').className='step-line '+(n>2?'done':'');
+}
+
+/* ═══════════ VALIDERING ═══════════ */
+function mark(id,ok){
+  const el=document.getElementById(id),err=document.getElementById('err-'+id);
+  if(!el)return ok;
+  el.classList.toggle('error',!ok);el.classList.toggle('valid',ok);
+  if(err)err.classList.toggle('show',!ok);
+  return ok;
+}
+const v=id=>{const e=document.getElementById(id);return e?e.value.trim():'';};
+function validateContact(){
+  let ok=true;
+  ok=mark('firstName',v('firstName').length>=2)&&ok;
+  ok=mark('lastName',v('lastName').length>=2)&&ok;
+  ok=mark('email',/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v('email')))&&ok;
+  ok=mark('phone',/^\d{8}$/.test(v('phone').replace(/\D/g,'')))&&ok;
+  ok=mark('address',v('address').length>=4)&&ok;
+  ok=mark('zip',/^\d{4}$/.test(v('zip')))&&ok;
+  ok=mark('city',v('city').length>=2)&&ok;
+  return ok;
+}
+function luhn(n){
+  const s=n.replace(/\D/g,'');if(s.length<13)return false;
+  let sum=0,alt=false;
+  for(let i=s.length-1;i>=0;i--){let d=+s[i];if(alt){d*=2;if(d>9)d-=9;}sum+=d;alt=!alt;}
+  return sum%10===0;
+}
+function validateDemoCard(){
+  let ok=true;
+  ok=mark('cardNumber',luhn(v('cardNumber')))&&ok;
+  const [m,y]=v('cardExpiry').split('/');
+  const nu=new Date(),aar=2000+parseInt(y||'0');
+  const gyldig=!!m&&!!y&&+m>=1&&+m<=12&&aar>=nu.getFullYear()&&!(aar===nu.getFullYear()&&+m<nu.getMonth()+1);
+  ok=mark('cardExpiry',gyldig)&&ok;
+  ok=mark('cardCVV',/^\d{3,4}$/.test(v('cardCVV')))&&ok;
+  ok=mark('cardName',v('cardName').length>=3)&&ok;
+  return ok;
+}
+
+/* ═══════════ SQUARE ═══════════ */
+async function initSquare(){
+  const s=CONFIG.square, status=document.getElementById('squareStatus');
+
+  if(!kortMuligt()){
+    document.getElementById('tab-card').classList.add('disabled');
+    document.getElementById('cardSoon').style.display='block';
+    status.innerHTML='💳 Kortbetaling er ikke åbnet endnu. Brug MobilePay eller bankoverførsel så længe — de virker begge.';
+    return;
+  }
+  if(!s.applicationId||!s.locationId){
+    document.getElementById('demoBar').style.display='block';
+    document.getElementById('demoCardForm').style.display='block';
+    status.innerHTML='🧪 Demo-tilstand — der bliver ikke trukket penge.';
+    return;
+  }
+  try{
+    await new Promise((res,rej)=>{
+      const sc=document.createElement('script');
+      sc.src=s.environment==='production'
+        ? 'https://web.squarecdn.com/v1/square.js'
+        : 'https://sandbox.web.squarecdn.com/v1/square.js';
+      sc.onload=res;sc.onerror=()=>rej(new Error('Kunne ikke hente Square'));
+      document.head.appendChild(sc);
+    });
+    const payments=window.Square.payments(s.applicationId,s.locationId);
+    squareCard=await payments.card();
+    await squareCard.attach('#square-card');
+    document.getElementById('demoCardForm').style.display='none';
+    squareKlar=true;
+    if(s.backendUrl){
+      status.innerHTML='🔒 Kortoplysninger håndteres direkte af Square — de rører aldrig vores server.';
+    }else{
+      status.innerHTML='🧪 Demo-tilstand — ingen betalingsserver, så der trækkes ingen penge.';
+      document.getElementById('demoBar').style.display='block';
+    }
+  }catch(err){
+    document.getElementById('demoBar').style.display='block';
+    document.getElementById('demoCardForm').style.display='block';
+    status.innerHTML='⚠️ Square kunne ikke indlæses ('+esc(err.message)+') — demo-formular vist i stedet.';
+  }
+}
+
+/* ═══════════ ORDRE ═══════════ */
+function nytOrdreId(){
+  return 'SIT-'+Date.now().toString(36).toUpperCase()+'-'+Math.random().toString(36).slice(2,6).toUpperCase();
+}
+function byggOrdre(){
+  return {
+    id:nytOrdreId(),
+    dato:new Date().toLocaleString('da-DK'),
+    kunde:{
+      navn:v('firstName')+' '+v('lastName'),
+      email:v('email').toLowerCase(),
+      tlf:'+45 '+v('phone'),
+      adresse:v('address'), post:v('zip'), by:v('city')
+    },
+    varer:cart.map(i=>({navn:i.name,antal:i.qty,stkPris:i.price,linjePris:i.price*i.qty})),
+    express, rabatKode, rabatProcent:rabat,
+    subtotal:subtotal(), rabat:rabatBelob(), expressPris:expressBelob(),
+    total:total(), moms:moms(),
+    betaling:{card:'Kort',mobilepay:'MobilePay',bank:'Bankoverførsel'}[currentPayment],
+    besked:v('notes')||'—',
+    status:'Ny'
+  };
+}
+
+async function handleCheckout(){
+  const btn=document.getElementById('submitBtn'), fejl=document.getElementById('payError');
+  fejl.classList.remove('show');
+  if(!cart.length)return;
+
+  const spaerret=metodeSpaerret(currentPayment);
+  if(spaerret){fejl.textContent='⚠️ '+spaerret;fejl.classList.add('show');return;}
+
+  if(!validateContact()){
+    document.getElementById('section-contact').scrollIntoView({behavior:'smooth',block:'start'});
+    return;
+  }
+
+  const ordre=byggOrdre();
+  btn.classList.add('loading');btn.disabled=true;
+
+  try{
+    if(currentPayment==='card'){
+      const rigtig=squareKlar&&!!CONFIG.square.backendUrl;
+      if(rigtig){
+        const res=await squareCard.tokenize();
+        if(res.status!=='OK')throw new Error(res.errors?.[0]?.message||'Kortet kunne ikke godkendes.');
+        const svar=await fetch(CONFIG.square.backendUrl,{
+          method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({sourceId:res.token,belob:ordre.total,valuta:'DKK',ordre})
+        });
+        const data=await svar.json().catch(()=>({}));
+        if(!svar.ok||data.success===false)throw new Error(data.fejl||data.message||'Betalingen blev afvist.');
+        ordre.betalingsId=data.paymentId||'';
+        ordre.status='Betalt';
+      }else{
+        const formSynlig=document.getElementById('demoCardForm').style.display!=='none';
+        if(formSynlig&&!validateDemoCard()){
+          btn.classList.remove('loading');btn.disabled=false;
+          document.getElementById('section-payment').scrollIntoView({behavior:'smooth',block:'start'});
+          return;
+        }
+        await new Promise(r=>setTimeout(r,1100));
+        ordre.status='Demo — ikke betalt';
+      }
+    }else if(currentPayment==='mobilepay'){
+      ordre.status='Afventer MobilePay';
+    }else{
+      ordre.status='Afventer bankoverførsel';
+      const ref=document.getElementById('bankRef');
+      if(ref)ref.textContent=ordre.id;
+    }
+    gemOrdreLokalt(ordre);
+    sendOrdreMail(ordre);          /* til JER */
+    sendKundeKvittering(ordre);    /* til KUNDEN */
+    cart=[];saveCart();
+    visKvittering(ordre);
+  }catch(err){
+    btn.classList.remove('loading');btn.disabled=false;
+    fejl.textContent='⚠️ '+(err.message||'Noget gik galt. Prøv igen eller ring på '+CONFIG.butik.tlf+'.');
+    fejl.classList.add('show');
+    document.getElementById('section-payment').scrollIntoView({behavior:'smooth',block:'start'});
+  }
+}
+
+function gemOrdreLokalt(o){
+  try{
+    const alle=JSON.parse(localStorage.getItem('sorensen_ordrer')||'[]');
+    alle.push(o);localStorage.setItem('sorensen_ordrer',JSON.stringify(alle));
+    const key='sorensen_ordrer_u_'+o.kunde.email.replace(/[^a-zA-Z0-9]/g,'_');
+    const mine=JSON.parse(localStorage.getItem(key)||'[]');
+    mine.push(o);localStorage.setItem(key,JSON.stringify(mine));
+  }catch{}
+}
+
+async function sendOrdreMail(o){
+  if(!CONFIG.mail.web3formsKey)return;
+  const linjer=o.varer.map(x=>`${x.antal} × ${x.navn} — ${kr(x.linjePris)}`).join('\n');
+  try{
+    await fetch('https://api.web3forms.com/submit',{
+      method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},
+      body:JSON.stringify({
+        access_key:CONFIG.mail.web3formsKey,
+        subject:`🧾 Ny ordre ${o.id} — ${kr(o.total)}`,
+        from_name:'Sørensen IT Webshop',
+        replyto:o.kunde.email,
+        'Ordre-ID':o.id,'Dato':o.dato,'Status':o.status,
+        'Kunde':o.kunde.navn,'E-mail':o.kunde.email,'Telefon':o.kunde.tlf,
+        'Adresse':`${o.kunde.adresse}, ${o.kunde.post} ${o.kunde.by}`,
+        'Varer':linjer,
+        'Express':o.express?'Ja (+100 kr.)':'Nej',
+        'Rabat':o.rabatKode?`${o.rabatKode} (−${o.rabatProcent}%)`:'Ingen',
+        'Total':kr(o.total),'Heraf moms':kr(o.moms),
+        'Betalingsmetode':o.betaling,
+        'Besked fra kunden':o.besked
+      })
+    });
+  }catch{}
+}
+
+async function sendKundeKvittering(o){
+  if(!CONFIG.mail.kvitteringUrl)return;
+  try{
+    await fetch(CONFIG.mail.kvitteringUrl,{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        til:o.kunde.email,
+        emne:`Tak for din ordre ${o.id} — Sørensen IT`,
+        html:byggKvitteringHTML(o)
+      })
+    });
+  }catch{}
+}
+
+/* ═══════════ DANSK TAK-MAIL ═══════════ */
+function byggKvitteringHTML(o){
+  const b=CONFIG.bank;
+  const linjer=o.varer.map(x=>
+    `<tr><td style="padding:8px 0;border-bottom:1px solid #eee">${esc(x.navn)} × ${x.antal}</td>
+     <td style="padding:8px 0;border-bottom:1px solid #eee;text-align:right;font-weight:700">${kr(x.linjePris)}</td></tr>`).join('');
+  const besked={
+    'Betalt':'Vi er i gang med din ordre og kontakter dig, så snart den er klar.',
+    'Afventer MobilePay':`Send <b>${kr(o.total)}</b> til <b>${esc(CONFIG.butik.tlf)}</b> via MobilePay, og skriv <b>${esc(o.id)}</b> i beskedfeltet.`,
+    'Afventer bankoverførsel':`Overfør <b>${kr(o.total)}</b> til reg. ${esc(b.reg)} konto ${esc(b.konto)} med teksten <b>${esc(o.id)}</b>.`,
+    'Demo — ikke betalt':'Dette er en testordre — der er ikke trukket penge.'
+  }[o.status]||'Vi vender tilbage hurtigst muligt.';
+
+  return `<div style="font-family:Arial,Helvetica,sans-serif;max-width:560px;margin:0 auto;color:#111827">
+  <div style="background:#1a56db;padding:28px;text-align:center;border-radius:14px 14px 0 0">
+    <h1 style="color:#fff;font-size:21px;margin:0 0 4px">Tak for din ordre! 🎉</h1>
+    <p style="color:#c7d2fe;font-size:14px;margin:0">${esc(CONFIG.butik.navn)}</p>
+  </div>
+  <div style="border:1px solid #e5e7eb;border-top:none;border-radius:0 0 14px 14px;padding:24px">
+    <p style="font-size:15px">Hej ${esc(o.kunde.navn.split(' ')[0])} 👋</p>
+    <p style="font-size:14px;color:#374151;line-height:1.7">Tusind tak fordi du valgte os. Vi har modtaget din ordre — herunder finder du kvitteringen.</p>
+    <div style="background:#e8f0fe;border:1px dashed #1a56db;border-radius:10px;padding:14px;text-align:center;margin:18px 0">
+      <div style="font-size:12px;color:#6b7280">Dit ordre-ID</div>
+      <div style="font-size:19px;font-weight:800;color:#1a56db;letter-spacing:1px">${esc(o.id)}</div>
+    </div>
+    <table style="width:100%;border-collapse:collapse;font-size:14px">${linjer}
+      ${o.express?`<tr><td style="padding:8px 0;border-bottom:1px solid #eee">⚡ Express-service</td><td style="padding:8px 0;border-bottom:1px solid #eee;text-align:right;font-weight:700">${kr(o.expressPris)}</td></tr>`:''}
+      ${o.rabat?`<tr><td style="padding:8px 0;color:#16a34a">Rabat (${esc(o.rabatKode)})</td><td style="padding:8px 0;text-align:right;color:#16a34a;font-weight:700">−${kr(o.rabat)}</td></tr>`:''}
+      <tr><td style="padding:12px 0;font-size:17px;font-weight:800">I alt</td><td style="padding:12px 0;text-align:right;font-size:17px;font-weight:800">${kr(o.total)}</td></tr>
+      <tr><td colspan="2" style="text-align:right;font-size:12px;color:#6b7280">Heraf moms (25%): ${kr(o.moms)}</td></tr>
+    </table>
+    <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:16px;margin-top:18px;font-size:13px;line-height:1.7">
+      <b>Betalingsmetode:</b> ${esc(o.betaling)}<br>
+      <b>Status:</b> ${esc(o.status)}<br><br>${besked}
+    </div>
+    <p style="font-size:13px;color:#6b7280;line-height:1.7;margin-top:18px">
+      Har du spørgsmål, så ring på <b>${esc(CONFIG.butik.tlf)}</b> eller svar på denne mail.<br>
+      Mange hilsner<br><b>Jonas &amp; Storm — ${esc(CONFIG.butik.navn)}</b> ❤️
+    </p>
+  </div></div>`;
+}
+
+/* ═══════════ KVITTERING PÅ SKÆRMEN ═══════════ */
+function visKvittering(o){
+  const b=CONFIG.bank;
+  setStep(3);
+  document.getElementById('checkoutView').style.display='none';
+  const el=document.getElementById('receiptView');
+  const varer=o.varer.map(x=>`<div class="rc-line"><span>${esc(x.navn)} × ${x.antal}</span><span>${kr(x.linjePris)}</span></div>`).join('');
+  const naeste={
+    'Betalt':'Betalingen er gennemført ✅ Vi går i gang med det samme og kontakter dig, når din enhed er klar.',
+    'Afventer MobilePay':`Send <b>${kr(o.total)}</b> til <b>${esc(CONFIG.butik.tlf)}</b> i MobilePay — husk at skrive <b>${esc(o.id)}</b> i beskedfeltet.`,
+    'Afventer bankoverførsel':`Overfør <b>${kr(o.total)}</b> til <b>reg. ${esc(b.reg)} · konto ${esc(b.konto)}</b> og brug <b>${esc(o.id)}</b> som tekst på overførslen.`,
+    'Demo — ikke betalt':'🧪 Dette var en testordre — der er <b>ikke</b> trukket penge.'
+  }[o.status];
+
+  el.innerHTML=`
+  <div class="receipt">
+    <div class="receipt-head">
+      <img src="${esc(CONFIG.butik.logo)}" alt="Sørensen IT logo" onerror="this.style.display='none'">
+      <h1>Tak for din ordre! 🎉</h1>
+      <p>Vi har sendt en bekræftelse til ${esc(o.kunde.email)}</p>
+    </div>
+    <div class="receipt-body">
+      <div class="rc-id"><small>Dit ordre-ID</small><b>${esc(o.id)}</b></div>
+      ${varer}
+      ${o.express?`<div class="rc-line"><span>⚡ Express-service</span><span>${kr(o.expressPris)}</span></div>`:''}
+      ${o.rabat?`<div class="rc-line" style="color:var(--green)"><span>Rabat (${esc(o.rabatKode)})</span><span>−${kr(o.rabat)}</span></div>`:''}
+      <div class="rc-tot"><span>I alt</span><span>${kr(o.total)}</span></div>
+      <div style="text-align:right;font-size:12px;color:var(--g500);margin-top:4px">Heraf moms (25%): ${kr(o.moms)}</div>
+      <div class="rc-box"><b>Betalingsmetode:</b> ${esc(o.betaling)}<br><b>Status:</b> ${esc(o.status)}<br><br>${naeste}</div>
+      <div class="rc-box" style="background:#fff">
+        <b>Kontaktoplysninger:</b><br>
+        ${esc(o.kunde.navn)}<br>${esc(o.kunde.adresse)}<br>${esc(o.kunde.post)} ${esc(o.kunde.by)}<br>${esc(o.kunde.tlf)}
+      </div>
+      <div class="rc-btns">
+        <button class="rc-btn ghost" onclick="window.print()">🖨️ Gem / print kvittering</button>
+        <a class="rc-btn primary" href="index.html">Tilbage til shoppen →</a>
+      </div>
+      <p style="font-size:12px;color:var(--g500);text-align:center;margin-top:18px;line-height:1.7">
+        Spørgsmål? Ring på <b>${esc(CONFIG.butik.tlf)}</b> eller mail <b>${esc(CONFIG.butik.mail)}</b><br>
+        Mange hilsner — Jonas &amp; Storm ❤️
+      </p>
+    </div>
+  </div>`;
+  el.style.display='block';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function copyText(t,btn){
+  navigator.clipboard?.writeText(t).then(()=>{
+    const org=btn.textContent;
+    btn.textContent='✓ Kopieret';btn.classList.add('copied');
+    setTimeout(()=>{btn.textContent=org;btn.classList.remove('copied');},2000);
+  }).catch(()=>{});
+}
+
+/* ═══════════ INIT ═══════════ */
+document.addEventListener('DOMContentLoaded',()=>{
+  renderBank();
+  loadCart();
+  initSquare();
+  renderCart();
+
+  document.getElementById('mpNumber').textContent=CONFIG.butik.tlf;
+  selectPayment(kortMuligt()?'card':'mobilepay');
+  setStep(1);
+
+  try{
+    const u=JSON.parse(localStorage.getItem('sorensen_user')||'null');
+    if(u&&u.email)document.getElementById('email').value=u.email;
+    if(u&&u.name){
+      const d=u.name.split(' ');
+      document.getElementById('firstName').value=d[0]||'';
+      document.getElementById('lastName').value=d.slice(1).join(' ')||'';
+    }
+    const gemt=JSON.parse(localStorage.getItem('sorensen_leveringsinfo')||'null');
+    if(gemt)['phone','address','zip','city'].forEach(k=>{if(gemt[k])document.getElementById(k).value=gemt[k];});
+  }catch{}
+
+  ['phone','address','zip','city'].forEach(id=>{
+    document.getElementById(id).addEventListener('change',()=>{
+      try{
+        const d=JSON.parse(localStorage.getItem('sorensen_leveringsinfo')||'{}');
+        d[id]=v(id);localStorage.setItem('sorensen_leveringsinfo',JSON.stringify(d));
+      }catch{}
+    });
+  });
+
+  const tlfEl=document.getElementById('phone');
+  tlfEl.value=formatTlf(tlfEl.value);
+  tlfEl.addEventListener('input',e=>{e.target.value=formatTlf(e.target.value);});
+  tlfEl.addEventListener('paste',e=>{
+    e.preventDefault();
+    e.target.value=formatTlf((e.clipboardData||window.clipboardData).getData('text'));
+  });
+
+  document.getElementById('zip').addEventListener('input',e=>{e.target.value=e.target.value.replace(/\D/g,'').slice(0,4);});
+  const cn=document.getElementById('cardNumber');
+  if(cn)cn.addEventListener('input',e=>{
+    const x=e.target.value.replace(/\D/g,'').slice(0,16);
+    e.target.value=x.match(/.{1,4}/g)?.join(' ')||x;
+  });
+  const ce=document.getElementById('cardExpiry');
+  if(ce)ce.addEventListener('input',e=>{
+    let x=e.target.value.replace(/\D/g,'');
+    if(x.length>2)x=x.slice(0,2)+'/'+x.slice(2,4);
+    e.target.value=x;
+  });
+  const cv=document.getElementById('cardCVV');
+  if(cv)cv.addEventListener('input',e=>{e.target.value=e.target.value.replace(/\D/g,'').slice(0,4);});
+
+  ['firstName','lastName','email','phone','address','zip','city'].forEach(id=>{
+    document.getElementById(id).addEventListener('blur',()=>{if(v(id))validateContact();});
+  });
+});
+</script>
+</body>
+</html>

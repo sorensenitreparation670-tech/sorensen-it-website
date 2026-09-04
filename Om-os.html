@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+    <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sørensen IT & Reparation - Om Os</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --accent: #1d4ed8;
+            --accent-dark: #1e40af;
+            --accent-light: #38bdf8;
+            --bg: #f6f9ff;
+            --card: #ffffff;
+            --text: #0f172a;
+            --muted: #475569;
+            --success: #10b981;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            padding-top: 80px;
+        }
+
+        .status-bar {
+            background: var(--accent);
+            color: white;
+            text-align: center;
+            padding: 10px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        /* NAVIGATION */
+        nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            padding: 18px;
+            background: white;
+            border-bottom: 1px solid #e5e5e5;
+            z-index: 100;
+            flex-wrap: wrap;
+        }
+
+        nav a {
+            text-decoration: none;
+            font-weight: 600;
+            color: var(--text);
+            transition: color 0.2s;
+        }
+
+        nav a:hover, nav a.active { color: var(--accent); }
+
+        /* HERO / TOP BANNER */
+        .about-hero {
+            min-height: 40vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 60px 20px;
+            position: relative;
+            background-image: linear-gradient(rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 0.85)), url('baggrund-os.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            color: white;
+        }
+
+        .hero-content { max-width: 800px; }
+        .hero-content h1 { font-size: 3.5rem; font-weight: 800; margin-bottom: 15px; }
+        .hero-content p { color: #cbd5e1; font-size: 1.2rem; }
+        .accent-light { color: var(--accent-light); }
+
+        /* DET LØBENDE BANNER (TICKER) */
+        .ticker-container {
+            width: 100%;
+            background: #0f172a; /* Den rå, mørkegrå tech-farve */
+            overflow: hidden;
+            padding: 18px 0;
+            border-top: 2px solid var(--accent);
+            border-bottom: 2px solid var(--accent);
+            display: flex;
+        }
+
+        .ticker-content {
+            display: flex;
+            width: max-content;
+            animation: loop-ticker 25s linear infinite;
+        }
+
+        .ticker-content span {
+            font-size: 1.3rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: #ffffff;
+            white-space: nowrap;
+            display: inline-block;
+        }
+
+        /* Skaber det uendelige glidende loop uden stop */
+        @keyframes loop-ticker {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* BRØDTEKST / HISTORIEN */
+        section {
+            max-width: 1000px;
+            margin: auto;
+            padding: 60px 20px;
+        }
+
+        .story-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 50px;
+            align-items: center;
+        }
+
+        @media(max-width: 850px) { .story-grid { grid-template-columns: 1fr; gap: 30px; } }
+
+        .story-text h2 { font-size: 2.2rem; font-weight: 800; margin-bottom: 20px; }
+        .story-text p { color: var(--muted); margin-bottom: 20px; font-size: 1.05rem; }
+        
+        .badge {
+            background: #dbeafe; color: var(--accent); padding: 6px 14px;
+            border-radius: 20px; font-size: 0.85rem; font-weight: 700; text-transform: uppercase;
+            display: inline-block; margin-bottom: 15px;
+        }
+
+        /* JONAS PROFIL-KORT */
+        .profile-card {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            border: 1px solid #dbeafe;
+            box-shadow: 0 10px 30px rgba(29, 78, 216, 0.05);
+        }
+
+        .profile-card h3 { font-size: 1.5rem; font-weight: 700; margin-bottom: 25px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; }
+
+        .trait-item { display: flex; gap: 15px; margin-bottom: 20px; }
+        .trait-item:last-child { margin-bottom: 0; }
+        .trait-icon { font-size: 1.8rem; line-height: 1; }
+        .trait-info h4 { font-size: 1.1rem; font-weight: 700; margin-bottom: 4px; }
+        .trait-info p { color: var(--muted); font-size: 0.95rem; }
+
+        /* BUND-BANNER */
+        .cta-box {
+            background: #0f172a; color: white; padding: 40px; border-radius: 18px; text-align: center; margin-top: 40px;
+        }
+        .cta-box h3 { font-size: 1.8rem; font-weight: 700; margin-bottom: 10px; }
+        .cta-box p { color: #cbd5e1; margin-bottom: 25px; }
+        .cta-btn {
+            display: inline-block; background: var(--accent); color: white; text-decoration: none;
+            padding: 14px 30px; font-weight: 700; border-radius: 10px; transition: background 0.2s;
+            text-transform: uppercase; font-size: 0.95rem;
+        }
+        .cta-btn:hover { background: var(--accent-dark); }
+
+        footer { text-align: center; padding: 40px; color: var(--muted); border-top: 1px solid #e5e5e5; margin-top: 60px; background: white; }
+    </style>
+</head>
+<body>
+
+    <div class="status-bar">👨‍💻 MØD REPARATØRERNE BAG SØRENSEN IT & REPARATION</div>
+
+    <nav>
+        <a href="index.html">Hjem</a>
+        <a href="index.html#services">Services</a>
+        <a href="index.html#saadan-fungerer-det">Sådan fungerer det</a>
+        <a href="index.html#picker">Konfigurator</a>
+        <a href="gpu-fps-tester.html">Grafikkort FPS Tester</a>
+        <a href="guides.html" class="active">Guider</a>
+        <a href="service-indlevering.html">Indlevering & Priser</a>
+        <a href="index.html#faq">FAQ</a>
+        <a href="index.html#kontakt">Kontakt</a>
+    </nav>
+
+    <header class="about-hero">
+        <div class="hero-content">
+            <span class="accent-light" style="font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">Vores Passion · Din Sikkerhed</span>
+            <h1>Historien bag <span class="accent-light">værkstedet</span></h1>
+            <p>Vi lever og ånder for hardware. Mød teamet der sikrer, at din computer altid yder sit absolut maksimale.</p>
+        </div>
+    </header>
+
+    <!-- DET NYE LØBENDE BANNER (Sikrer flydende og uendelig tekst-bevægelse) -->
+    <div class="ticker-container">
+        <div class="ticker-content">
+            <span> 🛠️ SØRENSEN IT & REPARATION &nbsp;&nbsp;•&nbsp;&nbsp; 🔥 PASSION FOR HARDWARE &nbsp;&nbsp;•&nbsp;&nbsp; ⏳ 100% TÅLMODIGHED &nbsp;&nbsp;•&nbsp;&nbsp; 💻 PROFESSIONEL PC SAMLING &nbsp;&nbsp;•&nbsp;&nbsp; ⚡ FEJLFINDING & REPARATION &nbsp;&nbsp;•&nbsp;&nbsp; 🤝 ERHVERVS- & PRIVATSERVICE &nbsp;&nbsp;•&nbsp;&nbsp;&nbsp;</span>
+            <!-- Teksten gentages én gang lige bagefter for at lave et usynligt loop-point -->
+            <span> 🛠️ SØRENSEN IT & REPARATION &nbsp;&nbsp;•&nbsp;&nbsp; 🔥 PASSION FOR HARDWARE &nbsp;&nbsp;•&nbsp;&nbsp; ⏳ 100% TÅLMODIGHED &nbsp;&nbsp;•&nbsp;&nbsp; 💻 PROFESSIONEL PC SAMLING &nbsp;&nbsp;•&nbsp;&nbsp; ⚡ FEJLFINDING & REPARATION &nbsp;&nbsp;•&nbsp;&nbsp; 🤝 ERHVERVS- & PRIVATSERVICE &nbsp;&nbsp;•&nbsp;&nbsp;&nbsp;</span>
+        </div>
+    </div>
+
+    <section>
+        <div class="story-grid">
+            
+            <div class="story-text">
+                <span class="badge">Hvem er vi</span>
+                <h2>Vi behandler dit hardware som vores eget</h2>
+                <p>
+                    Sørensen IT & Reparation startede ud fra en simpel, men stærk vision: At tilbyde et gennemskueligt, ærligt og top-professionelt IT-værksted, hvor kunden altid er i centrum. Vi ved, hvor frustrerende det er, når computeren driller, crasher eller ikke kan trække yndlingsspillene ordentligt.
+                </p>
+                <p>
+                    Derfor har vi specialiseret os i alt det, de store elektronikkæder ikke tilbyder. Vi bygger skræddersyede gaming-computere med komponenter, du selv vælger, laver dybdegående fejlsøgninger og udfører ultra-grundige rensninger, der vækker gammelt hardware til live igen.
+                </p>
+            </div>
+
+            <div class="profile-card">
+                <h3>Mød Jonas</h3>
+                
+                <div class="trait-item">
+                    <div class="trait-icon">🚀</div>
+                    <div class="trait-info">
+                        <h4>Kompromisløs PC-Passion</h4>
+                        <p>Jonas lever og ånder for computer-hardware. At samle komponenter, optimere luftgennemstrømning og lave perfekt cable management er for ham et sandt kunstværk.</p>
+                    </div>
+                </div>
+
+                <div class="trait-item">
+                    <div class="trait-icon">🤝</div>
+                    <div class="trait-info">
+                        <h4>Drevet af at hjælpe</h4>
+                        <p>Det bedste ved arbejdet er glæden ved at hjælpe andre. Jonas elsker at guide folk i mål, uanset om det er en avanceret streaming-opsætning eller en computer, der nægter at starte.</p>
+                    </div>
+                </div>
+
+                <div class="trait-item">
+                    <div class="trait-icon">⏳</div>
+                    <div class="trait-info">
+                        <h4>Enorm Tålmodighed</h4>
+                        <p>Drilske fejl og komplicerede software-problemer skræmmer ikke Jonas. Han har en sjælden, dyb tålmodighed og giver sig altid den tid, der kræves, for at finde fejlen og løse den helt.</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="cta-box">
+            <h3>Skal vi kigge på din computer?</h3>
+            <p>Opret din sag online på under 2 minutter, og send dit udstyr eller dine komponenter direkte op til vores værksted.</p>
+            <a href="service-indlevering.html#opret-sag" class="cta-btn">Opret servicesag nu</a>
+        </div>
+
+    </section>
+
+    <footer>
+        <p>&copy; 2026 Sørensen IT & Reparation | Jonas & Storm Sørensen | Tlf: 93 86 92 67</p>
+    </footer>
+<!-- ========================================== -->
+<!-- TAL MED EN TEKNIKER - AI CHAT WIDGET      -->
+<!-- ========================================== -->
+<div class="ai-chat-container">
+    <!-- Flydende Chat-knap (Højre hjørne) -->
+    <button class="ai-chat-toggle" onclick="toggleAiChat()">
+        <span class="ai-chat-icon">🤖</span>
+        <span class="ai-chat-text">Tal med en Tekniker AI</span>
+    </button>
+
+    <!-- Chat Vindue -->
+    <div class="ai-chat-window" id="aiChatWindow">
+        <div class="ai-chat-header">
+            <div class="ai-tech-status">
+                <span class="status-dot"></span>
+                <div>
+                    <h4>Sørensen IT - AI Tekniker</h4>
+                    <p>Svarer med det samme</p>
+                </div>
+            </div>
+            <button class="ai-chat-close" onclick="toggleAiChat()">&times;</button>
+        </div>
+
+        <!-- Chat Beskeder -->
+        <div class="ai-chat-body" id="aiChatBody">
+            <div class="ai-msg bot-msg">
+                Hej! Jeg er Sørensen IT's lynhurtige AI-tekniker. 🛠️<br><br>
+                Hvad kan jeg hjælpe dig med i dag? Spørg mig om priser, PC-byg, eller hvordan du indleverer!
+            </div>
+        </div>
+
+        <!-- Input felt -->
+        <div class="ai-chat-footer">
+            <input type="text" id="aiChatInput" placeholder="Skriv dit spørgsmål her..." onkeypress="handleAiChatKey(event)">
+            <button onclick="sendAiMessage()">Send</button>
+        </div>
+    </div>
+</div>
+
+<!-- STYLING TIL CHATTEN (Sikrer at den ligger flot i siden af skærmen) -->
+<style>
+    .ai-chat-container {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        z-index: 9999;
+        font-family: 'Outfit', sans-serif;
+    }
+
+    /* Flydende knap */
+    .ai-chat-toggle {
+        background: #1d4ed8;
+        color: white;
+        border: none;
+        padding: 14px 22px;
+        border-radius: 30px;
+        font-size: 1rem;
+        font-weight: 700;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        box-shadow: 0 8px 24px rgba(29, 78, 216, 0.3);
+        transition: transform 0.2s, background 0.2s;
+    }
+
+    .ai-chat-toggle:hover {
+        transform: translateY(-3px);
+        background: #1e40af;
+    }
+
+    .ai-chat-icon { font-size: 1.3rem; }
+
+    /* Chat vinduet */
+    .ai-chat-window {
+        position: absolute;
+        bottom: 75px;
+        right: 0;
+        width: 360px;
+        height: 480px;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 12px 40px rgba(15, 23, 42, 0.15);
+        border: 1px solid #e2e8f0;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        transform: translateY(20px);
+        opacity: 0;
+        pointer-events: none;
+        transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+
+    .ai-chat-window.open {
+        transform: translateY(0);
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    /* Header */
+    .ai-chat-header {
+        background: #0f172a;
+        color: white;
+        padding: 15px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 2px solid #1d4ed8;
+    }
+
+    .ai-tech-status { display: flex; align-items: center; gap: 10px; }
+    .status-dot { width: 10px; height: 10px; background: #10b981; border-radius: 50%; display: inline-block; }
+    .ai-tech-status h4 { font-size: 0.95rem; font-weight: 700; }
+    .ai-tech-status p { font-size: 0.75rem; color: #94a3b8; }
+    .ai-chat-close { background: none; border: none; color: #94a3b8; font-size: 1.8rem; cursor: pointer; transition: color 0.2s; }
+    .ai-chat-close:hover { color: white; }
+
+    /* Besked område */
+    .ai-chat-body {
+        flex: 1;
+        padding: 20px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        background: #f8fafc;
+    }
+
+    .ai-msg {
+        max-width: 85%;
+        padding: 12px 16px;
+        border-radius: 16px;
+        font-size: 0.95rem;
+        line-height: 1.4;
+    }
+
+    .bot-msg { background: white; color: #0f172a; border-bottom-left-radius: 4px; border: 1px solid #e2e8f0; align-self: flex-start; }
+    .user-msg { background: #1d4ed8; color: white; border-bottom-right-radius: 4px; align-self: flex-end; }
+
+    /* Skriver... indikator */
+    .typing-indicator { color: var(--muted); font-style: italic; font-size: 0.85rem; align-self: flex-start; }
+
+    /* Footer / Input */
+    .ai-chat-footer { padding: 12px; background: white; border-top: 1px solid #e2e8f0; display: flex; gap: 8px; }
+    .ai-chat-footer input {
+        flex: 1; padding: 10px 14px; border-radius: 10px; border: 2px solid #e2e8f0; outline: none; font-size: 0.9rem;
+    }
+    .ai-chat-footer input:focus { border-color: #1d4ed8; }
+    .ai-chat-footer button {
+        background: #1d4ed8; color: white; border: none; padding: 0 16px; border-radius: 10px; font-weight: 700; cursor: pointer;
+    }
+    .ai-chat-footer button:hover { background: #1e40af; }
+</style>
+
+<!-- INTELLIGENT SCRIPT (Svarer automatisk baseret på jeres ydelser, Jonas og priser) -->
+<script>
+    function toggleAiChat() {
+        document.getElementById("aiChatWindow").classList.toggle("open");
+    }
+
+    function handleAiChatKey(event) {
+        if (event.key === "Enter") { sendAiMessage(); }
+    }
+
+    function sendAiMessage() {
+        const input = document.getElementById("aiChatInput");
+        const msgText = input.value.trim();
+        if (msgText === "") return;
+
+        const chatBody = document.getElementById("aiChatBody");
+
+        // 1. Tilføj brugerens besked
+        const userMsgDiv = document.createElement("div");
+        userMsgDiv.className = "ai-msg user-msg";
+        userMsgDiv.innerText = msgText;
+        chatBody.appendChild(userMsgDiv);
+        
+        input.value = ""; // Tøm feltet
+        chatBody.scrollTop = chatBody.scrollHeight; // Scroll ned
+
+        // 2. Vis at AI'en skriver...
+        const typingDiv = document.createElement("div");
+        typingDiv.className = "ai-msg bot-msg typing-indicator";
+        typingDiv.innerText = "Tekniker AI tænker...";
+        chatBody.appendChild(typingDiv);
+        chatBody.scrollTop = chatBody.scrollHeight;
+
+        // 3. Generer intelligent svar baseret på kodeord efter 1 sekund
+        setTimeout(() => {
+            chatBody.removeChild(typingDiv); // Fjern indikatoren
+            
+            const botMsgDiv = document.createElement("div");
+            botMsgDiv.className = "ai-msg bot-msg";
+            botMsgDiv.innerHTML = getAiResponse(msgText.toLowerCase());
+            
+            chatBody.appendChild(botMsgDiv);
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }, 1000);
+    }
+
+    // AI'ens hjerne (Skræddersyet til jeres forretning)
+    function getAiResponse(query) {
+        if (query.includes("pris") || query.includes("koster") || query.includes("hvad koster")) {
+            return "Vores officielle priser er faste og gennemskuelige:<br>• <b>PC Samling:</b> 399 kr.<br>• <b>HELE SETUP:</b> 649 kr. (Inkl. OS & drivere)<br>• <b>Reparation/fejlfix:</b> 299 kr.<br>• <b>Software installation:</b> 149-249 kr.<br><br>Se alle detaljer på siden 'Indlevering & Priser'!";
+        }
+        if (query.includes("jonas") || query.includes("hvem bygger") || query.includes("tålmodig")) {
+            return "Det er <b>Jonas</b>, der er vores hovedtekniker! Han har en enorm passion for hardware og elsker at bygge computere helt fra bunden. Kunderne elsker ham, fordi han er ekstremt tålmodig og giver sig altid tid til at løse problemerne helt perfekt. 🛠️";
+        }
+        if (query.includes("samle") || query.includes("byg") || query.includes("computer")) {
+            return "Vi elsker at samle PC'er! Hvis du selv køber delene, tager vi <b>399,- kr.</b> for at samle hardwaren professionelt. Vil du have installeret Windows, lynhurtige drivere og have den fuldstændig stress-testet, anbefaler vi vores <b>HELE SETUP til 649,- kr.</b>!";
+        }
+        if (query.includes("indlever") || query.includes("send") || query.includes("adresse") || query.includes("hvor")) {
+            return "Det er super nemt! Du går bare ind på vores side <b>'Indlevering & Priser'</b>, udfylder formularen i bunden, og så modtager du instruktioner til, hvordan du pakker computeren/delene ned og sender dem sikkert til vores værksted.";
+        }
+        if (query.includes("reparation") || query.includes("fejl") || query.includes("crasher") || query.includes("virker ikke")) {
+            return "Det kan vi helt sikkert fikse! Vores standard fejlfinding og reparation af hardware/software koster kun <b>299,- kr.</b> Opret en sag under 'Indlevering & Priser', så tager vi et kig på den med det samme på værkstedet.";
+        }
+        if (query.includes("kontakt") || query.includes("nummer") || query.includes("telefon")) {
+            return "Du kan altid ringe direkte til os på <b>93 86 92 67</b>, hvis du har spørgsmål til en opgave!";
+        }
+        
+        // Standardsvar hvis den ikke forstår ordet
+        return "Det er et godt spørgsmål! Jeg er en AI, så for specifikke sager er det bedst at oprette en sag på vores <b>'Indlevering & Priser'</b>-side, eller ringe direkte til værkstedet på tlf: <b>93 86 92 67</b>, så svarer vi dig med det samme! 🤝";
+    }
+</script>
+</body>
+</html>

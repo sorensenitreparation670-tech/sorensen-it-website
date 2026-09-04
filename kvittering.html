@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sørensen IT — Kvittering</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --blue: #1a56db;
+    --blue-light: #eff6ff;
+    --green: #16a34a;
+    --green-light: #dcfce7;
+    --grey-50: #f9fafb;
+    --grey-100: #f3f4f6;
+    --grey-200: #e5e7eb;
+    --grey-500: #6b7280;
+    --grey-700: #374151;
+    --grey-900: #111827;
+  }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--grey-50);
+    color: var(--grey-900);
+    min-height: 100vh;
+    padding: 32px 16px;
+  }
+
+  /* BLOCKED STATE */
+  .blocked-overlay {
+    position: fixed; inset: 0;
+    background: var(--grey-50);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    z-index: 999; text-align: center; padding: 32px;
+  }
+  .blocked-overlay .icon { font-size: 60px; margin-bottom: 20px; }
+  .blocked-overlay h2 { font-size: 24px; font-weight: 800; margin-bottom: 12px; }
+  .blocked-overlay p { font-size: 15px; color: var(--grey-500); max-width: 360px; line-height: 1.6; margin-bottom: 24px; }
+  .btn-primary {
+    display: inline-block; padding: 13px 28px;
+    background: var(--blue); color: #fff;
+    border-radius: 10px; font-size: 15px; font-weight: 700;
+    border: none; cursor: pointer; text-decoration: none;
+    transition: opacity .15s;
+  }
+  .btn-primary:hover { opacity: .9; }
+
+  /* RECEIPT WRAPPER */
+  .receipt-wrapper {
+    max-width: 680px;
+    margin: 0 auto;
+  }
+
+  /* TOP ACTIONS */
+  .top-actions {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 20px;
+  }
+  .back-link {
+    display: flex; align-items: center; gap: 6px;
+    color: var(--blue); font-size: 14px; font-weight: 500;
+    text-decoration: none; cursor: pointer; border: none; background: none;
+  }
+  .print-btn {
+    padding: 8px 16px; background: var(--grey-100);
+    border: 1px solid var(--grey-200); border-radius: 8px;
+    font-size: 13px; font-weight: 600; cursor: pointer;
+    display: flex; align-items: center; gap: 6px; color: var(--grey-700);
+  }
+  .print-btn:hover { background: var(--grey-200); }
+
+  /* MAIN RECEIPT CARD */
+  .receipt {
+    background: #fff;
+    border: 1px solid var(--grey-200);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 24px rgba(0,0,0,.06);
+  }
+
+  /* HEADER */
+  .receipt-header {
+    background: linear-gradient(135deg, var(--blue) 0%, #3b82f6 100%);
+    padding: 32px;
+    color: #fff;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .receipt-header::before {
+    content: '';
+    position: absolute; top: -40px; right: -40px;
+    width: 120px; height: 120px; border-radius: 50%;
+    background: rgba(255,255,255,.08);
+  }
+  .receipt-header::after {
+    content: '';
+    position: absolute; bottom: -30px; left: -30px;
+    width: 100px; height: 100px; border-radius: 50%;
+    background: rgba(255,255,255,.06);
+  }
+  .header-icon { font-size: 48px; margin-bottom: 12px; }
+  .receipt-header h1 { font-size: 26px; font-weight: 800; margin-bottom: 4px; }
+  .receipt-header .sub { font-size: 14px; opacity: .85; }
+  .receipt-header .order-id-badge {
+    display: inline-block;
+    background: rgba(255,255,255,.2); border: 1px solid rgba(255,255,255,.3);
+    border-radius: 8px; padding: 8px 20px; margin-top: 16px;
+    font-size: 20px; font-weight: 800; letter-spacing: 2px;
+    font-family: monospace;
+  }
+
+  /* CONFIRMED BANNER */
+  .confirmed-banner {
+    background: var(--green-light); border-bottom: 1px solid #bbf7d0;
+    padding: 12px 24px;
+    display: flex; align-items: center; gap: 10px;
+    font-size: 14px; font-weight: 600; color: var(--green);
+  }
+  .confirmed-banner .dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--green); flex-shrink: 0;
+    animation: pulse-dot 1.5s ease-in-out infinite;
+  }
+  @keyframes pulse-dot {
+    0%,100% { box-shadow: 0 0 0 0 rgba(22,163,74,.4); }
+    50% { box-shadow: 0 0 0 6px rgba(22,163,74,0); }
+  }
+
+  /* SECTIONS */
+  .receipt-section { padding: 24px 28px; border-bottom: 1px solid var(--grey-100); }
+  .receipt-section:last-child { border-bottom: none; }
+  .section-title {
+    font-size: 12px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .8px; color: var(--grey-500); margin-bottom: 14px;
+  }
+
+  /* INFO GRID */
+  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media(max-width:500px) { .info-grid { grid-template-columns: 1fr; } }
+  .info-item label { font-size: 12px; color: var(--grey-500); font-weight: 500; margin-bottom: 3px; display: block; }
+  .info-item span { font-size: 14px; font-weight: 600; color: var(--grey-900); }
+
+  /* ITEMS TABLE */
+  .items-table { width: 100%; border-collapse: collapse; }
+  .items-table th {
+    font-size: 12px; font-weight: 600; color: var(--grey-500);
+    text-align: left; padding: 0 0 10px; border-bottom: 1px solid var(--grey-200);
+  }
+  .items-table th:last-child { text-align: right; }
+  .items-table td {
+    padding: 14px 0; border-bottom: 1px solid var(--grey-100);
+    font-size: 14px; vertical-align: top;
+  }
+  .items-table td:last-child { text-align: right; font-weight: 700; }
+  .items-table tr:last-child td { border-bottom: none; }
+  .item-td-name { font-weight: 600; margin-bottom: 3px; }
+  .item-td-desc { font-size: 12px; color: var(--grey-500); }
+  .item-qty-badge {
+    display: inline-block; background: var(--grey-100);
+    border-radius: 4px; padding: 1px 6px; font-size: 11px; font-weight: 700;
+    color: var(--grey-500); margin-left: 4px;
+  }
+
+  /* TOTALS */
+  .total-row {
+    display: flex; justify-content: space-between;
+    font-size: 14px; padding: 6px 0; color: var(--grey-700);
+  }
+  .total-row.grand {
+    font-size: 20px; font-weight: 800; color: var(--grey-900);
+    padding-top: 12px; border-top: 2px solid var(--grey-900); margin-top: 8px;
+  }
+  .total-row.discount { color: var(--green); }
+
+  /* PAYMENT CONFIRMED BOX */
+  .payment-confirm-box {
+    background: var(--blue-light); border: 1px solid #bfdbfe;
+    border-radius: 10px; padding: 16px;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .payment-confirm-box .pay-icon { font-size: 28px; flex-shrink: 0; }
+  .payment-confirm-box .pay-details { flex: 1; }
+  .payment-confirm-box .pay-label { font-size: 12px; color: var(--blue); font-weight: 600; }
+  .payment-confirm-box .pay-value { font-size: 18px; font-weight: 800; color: var(--grey-900); }
+  .payment-confirm-box .pay-method { font-size: 12px; color: var(--grey-500); margin-top: 2px; }
+  .payment-confirm-box .status-pill {
+    background: var(--green-light); color: var(--green);
+    border: 1px solid #86efac; border-radius: 99px;
+    padding: 4px 12px; font-size: 12px; font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  /* NEXT STEPS */
+  .next-steps { list-style: none; }
+  .next-steps li {
+    display: flex; gap: 12px; align-items: flex-start;
+    padding: 10px 0; border-bottom: 1px solid var(--grey-100); font-size: 14px;
+  }
+  .next-steps li:last-child { border-bottom: none; }
+  .next-steps .step-icon {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--blue-light); color: var(--blue);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; flex-shrink: 0;
+  }
+  .next-steps .step-text strong { display: block; font-weight: 600; margin-bottom: 2px; }
+  .next-steps .step-text span { font-size: 12px; color: var(--grey-500); }
+
+  /* FOOTER */
+  .receipt-footer {
+    text-align: center; padding: 20px 28px;
+    font-size: 12px; color: var(--grey-500); line-height: 1.6;
+  }
+  .receipt-footer a { color: var(--blue); text-decoration: none; }
+  .receipt-footer .company-info { margin-top: 8px; font-size: 11px; }
+
+  /* TIMESTAMP */
+  .timestamp {
+    font-size: 12px; color: var(--grey-500);
+    text-align: center; margin-top: 16px;
+  }
+
+  /* BOTTOM ACTIONS */
+  .bottom-actions { display: flex; gap: 10px; margin-top: 20px; }
+  .bottom-actions a, .bottom-actions button {
+    flex: 1; padding: 12px; border-radius: 10px;
+    font-size: 14px; font-weight: 700; cursor: pointer;
+    text-align: center; text-decoration: none; border: none;
+    transition: all .15s;
+  }
+  .btn-home { background: var(--blue); color: #fff; }
+  .btn-home:hover { opacity: .9; }
+  .btn-print { background: var(--grey-100); color: var(--grey-900); border: 1px solid var(--grey-200) !important; }
+  .btn-print:hover { background: var(--grey-200); }
+
+  /* CONFETTI */
+  .confetti-piece {
+    position: fixed; width: 10px; height: 10px; border-radius: 2px;
+    pointer-events: none; z-index: 9999;
+    animation: confetti-fall linear forwards;
+  }
+  @keyframes confetti-fall {
+    0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  }
+
+  @media print {
+    body { background: #fff; padding: 0; }
+    .top-actions, .bottom-actions, .blocked-overlay { display: none !important; }
+    .receipt { border: none; box-shadow: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- BLOCKED STATE (shown if no confirmed payment) -->
+<div class="blocked-overlay" id="blockedOverlay" style="display:none;">
+  <div class="icon">🔒</div>
+  <h2>Ingen bekræftet betaling</h2>
+  <p>Kvitteringen er kun tilgængelig efter en fuldført betaling. Gå til kassen for at gennemføre din ordre.</p>
+  <a href="checkout.html" class="btn-primary">Gå til kassen →</a>
+</div>
+
+<div class="receipt-wrapper" id="receiptContent" style="display:none;">
+
+  <div class="top-actions">
+    <a href="index.html" class="back-link">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      Tilbage til forsiden
+    </a>
+    <button class="print-btn" onclick="window.print()">🖨️ Udskriv kvittering</button>
+  </div>
+
+  <div class="receipt">
+
+    <!-- HEADER -->
+    <div class="receipt-header">
+      <div class="header-icon">🎉</div>
+      <h1>Tak for din ordre!</h1>
+      <div class="sub">Kvittering fra Sørensen IT — A/S Jonas &amp; Storm</div>
+      <div class="order-id-badge" id="headerOrderId">—</div>
+    </div>
+
+    <!-- CONFIRMED BANNER -->
+    <div class="confirmed-banner">
+      <div class="dot"></div>
+      <span>Betaling bekræftet — <span id="bannerTimestamp">—</span></span>
+    </div>
+
+    <!-- CUSTOMER INFO -->
+    <div class="receipt-section">
+      <div class="section-title">Kundeoplysninger</div>
+      <div class="info-grid">
+        <div class="info-item">
+          <label>Navn</label>
+          <span id="rcpt-name">—</span>
+        </div>
+        <div class="info-item">
+          <label>E-mail</label>
+          <span id="rcpt-email">—</span>
+        </div>
+        <div class="info-item">
+          <label>Ordre-ID</label>
+          <span id="rcpt-orderId" style="color:var(--blue);font-family:monospace;font-size:13px;">—</span>
+        </div>
+        <div class="info-item">
+          <label>Dato &amp; tid</label>
+          <span id="rcpt-date">—</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ITEMS -->
+    <div class="receipt-section">
+      <div class="section-title">Bestilte ydelser</div>
+      <table class="items-table">
+        <thead>
+          <tr>
+            <th>Ydelse</th>
+            <th style="text-align:center;width:60px;">Antal</th>
+            <th style="text-align:right;">Pris</th>
+          </tr>
+        </thead>
+        <tbody id="receiptItems"></tbody>
+      </table>
+    </div>
+
+    <!-- TOTALS -->
+    <div class="receipt-section">
+      <div class="total-row"><span>Subtotal</span><span id="rcpt-subtotal">—</span></div>
+      <div class="total-row discount" id="rcpt-discountRow" style="display:none;"><span id="rcpt-discountLabel">—</span><span id="rcpt-discountAmt">—</span></div>
+      <div class="total-row"><span>Moms (25%)</span><span id="rcpt-vat">—</span></div>
+      <div class="total-row"><span>Levering</span><span style="color:var(--green)">Gratis</span></div>
+      <div class="total-row grand"><span>Total betalt</span><span id="rcpt-total">—</span></div>
+    </div>
+
+    <!-- PAYMENT CONFIRMED -->
+    <div class="receipt-section">
+      <div class="section-title">Betalingsbekræftelse</div>
+      <div class="payment-confirm-box">
+        <div class="pay-icon" id="rcpt-payIcon">💳</div>
+        <div class="pay-details">
+          <div class="pay-label">Betalt med</div>
+          <div class="pay-value" id="rcpt-totalBig">—</div>
+          <div class="pay-method" id="rcpt-payMethod">—</div>
+        </div>
+        <div class="status-pill">✓ Bekræftet</div>
+      </div>
+    </div>
+
+    <!-- NEXT STEPS -->
+    <div class="receipt-section">
+      <div class="section-title">Næste skridt</div>
+      <ul class="next-steps">
+        <li>
+          <div class="step-icon">📧</div>
+          <div class="step-text">
+            <strong>Bekræftelsesmail sendt</strong>
+            <span>En kopi af denne kvittering er sendt til din e-mailadresse</span>
+          </div>
+        </li>
+        <li>
+          <div class="step-icon">📞</div>
+          <div class="step-text">
+            <strong>Vi kontakter dig indenfor 2 timer</strong>
+            <span>En tekniker ringer for at aftale tid og detaljer</span>
+          </div>
+        </li>
+        <li>
+          <div class="step-icon">🔧</div>
+          <div class="step-text">
+            <strong>Levering / afhentning inden for 24–48 timer</strong>
+            <span>Vi sørger for hurtig og professionel service</span>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="receipt-footer">
+      <strong>Sørensen IT — Jonas &amp; Storm</strong><br>
+      <a href="mailto:kontakt@sorensenIT.dk">kontakt@sorensenIT.dk</a> · Tlf: 93 86 92 67<br>
+      <div class="company-info">CVR: 12 34 56 78 · Momsnr.: DK12345678 · Alle priser er inkl. moms</div>
+    </div>
+
+  </div>
+
+  <!-- BOTTOM ACTIONS -->
+  <div class="bottom-actions">
+    <a href="index.html" class="btn-home">← Tilbage til forsiden</a>
+    <button class="btn-print" onclick="window.print()">🖨️ Udskriv</button>
+  </div>
+
+  <div class="timestamp" id="footerTimestamp">—</div>
+
+</div>
+
+<script>
+/* ── CHECK IF PAYMENT WAS CONFIRMED ── */
+const confirmed = sessionStorage.getItem('orderConfirmed');
+const orderId   = sessionStorage.getItem('pendingOrderId');
+const method    = sessionStorage.getItem('paymentMethod') || 'card';
+const email     = sessionStorage.getItem('customerEmail') || '—';
+const name      = sessionStorage.getItem('customerName') || 'Kunde';
+const total     = parseInt(sessionStorage.getItem('orderTotal') || '0');
+const ts        = sessionStorage.getItem('orderTimestamp') || new Date().toISOString();
+
+/* If no confirmed order, show blocked overlay */
+if (!confirmed || !orderId) {
+  document.getElementById('blockedOverlay').style.display = 'flex';
+  document.getElementById('receiptContent').style.display = 'none';
+} else {
+  document.getElementById('blockedOverlay').style.display = 'none';
+  document.getElementById('receiptContent').style.display = 'block';
+  populateReceipt();
+  launchConfetti();
+}
+
+function formatDate(iso) {
+  const d = new Date(iso);
+  return d.toLocaleDateString('da-DK', { day:'numeric', month:'long', year:'numeric' }) +
+    ' kl. ' + d.toLocaleTimeString('da-DK', { hour:'2-digit', minute:'2-digit' });
+}
+
+const methodLabels = {
+  card: { label: '💳 Kortbetaling', icon: '💳' },
+  mobilepay: { label: '📱 MobilePay', icon: '📱' },
+  bank: { label: '🏦 Bankoverførsel', icon: '🏦' },
+  klarna: { label: '🌸 Klarna', icon: '🌸' },
+};
+
+function populateReceipt() {
+  const CART_KEY = 'sorensen_cart';
+  let cart = [];
+  try { const raw = localStorage.getItem(CART_KEY); if (raw) cart = JSON.parse(raw); } catch(e) {}
+  if (!cart.length) cart = [{ id:1, name:'HELE SETUP', desc:'PC + OS + alle drivere + software', price:1199, qty:1 }];
+
+  const sub   = cart.reduce((s, i) => s + i.price * i.qty, 0);
+  const vat   = Math.round(sub * 0.25);
+  const dateStr = formatDate(ts);
+
+  // Header
+  document.getElementById('headerOrderId').textContent = orderId;
+  document.getElementById('bannerTimestamp').textContent = dateStr;
+
+  // Customer info
+  document.getElementById('rcpt-name').textContent = name || '—';
+  document.getElementById('rcpt-email').textContent = email;
+  document.getElementById('rcpt-orderId').textContent = orderId;
+  document.getElementById('rcpt-date').textContent = dateStr;
+
+  // Items
+  const tbody = document.getElementById('receiptItems');
+  tbody.innerHTML = cart.map(item => `
+    <tr>
+      <td>
+        <div class="item-td-name">${item.name}</div>
+        <div class="item-td-desc">${item.desc}</div>
+      </td>
+      <td style="text-align:center;font-weight:600;">${item.qty}</td>
+      <td>${(item.price * item.qty).toLocaleString('da-DK')} kr.</td>
+    </tr>
+  `).join('');
+
+  // Totals
+  document.getElementById('rcpt-subtotal').textContent = sub.toLocaleString('da-DK') + ' kr.';
+  document.getElementById('rcpt-vat').textContent = vat.toLocaleString('da-DK') + ' kr.';
+  document.getElementById('rcpt-total').textContent = total.toLocaleString('da-DK') + ' kr.';
+
+  // Payment
+  const mi = methodLabels[method] || methodLabels.card;
+  document.getElementById('rcpt-payIcon').textContent = mi.icon;
+  document.getElementById('rcpt-totalBig').textContent = total.toLocaleString('da-DK') + ' kr.';
+  document.getElementById('rcpt-payMethod').textContent = mi.label;
+
+  // Footer timestamp
+  document.getElementById('footerTimestamp').textContent = 'Kvittering genereret: ' + dateStr;
+}
+
+/* ── CONFETTI ── */
+function launchConfetti() {
+  const colors = ['#1a56db','#16a34a','#f59e0b','#ec4899','#8b5cf6','#06b6d4'];
+  for (let i = 0; i < 60; i++) {
+    setTimeout(() => {
+      const el = document.createElement('div');
+      el.className = 'confetti-piece';
+      el.style.cssText = `
+        left: ${Math.random()*100}vw;
+        top: -10px;
+        background: ${colors[Math.floor(Math.random()*colors.length)]};
+        width: ${6+Math.random()*8}px;
+        height: ${6+Math.random()*8}px;
+        border-radius: ${Math.random()>0.5?'50%':'2px'};
+        animation-duration: ${2+Math.random()*2}s;
+        animation-delay: ${Math.random()*0.5}s;
+      `;
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 4000);
+    }, i * 40);
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+    <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sørensen IT & Reparation - Service & Indlevering</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --accent: #1d4ed8;
+            --accent-dark: #1e40af;
+            --bg: #f6f9ff;
+            --card: #ffffff;
+            --text: #0f172a;
+            --muted: #475569;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --success: #10b981;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            padding-top: 80px;
+        }
+
+        .status-bar {
+            background: var(--accent);
+            color: white;
+            text-align: center;
+            padding: 10px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            padding: 18px;
+            background: white;
+            border-bottom: 1px solid #e5e5e5;
+            z-index: 100;
+        }
+
+        nav a {
+            text-decoration: none;
+            font-weight: 600;
+            color: var(--text);
+            transition: color 0.2s;
+        }
+
+        nav a:hover, nav a.active { color: var(--accent); }
+
+        header {
+            min-height: 25vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 40px 20px;
+            background: radial-gradient(circle, #dbeafe, #f6f9ff);
+        }
+
+        .hero { max-width: 850px; }
+        .hero h1 { font-size: 3rem; margin-bottom: 15px; font-weight: 800; }
+        .hero p { color: var(--muted); font-size: 1.1rem; }
+        .accent { color: var(--accent); }
+
+        section {
+            max-width: 1200px;
+            margin: auto;
+            padding: 40px 20px;
+        }
+
+        /* STEP-BY-STEP PROCES */
+        .process-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+            margin-bottom: 60px;
+        }
+
+        @media(max-width: 768px) { .process-grid { grid-template-columns: 1fr; } }
+
+        .step-card {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            border: 1px solid #e2e8f0;
+            position: relative;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+        }
+
+        .step-num {
+            position: absolute;
+            top: -15px; left: 25px;
+            background: var(--accent);
+            color: white;
+            width: 35px; height: 35px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700;
+        }
+
+        .step-card h4 { margin-top: 10px; margin-bottom: 10px; font-size: 1.2rem; font-weight: 700; }
+        .step-card p { color: var(--muted); font-size: 0.95rem; }
+
+        /* SERVICES & PRISER GRID */
+        .service-title {
+            text-align: center; margin-bottom: 10px; font-size: 2.2rem; font-weight: 800;
+        }
+        .service-subtitle {
+            text-align: center; color: var(--muted); margin-bottom: 40px; font-size: 1.1rem;
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+            margin-bottom: 60px;
+        }
+
+        @media(max-width: 950px) { .pricing-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media(max-width: 650px) { .pricing-grid { grid-template-columns: 1fr; } }
+
+        .price-card {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 18px;
+            padding: 30px 25px;
+            transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .price-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent);
+            box-shadow: 0 10px 25px rgba(29, 78, 216, 0.05);
+        }
+
+        .price-card.featured {
+            border-color: var(--accent);
+            background: linear-gradient(135deg, #ffffff 0%, #f0f6ff 100%);
+            box-shadow: 0 10px 30px rgba(29, 78, 216, 0.08);
+            position: relative;
+        }
+
+        .badge-featured {
+            position: absolute; top: -12px; right: 20px;
+            background: var(--accent); color: white; padding: 4px 12px;
+            border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
+        }
+
+        .price-card h3 {
+            font-size: 1.3rem; font-weight: 700; color: var(--text); margin-bottom: 8px;
+            border-bottom: none; padding-bottom: 0;
+        }
+
+        .price-desc { color: var(--muted); font-size: 0.9rem; margin-bottom: 15px; min-height: 42px; }
+
+        .price-tag {
+            font-size: 2.3rem; font-weight: 800; color: var(--text); margin: 15px 0;
+            display: flex; align-items: baseline; gap: 2px;
+        }
+        .price-tag span { font-size: 1rem; font-weight: 600; color: var(--muted); }
+
+        .price-features {
+            list-style: none; text-align: left; margin-top: 15px; font-size: 0.9rem; color: var(--muted);
+            border-top: 1px solid #f1f5f9; padding-top: 15px;
+        }
+        .price-features li { margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+        .price-features li::before { content: "✓"; color: var(--success); font-weight: 700; }
+
+        /* FORMULAR CONTAINER */
+        .main-container {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 40px;
+            background: white;
+            padding: 40px;
+            border-radius: 18px;
+            border: 1px solid #dbeafe;
+            box-shadow: 0 8px 20px rgba(29, 78, 216, .05);
+        }
+
+        @media(max-width: 850px) { .main-container { grid-template-columns: 1fr; padding: 25px; } }
+
+        .form-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 20px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; }
+
+        .form-group { margin-bottom: 20px; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        @media(max-width: 600px) { .form-grid { grid-template-columns: 1fr; } }
+
+        label {
+            display: block; font-weight: 600; font-size: 0.85rem; color: var(--muted); margin-bottom: 8px; text-transform: uppercase;
+        }
+
+        input, select, textarea {
+            width: 100%; padding: 14px; border-radius: 10px; border: 2px solid #dbeafe; background-color: #f8fafc;
+            font-family: 'Outfit', sans-serif; font-size: 1rem; color: var(--text); outline: none; transition: border-color 0.2s;
+        }
+        input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+
+        .btn-submit {
+            background: var(--accent); color: white; border: none; padding: 16px 30px; font-size: 1.1rem; font-weight: 700;
+            border-radius: 12px; cursor: pointer; width: 100%; transition: background 0.2s; text-transform: uppercase;
+        }
+        .btn-submit:hover { background: var(--accent-dark); }
+
+        .info-sidebar {
+            background: #0f172a; color: white; padding: 30px; border-radius: 14px; display: flex; flex-direction: column; gap: 20px;
+        }
+        .info-box-title { color: #38bdf8; font-weight: 700; font-size: 1.1rem; text-transform: uppercase; }
+        .info-sidebar p { font-size: 0.95rem; color: #cbd5e1; }
+        
+        .success-msg {
+            background: #ecfdf5; color: var(--success); border: 1px solid #a7f3d0; padding: 20px; border-radius: 10px;
+            font-weight: 600; text-align: center; display: none; margin-top: 20px;
+        }
+
+        footer { text-align: center; padding: 40px; color: var(--muted); border-top: 1px solid #e5e5e5; margin-top: 60px; background: white; }
+    </style>
+</head>
+<body>
+
+    <div class="status-bar">🛠️ PROFESSIONELT IT-VÆRKSTED · SEND SIKKERT DIN SOFTWARE & HARDWARE TIL OS</div>
+
+    <!-- MATCHES BILLEDE.PNG NAVIGATION -->
+    <nav>
+        <a href="index.html">Hjem</a>
+        <a href="index.html#services">Services</a>
+        <a href="index.html#saadan-fungerer-det">Sådan fungerer det</a>
+        <a href="index.html#picker">Konfigurator</a>
+        <a href="gpu-fps-tester.html">Grafikkort FPS Tester</a>
+        <a href="service-indlevering.html" class="active">Indlevering & Priser</a>
+        <a href="index.html#faq">FAQ</a>
+        <a href="index.html#kontakt">Kontakt</a>
+    </nav>
+
+    <header>
+        <div class="hero">
+            <h1>Værksted & <span class="accent">Indlevering</span></h1>
+            <p>Gennemskuelige priser uden skjulte gebyrer. Hvad enten du skal have samlet nye komponenter, lavet en deep cleaning eller fikset et software-problem, klarer vi det professionelt.</p>
+        </div>
+    </header>
+
+    <section>
+        
+        <!-- PROCES TRIN -->
+        <div class="process-grid">
+            <div class="step-card">
+                <div class="step-num">1</div>
+                <h4>Opret Sag & Pak Ned</h4>
+                <p>Udfyld formularen i bunden med dine informationer og vælg ydelsen. Pak dit udstyr eller dine nye komponenter forsvarligt ned.</p>
+            </div>
+            <div class="step-card">
+                <div class="step-num">2</div>
+                <h4>Send eller Aflever</h4>
+                <p>Send pakken direkte til vores værksted (eller aflever efter aftale). Vi modtager den og kvitterer med det samme på SMS/mail.</p>
+            </div>
+            <div class="step-card">
+                <div class="step-num">3</div>
+                <h4>Professionel Retur</h4>
+                <p>Vi tester alt igennem på vores testbænke. Når computeren er 100% stabil, renset eller samlet, sendes den sikkert retur til dig.</p>
+            </div>
+        </div>
+
+        <h2 class="service-title">Officielle Værkstedspriser</h2>
+        <p class="service-subtitle">Priserne stemmer overens med shoppen – justeret med professionelle erhvervspriser</p>
+
+        <!-- PRISLISTE (6 CARDS MATCHING BILLEDE.PNG WITH .99 TRICK) -->
+        <div class="pricing-grid">
+            
+            <!-- PC Samling -->
+            <div class="price-card">
+                <div>
+                    <h3>PC Samling</h3>
+                    <p class="price-desc">Du leverer dele – vi bygger PC'en.</p>
+                    <div class="price-tag">399,- <span>kr.</span></div>
+                    <ul class="price-features">
+                        <li>Montering af hardware i kabinet</li>
+                        <li>Grundlæggende kabeltræk</li>
+                        <li>Opstartstest af alle dele</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- HELE SETUP -->
+            <div class="price-card featured">
+                <div class="badge-featured">Bedste løsning</div>
+                <div>
+                    <h3>HELE SETUP</h3>
+                    <p class="price-desc">PC + OS + drivere + klar til brug.</p>
+                    <div class="price-tag">1199,- <span>kr.</span></div>
+                    <ul class="price-features">
+                        <li>Komplet professionel samling</li>
+                        <li>Skræddersyet cable management</li>
+                        <li>Installation af Windows + seneste drivere</li>
+                        <li>Stress-test & XMP/EXPO RAM optimering</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Reparation -->
+            <div class="price-card">
+                <div>
+                    <h3>Reparation</h3>
+                    <p class="price-desc">Hardware & software fejlfix.</p>
+                    <div class="price-tag">299,- <span>kr.</span></div>
+                    <ul class="price-features">
+                        <li>Komplet hardware-diagnostik</li>
+                        <li>Fejlfinding på ustabile systemer</li>
+                        <li>Udskiftning af defekte komponenter</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Installation -->
+            <div class="price-card">
+                <div>
+                    <h3>Installation</h3>
+                    <p class="price-desc">Windows / Linux setup.</p>
+                    <div class="price-tag">249,- <span>kr.</span></div>
+                    <ul class="price-features">
+                        <li>Ren installation af styresystem</li>
+                        <li>Konfiguration afpartitioner</li>
+                        <li>Aktivering og sikkerhedstjek</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Software Setup -->
+            <div class="price-card">
+                <div>
+                    <h3>Software Setup</h3>
+                    <p class="price-desc">Steam, Chrome, Discord, OBS osv.</p>
+                    <div class="price-tag">149,- <span>kr.</span></div>
+                    <ul class="price-features">
+                        <li>Installation af alle standard-apps</li>
+                        <li>Optimering af OBS Studio til streaming</li>
+                        <li>Fjernelse af unødvendigt bloatware</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Data & Backup -->
+            <div class="price-card">
+                <div>
+                    <h3>Data & Backup</h3>
+                    <p class="price-desc">Flytning og sikker backup.</p>
+                    <div class="price-tag">199,- <span>kr.</span></div>
+                    <ul class="price-features">
+                        <li>Sikker flytning af billeder og filer</li>
+                        <li>Backup til ekstern disk eller skyen</li>
+                        <li>Gendannelse af tabte filer ved nedbrud</li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- FORMULAR OG INFO-SIDEBAR -->
+        <div class="main-container" id="opret-sag">
+            <div>
+                <h3 class="form-title">📝 Opret din servicesag her</h3>
+                <form action="[https://api.web3forms.com/submit](https://api.web3forms.com/submit)" method="POST">
+                    <input type="hidden" name="access_key" value="bf51c0b3-b42e-442f-970c-b70bb047adf0">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="fullName">Navn</label>
+                            <input type="text" id="fullName" placeholder="Dit fulde navn" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Telefonnummer</label>
+                            <input type="tel" id="phone" placeholder="F.eks. 12345678" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">E-mail adresse</label>
+                        <input type="email" id="email" placeholder="navn@mail.dk" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="serviceType">Hvilken service skal vi udføre?</label>
+                        <select id="serviceType" required>
+                            <option value="pc_samling">PC Samling (Kun hardwarebyg) - 399 kr.</option>
+                            <option value="hele_setup">HELE SETUP (Byg + Windows + Drivere) - 1199 kr.</option>
+                            <option value="reparation">Reparation (Hardware & software fejlfix) - 299 kr.</option>
+                            <option value="installation">Installation (Rent OS setup) - 249 kr.</option>
+                            <option value="software_setup">Software Setup (Apps + stream-optimering) - 149 kr.</option>
+                            <option value="data_backup">Data & Backup (Sikker filflytning) - 199 kr.</option>
+                            <option value="deep_cleaning">Deep Cleaning (Rens + ny kølepasta) - Ring for info</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="desc">Beskrivelse (Komponentliste, fejlbeskrivelse eller software-ønsker)</label>
+                        <textarea id="desc" rows="5" placeholder="Skriv her hvis du sender egne komponenter med, eller hvad din computer fejler..." required></textarea>
+                    </div>
+
+                    <button type="submit" class="btn-submit">Opret sag og få forsendelsesinstrukser</button>
+                </form>
+
+                <div class="success-msg" id="successMessage">
+                    🎉 Sagen er oprettet! Vi har sendt en e-mail til dig med instruktioner om, hvordan du sender pakken sikkert op til vores værksted.
+                </div>
+            </div>
+
+            <!-- SIDEBAR INFO -->
+            <div class="info-sidebar">
+                <div>
+                    <div class="info-box-title">📦 Sådan sender du til os</div>
+                    <p style="margin-top: 8px;">Når du trykker "Opret sag", pakker du dit udstyr eller dine komponenter forsvarligt ind (brug masser af bobleplast og en stærk papkasse).</p>
+                </div>
+                <div>
+                    </p>
+                </div>
+                <div>
+                    <div class="info-box-title">🛡️ Sikker Returfragt</div>
+                    <p style="margin-top: 8px;">Vi sender altid din færdige computer retur som forsikret pakke med trackingnummer, så du kan følge den hele vejen til din dør.</p>
+                </div>
+                <div>
+                    <div class="info-box-title">📞 Har du spørgsmål?</div>
+                    <p style="margin-top: 8px;">Ring direkte til os på <strong>93 86 92 67</strong>, hvis du er i tvivl om forsendelse eller priser.</p>
+                </div>
+            </div>
+        </div>
+
+    </section>
+
+    <footer>
+        <p>&copy; 2026 Sørensen IT & Reparation | Jonas & Storm Sørensen | Tlf: 93 86 92 67</p>
+    </footer>
+
+    <script>
+        function handleFormSubmit(event) {
+            event.preventDefault();
+            
+            // Skjul formularen og vis succesbesked
+            document.getElementById("serviceForm").style.display = "none";
+            document.getElementById("successMessage").style.display = "block";
+            
+            // Scroll blidt ned til succesbeskeden
+            document.getElementById("successMessage").scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+    <!-- ========================================== -->
+<!-- TAL MED EN TEKNIKER - AI CHAT WIDGET      -->
+<!-- ========================================== -->
+<div class="ai-chat-container">
+    <!-- Flydende Chat-knap (Højre hjørne) -->
+    <button class="ai-chat-toggle" onclick="toggleAiChat()">
+        <span class="ai-chat-icon">🤖</span>
+        <span class="ai-chat-text">Tal med en Tekniker AI</span>
+    </button>
+
+    <!-- Chat Vindue -->
+    <div class="ai-chat-window" id="aiChatWindow">
+        <div class="ai-chat-header">
+            <div class="ai-tech-status">
+                <span class="status-dot"></span>
+                <div>
+                    <h4>Sørensen IT - AI Tekniker</h4>
+                    <p>Svarer med det samme</p>
+                </div>
+            </div>
+            <button class="ai-chat-close" onclick="toggleAiChat()">&times;</button>
+        </div>
+
+        <!-- Chat Beskeder -->
+        <div class="ai-chat-body" id="aiChatBody">
+            <div class="ai-msg bot-msg">
+                Hej! Jeg er Sørensen IT's lynhurtige AI-tekniker. 🛠️<br><br>
+                Hvad kan jeg hjælpe dig med i dag? Spørg mig om priser, PC-byg, eller hvordan du indleverer!
+            </div>
+        </div>
+
+        <!-- Input felt -->
+        <div class="ai-chat-footer">
+            <input type="text" id="aiChatInput" placeholder="Skriv dit spørgsmål her..." onkeypress="handleAiChatKey(event)">
+            <button onclick="sendAiMessage()">Send</button>
+        </div>
+    </div>
+</div>
+
+<!-- STYLING TIL CHATTEN (Sikrer at den ligger flot i siden af skærmen) -->
+<style>
+    .ai-chat-container {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        z-index: 9999;
+        font-family: 'Outfit', sans-serif;
+    }
+
+    /* Flydende knap */
+    .ai-chat-toggle {
+        background: #1d4ed8;
+        color: white;
+        border: none;
+        padding: 14px 22px;
+        border-radius: 30px;
+        font-size: 1rem;
+        font-weight: 700;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        box-shadow: 0 8px 24px rgba(29, 78, 216, 0.3);
+        transition: transform 0.2s, background 0.2s;
+    }
+
+    .ai-chat-toggle:hover {
+        transform: translateY(-3px);
+        background: #1e40af;
+    }
+
+    .ai-chat-icon { font-size: 1.3rem; }
+
+    /* Chat vinduet */
+    .ai-chat-window {
+        position: absolute;
+        bottom: 75px;
+        right: 0;
+        width: 360px;
+        height: 480px;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 12px 40px rgba(15, 23, 42, 0.15);
+        border: 1px solid #e2e8f0;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        transform: translateY(20px);
+        opacity: 0;
+        pointer-events: none;
+        transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+
+    .ai-chat-window.open {
+        transform: translateY(0);
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    /* Header */
+    .ai-chat-header {
+        background: #0f172a;
+        color: white;
+        padding: 15px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 2px solid #1d4ed8;
+    }
+
+    .ai-tech-status { display: flex; align-items: center; gap: 10px; }
+    .status-dot { width: 10px; height: 10px; background: #10b981; border-radius: 50%; display: inline-block; }
+    .ai-tech-status h4 { font-size: 0.95rem; font-weight: 700; }
+    .ai-tech-status p { font-size: 0.75rem; color: #94a3b8; }
+    .ai-chat-close { background: none; border: none; color: #94a3b8; font-size: 1.8rem; cursor: pointer; transition: color 0.2s; }
+    .ai-chat-close:hover { color: white; }
+
+    /* Besked område */
+    .ai-chat-body {
+        flex: 1;
+        padding: 20px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        background: #f8fafc;
+    }
+
+    .ai-msg {
+        max-width: 85%;
+        padding: 12px 16px;
+        border-radius: 16px;
+        font-size: 0.95rem;
+        line-height: 1.4;
+    }
+
+    .bot-msg { background: white; color: #0f172a; border-bottom-left-radius: 4px; border: 1px solid #e2e8f0; align-self: flex-start; }
+    .user-msg { background: #1d4ed8; color: white; border-bottom-right-radius: 4px; align-self: flex-end; }
+
+    /* Skriver... indikator */
+    .typing-indicator { color: var(--muted); font-style: italic; font-size: 0.85rem; align-self: flex-start; }
+
+    /* Footer / Input */
+    .ai-chat-footer { padding: 12px; background: white; border-top: 1px solid #e2e8f0; display: flex; gap: 8px; }
+    .ai-chat-footer input {
+        flex: 1; padding: 10px 14px; border-radius: 10px; border: 2px solid #e2e8f0; outline: none; font-size: 0.9rem;
+    }
+    .ai-chat-footer input:focus { border-color: #1d4ed8; }
+    .ai-chat-footer button {
+        background: #1d4ed8; color: white; border: none; padding: 0 16px; border-radius: 10px; font-weight: 700; cursor: pointer;
+    }
+    .ai-chat-footer button:hover { background: #1e40af; }
+</style>
+
+<!-- INTELLIGENT SCRIPT (Svarer automatisk baseret på jeres ydelser, Jonas og priser) -->
+<script>
+    function toggleAiChat() {
+        document.getElementById("aiChatWindow").classList.toggle("open");
+    }
+
+    function handleAiChatKey(event) {
+        if (event.key === "Enter") { sendAiMessage(); }
+    }
+
+    function sendAiMessage() {
+        const input = document.getElementById("aiChatInput");
+        const msgText = input.value.trim();
+        if (msgText === "") return;
+
+        const chatBody = document.getElementById("aiChatBody");
+
+        // 1. Tilføj brugerens besked
+        const userMsgDiv = document.createElement("div");
+        userMsgDiv.className = "ai-msg user-msg";
+        userMsgDiv.innerText = msgText;
+        chatBody.appendChild(userMsgDiv);
+        
+        input.value = ""; // Tøm feltet
+        chatBody.scrollTop = chatBody.scrollHeight; // Scroll ned
+
+        // 2. Vis at AI'en skriver...
+        const typingDiv = document.createElement("div");
+        typingDiv.className = "ai-msg bot-msg typing-indicator";
+        typingDiv.innerText = "Tekniker AI tænker...";
+        chatBody.appendChild(typingDiv);
+        chatBody.scrollTop = chatBody.scrollHeight;
+
+        // 3. Generer intelligent svar baseret på kodeord efter 1 sekund
+        setTimeout(() => {
+            chatBody.removeChild(typingDiv); // Fjern indikatoren
+            
+            const botMsgDiv = document.createElement("div");
+            botMsgDiv.className = "ai-msg bot-msg";
+            botMsgDiv.innerHTML = getAiResponse(msgText.toLowerCase());
+            
+            chatBody.appendChild(botMsgDiv);
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }, 1000);
+    }
+
+    // AI'ens hjerne (Skræddersyet til jeres forretning)
+    function getAiResponse(query) {
+        if (query.includes("pris") || query.includes("koster") || query.includes("hvad koster")) {
+            return "Vores officielle priser er faste og gennemskuelige:<br>• <b>PC Samling:</b> 399 kr.<br>• <b>HELE SETUP:</b> 649 kr. (Inkl. OS & drivere)<br>• <b>Reparation/fejlfix:</b> 299 kr.<br>• <b>Software installation:</b> 149-249 kr.<br><br>Se alle detaljer på siden 'Indlevering & Priser'!";
+        }
+        if (query.includes("jonas") || query.includes("hvem bygger") || query.includes("tålmodig")) {
+            return "Det er <b>Jonas</b>, der er vores hovedtekniker! Han har en enorm passion for hardware og elsker at bygge computere helt fra bunden. Kunderne elsker ham, fordi han er ekstremt tålmodig og giver sig altid tid til at løse problemerne helt perfekt. 🛠️";
+        }
+        if (query.includes("samle") || query.includes("byg") || query.includes("computer")) {
+            return "Vi elsker at samle PC'er! Hvis du selv køber delene, tager vi <b>399,- kr.</b> for at samle hardwaren professionelt. Vil du have installeret Windows, lynhurtige drivere og have den fuldstændig stress-testet, anbefaler vi vores <b>HELE SETUP til 649,- kr.</b>!";
+        }
+        if (query.includes("indlever") || query.includes("send") || query.includes("adresse") || query.includes("hvor")) {
+            return "Det er super nemt! Du går bare ind på vores side <b>'Indlevering & Priser'</b>, udfylder formularen i bunden, og så modtager du instruktioner til, hvordan du pakker computeren/delene ned og sender dem sikkert til vores værksted.";
+        }
+        if (query.includes("reparation") || query.includes("fejl") || query.includes("crasher") || query.includes("virker ikke")) {
+            return "Det kan vi helt sikkert fikse! Vores standard fejlfinding og reparation af hardware/software koster kun <b>299,- kr.</b> Opret en sag under 'Indlevering & Priser', så tager vi et kig på den med det samme på værkstedet.";
+        }
+        if (query.includes("kontakt") || query.includes("nummer") || query.includes("telefon")) {
+            return "Du kan altid ringe direkte til os på <b>93 86 92 67</b>, hvis du har spørgsmål til en opgave!";
+        }
+        
+        // Standardsvar hvis den ikke forstår ordet
+        return "Det er et godt spørgsmål! Jeg er en AI, så for specifikke sager er det bedst at oprette en sag på vores <b>'Indlevering & Priser'</b>-side, eller ringe direkte til værkstedet på tlf: <b>93 86 92 67</b>, så svarer vi dig med det samme! 🤝";
+    }
+</script>
+</body>
+</html>
