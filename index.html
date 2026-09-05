@@ -35,7 +35,7 @@ button{font-family:'Outfit',sans-serif}
 
 .reveal{opacity:0;transform:translateY(26px);transition:opacity .6s ease,transform .6s ease}
 .reveal.in{opacity:1;transform:none}
-.d1{transition-delay:.08s}.d2{transition-delay:.16s}.d3{transition-delay:.24s}.d4{transition-delay:.32s}.d5{transition-delay:.4s}.d6{transition-delay:.48s}
+.d1{transition-delay:.08s}.d2{transition-delay:.16s}.d3{transition-delay:.24s}.d4{transition-delay:.32s}.d5{transition-delay:.4s}.d6{transition-delay:.48s}.d7{transition-delay:.56s}.d8{transition-delay:.64s}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.reveal{opacity:1;transform:none}}
 
 /* ────────────── STATUS BAR ────────────── */
@@ -326,6 +326,23 @@ button{font-family:'Outfit',sans-serif}
 .chip.on{background:var(--blue);border-color:var(--blue);color:#fff}
 .cfg-ta{width:100%;padding:11px 13px;border:1.5px solid var(--border);border-radius:var(--r);font-family:'Outfit',sans-serif;font-size:.9rem;resize:vertical;outline:none;transition:border-color .2s;line-height:1.6}
 .cfg-ta:focus{border-color:var(--blue)}
+.cfg-presets{display:flex;flex-wrap:wrap;align-items:center;gap:9px;margin:-8px 0 22px}
+.cfg-preset-lbl{font-size:.8rem;font-weight:700;color:var(--muted);margin-right:2px}
+.cfg-preset-btn{padding:9px 16px;border:1.5px solid var(--blue-pale);border-radius:99px;background:var(--blue-gh);color:var(--blue);font-family:'Outfit',sans-serif;font-weight:700;font-size:.8rem;cursor:pointer;transition:all .18s}
+.cfg-preset-btn:hover{background:var(--blue);color:#fff;border-color:var(--blue);transform:translateY(-2px);box-shadow:0 6px 16px rgba(29,78,216,.25)}
+.cfg-summary{background:linear-gradient(135deg,#f8fafc 0%,var(--blue-gh) 100%);border:2px solid var(--blue-pale);border-radius:var(--r-lg);padding:22px}
+.cfg-sum-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:2px 22px;margin:14px 0 18px}
+.cfg-sum-row{display:flex;justify-content:space-between;gap:10px;font-size:.8rem;padding:7px 0;border-bottom:1px dashed var(--blue-pale)}
+.cfg-sum-row span{color:var(--muted);font-weight:600}
+.cfg-sum-row b{color:var(--text);font-weight:700;text-align:right}
+.cfg-sum-price{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:14px;padding-top:16px;border-top:2px solid var(--blue-pale)}
+.cfg-sum-price-rows{font-size:.8rem;color:var(--muted);line-height:1.8}
+.cfg-sum-price-rows b{color:var(--text);font-weight:800}
+.cfg-sum-total-box{text-align:right}
+.cfg-sum-total-lbl{font-size:.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.cfg-sum-total-val{font-size:1.9rem;font-weight:900;color:var(--blue);line-height:1.2}
+.cfg-sum-note{font-size:.7rem;color:var(--muted);margin-top:6px}
+@media(max-width:560px){.cfg-sum-price{flex-direction:column;align-items:flex-start}.cfg-sum-total-box{text-align:left}}
 
 /* ────────────── FAQ ────────────── */
 .faq-list{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:10px}
@@ -587,16 +604,26 @@ footer{background:#08101f;color:#4b5563;padding:60px 28px 28px}
     <div class="sh reveal">
       <span class="s-eye">Konfigurator</span>
       <h2 class="s-ttl">PC Konfigurator</h2>
-      <p class="s-sub">Fortæl os hvad du har brug for — vi rådgiver dig om de rette komponenter til dit budget.</p>
+      <p class="s-sub">Fortæl os hvad du har brug for — vi rådgiver dig om de rette komponenter til dit budget. Priserne er vejledende og bekræftes altid, inden vi går i gang.</p>
     </div>
+
+    <div class="cfg-presets reveal">
+      <span class="cfg-preset-lbl">⚡ Hurtig start — vælg en skabelon:</span>
+      <button type="button" class="cfg-preset-btn" onclick="applyPreset('budget')">💸 Budget Gamer</button>
+      <button type="button" class="cfg-preset-btn" onclick="applyPreset('gamer1440')">🎮 1440p Gamer</button>
+      <button type="button" class="cfg-preset-btn" onclick="applyPreset('creator')">🎬 Content Creator</button>
+      <button type="button" class="cfg-preset-btn" onclick="applyPreset('office')">💼 Kontor-PC</button>
+      <button type="button" class="cfg-preset-btn" onclick="applyPreset('enthusiast')">🚀 Enthusiast</button>
+    </div>
+
     <div class="cfg-grid">
       <div class="cfg-card reveal d1">
         <div class="cfg-t">🎮 Brug &amp; Budget</div>
         <div class="cg"><span class="cl">Primær brug</span>
           <div class="cr" id="uC"><div class="chip on" onclick="sc('uC',this)">1080p Gaming</div><div class="chip" onclick="sc('uC',this)">1440p Gaming</div><div class="chip" onclick="sc('uC',this)">4K Gaming</div><div class="chip" onclick="sc('uC',this)">Streaming</div><div class="chip" onclick="sc('uC',this)">Content Creation</div><div class="chip" onclick="sc('uC',this)">Kontor</div></div>
         </div>
-        <div class="cg"><span class="cl">Budget</span>
-          <div class="cr" id="bC"><div class="chip on" onclick="sc('bC',this)">4.000–6.000 kr.</div><div class="chip" onclick="sc('bC',this)">6.000–9.000 kr.</div><div class="chip" onclick="sc('bC',this)">9.000–14.000 kr.</div><div class="chip" onclick="sc('bC',this)">14.000+ kr.</div></div>
+        <div class="cg"><span class="cl">Budget (ca. PC-pris)</span>
+          <div class="cr" id="bC"><div class="chip on" onclick="sc('bC',this)" data-base="5000">4.000–6.000 kr.</div><div class="chip" onclick="sc('bC',this)" data-base="7500">6.000–9.000 kr.</div><div class="chip" onclick="sc('bC',this)" data-base="11500">9.000–14.000 kr.</div><div class="chip" onclick="sc('bC',this)" data-base="17000">14.000+ kr.</div></div>
         </div>
       </div>
       <div class="cfg-card reveal d2">
@@ -604,29 +631,54 @@ footer{background:#08101f;color:#4b5563;padding:60px 28px 28px}
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
           <div class="cg"><span class="cl">CPU</span><div class="cr" id="cpuC"><div class="chip" onclick="sc('cpuC',this)">Intel</div><div class="chip" onclick="sc('cpuC',this)">AMD</div><div class="chip on" onclick="sc('cpuC',this)">Ingen præf.</div></div></div>
           <div class="cg"><span class="cl">GPU</span><div class="cr" id="gpuC"><div class="chip" onclick="sc('gpuC',this)">NVIDIA</div><div class="chip" onclick="sc('gpuC',this)">AMD</div><div class="chip on" onclick="sc('gpuC',this)">Ingen præf.</div></div></div>
-          <div class="cg"><span class="cl">RAM</span><div class="cr" id="ramC"><div class="chip on" onclick="sc('ramC',this)">16 GB</div><div class="chip" onclick="sc('ramC',this)">32 GB</div><div class="chip" onclick="sc('ramC',this)">64 GB</div><div class="chip" onclick="sc('ramC',this)">128 GB</div></div></div>
-          <div class="cg"><span class="cl">Lager</span><div class="cr" id="storC"><div class="chip on" onclick="sc('storC',this)">512 GB SSD</div><div class="chip" onclick="sc('storC',this)">1 TB SSD</div><div class="chip" onclick="sc('storC',this)">1+2 TB HDD</div><div class="chip" onclick="sc('storC',this)">2 TB+ SSD</div></div></div>
+          <div class="cg"><span class="cl">RAM</span><div class="cr" id="ramC"><div class="chip on" onclick="sc('ramC',this)">16 GB</div><div class="chip" onclick="sc('ramC',this)" data-add="399">32 GB (+399 kr.)</div><div class="chip" onclick="sc('ramC',this)" data-add="899">64 GB (+899 kr.)</div><div class="chip" onclick="sc('ramC',this)" data-add="1999">128 GB (+1.999 kr.)</div></div></div>
+          <div class="cg"><span class="cl">Lager</span><div class="cr" id="storC"><div class="chip on" onclick="sc('storC',this)">512 GB SSD</div><div class="chip" onclick="sc('storC',this)" data-add="299">1 TB SSD (+299 kr.)</div><div class="chip" onclick="sc('storC',this)" data-add="199">1+2 TB HDD (+199 kr.)</div><div class="chip" onclick="sc('storC',this)" data-add="799">2 TB+ SSD (+799 kr.)</div></div></div>
+          <div class="cg"><span class="cl">Bundkort</span><div class="cr" id="mbC"><div class="chip on" onclick="sc('mbC',this)">Budget (B-serie)</div><div class="chip" onclick="sc('mbC',this)" data-add="299">Mellemklasse (+299 kr.)</div><div class="chip" onclick="sc('mbC',this)" data-add="699">High-end (Z/X-serie) (+699 kr.)</div></div></div>
+          <div class="cg"><span class="cl">Strømforsyning</span><div class="cr" id="psuC"><div class="chip on" onclick="sc('psuC',this)">550W Bronze</div><div class="chip" onclick="sc('psuC',this)" data-add="199">650W Gold (+199 kr.)</div><div class="chip" onclick="sc('psuC',this)" data-add="349">750W Gold (+349 kr.)</div><div class="chip" onclick="sc('psuC',this)" data-add="699">1000W+ Platinum (+699 kr.)</div></div></div>
         </div>
-        <div class="cg" style="margin-top:10px"><span class="cl">Køling</span><div class="cr" id="coolC"><div class="chip on" onclick="sc('coolC',this)">Luftkøling</div><div class="chip" onclick="sc('coolC',this)">Vandkøling (AIO)</div><div class="chip" onclick="sc('coolC',this)">Ingen præf.</div></div></div>
+        <div class="cg" style="margin-top:10px"><span class="cl">Køling</span><div class="cr" id="coolC"><div class="chip on" onclick="sc('coolC',this)">Luftkøling</div><div class="chip" onclick="sc('coolC',this)" data-add="499">Vandkøling (AIO) (+499 kr.)</div><div class="chip" onclick="sc('coolC',this)">Ingen præf.</div></div></div>
       </div>
       <div class="cfg-card reveal d3">
         <div class="cfg-t">🎨 Kabinet &amp; Æstetik</div>
-        <div class="cg"><span class="cl">Kabinetstørrelse</span><div class="cr" id="caseC"><div class="chip on" onclick="sc('caseC',this)">ATX</div><div class="chip" onclick="sc('caseC',this)">Micro-ATX</div><div class="chip" onclick="sc('caseC',this)">Mini-ITX</div><div class="chip" onclick="sc('caseC',this)">E-ATX</div></div></div>
-        <div class="cg"><span class="cl">Features (vælg flere)</span><div class="cr" id="featC"><div class="chip" onclick="tc(this)">RGB Belysning</div><div class="chip" onclick="tc(this)">Sleeved Kabler</div><div class="chip" onclick="tc(this)">Airflow Fokus</div><div class="chip" onclick="tc(this)">Glas Sidepanel</div><div class="chip" onclick="tc(this)">Overclocking</div><div class="chip" onclick="tc(this)">Kabelstyring</div></div></div>
+        <div class="cg"><span class="cl">Kabinetstørrelse</span><div class="cr" id="caseC"><div class="chip on" onclick="sc('caseC',this)">ATX</div><div class="chip" onclick="sc('caseC',this)">Micro-ATX</div><div class="chip" onclick="sc('caseC',this)" data-add="149">Mini-ITX (+149 kr.)</div><div class="chip" onclick="sc('caseC',this)" data-add="199">E-ATX (+199 kr.)</div></div></div>
+        <div class="cg"><span class="cl">Features (vælg flere)</span><div class="cr" id="featC"><div class="chip" onclick="tc(this)" data-add="99">RGB Belysning (+99 kr.)</div><div class="chip" onclick="tc(this)" data-add="149">Sleeved Kabler (+149 kr.)</div><div class="chip" onclick="tc(this)">Airflow Fokus</div><div class="chip" onclick="tc(this)" data-add="99">Glas Sidepanel (+99 kr.)</div><div class="chip" onclick="tc(this)">Overclocking Support</div><div class="chip" onclick="tc(this)">Kabelstyring</div></div></div>
       </div>
       <div class="cfg-card reveal d4">
+        <div class="cfg-t">🖥️ Skærm, Netværk &amp; Tilbehør</div>
+        <div class="cg"><span class="cl">Skærm</span><div class="cr" id="monC"><div class="chip on" onclick="sc('monC',this)">Ingen skærm</div><div class="chip" onclick="sc('monC',this)" data-add="899">24" 1080p 144Hz (+899 kr.)</div><div class="chip" onclick="sc('monC',this)" data-add="1699">27" 1440p 165Hz (+1.699 kr.)</div><div class="chip" onclick="sc('monC',this)" data-add="3499">27" 4K 144Hz (+3.499 kr.)</div></div></div>
+        <div class="cg"><span class="cl">Netværk</span><div class="cr" id="netC"><div class="chip on" onclick="sc('netC',this)">Indbygget LAN</div><div class="chip" onclick="sc('netC',this)" data-add="199">Wi-Fi 6 kort (+199 kr.)</div><div class="chip" onclick="sc('netC',this)" data-add="299">Wi-Fi 6E kort (+299 kr.)</div></div></div>
+        <div class="cg"><span class="cl">Tilbehør (vælg flere)</span><div class="cr" id="accC"><div class="chip" onclick="tc(this)" data-add="399">Gaming mus &amp; tastatur (+399 kr.)</div><div class="chip" onclick="tc(this)" data-add="299">Gaming headset (+299 kr.)</div><div class="chip" onclick="tc(this)" data-add="249">Webcam (+249 kr.)</div><div class="chip" onclick="tc(this)" data-add="99">Ekstra USB-hub (+99 kr.)</div></div></div>
+      </div>
+      <div class="cfg-card reveal d5">
         <div class="cfg-t">💻 Software &amp; OS</div>
         <div class="cg"><span class="cl">Styresystem</span><div class="cr" id="osC"><div class="chip on" onclick="sc('osC',this)">Windows 11</div><div class="chip" onclick="sc('osC',this)">Linux</div><div class="chip" onclick="sc('osC',this)">Dual Boot</div></div></div>
         <div class="cg"><span class="cl">Software (vælg flere)</span><div class="cr" id="swC"><div class="chip" onclick="tc(this)">Steam</div><div class="chip" onclick="tc(this)">Browser</div><div class="chip" onclick="tc(this)">Discord</div><div class="chip" onclick="tc(this)">OBS Studio</div><div class="chip" onclick="tc(this)">Office</div><div class="chip" onclick="tc(this)">Antivirus</div></div></div>
       </div>
-      <div class="cfg-card reveal d5">
-        <div class="cfg-t">🛠️ Support &amp; Levering</div>
-        <div class="cg"><span class="cl">Support-periode</span><div class="cr" id="suppC"><div class="chip on" onclick="sc('suppC',this)">Ingen support</div><div class="chip" onclick="sc('suppC',this)">7 dage</div><div class="chip" onclick="sc('suppC',this)">30 dage</div><div class="chip" onclick="sc('suppC',this)">90 dage</div></div></div>
-        <div class="cg"><span class="cl">Levering</span><div class="cr" id="delC"><div class="chip on" onclick="sc('delC',this)">Afhentning i butik</div><div class="chip" onclick="sc('delC',this)">Levering (+150 kr.)</div></div></div>
+      <div class="cfg-card reveal d6">
+        <div class="cfg-t">🛡️ Garanti, Support &amp; Levering</div>
+        <div class="cg"><span class="cl">Garanti</span><div class="cr" id="warC"><div class="chip on" onclick="sc('warC',this)">Standard (2 år)</div><div class="chip" onclick="sc('warC',this)" data-add="299">Udvidet (3 år) (+299 kr.)</div><div class="chip" onclick="sc('warC',this)" data-add="599">Udvidet (5 år) (+599 kr.)</div></div></div>
+        <div class="cg"><span class="cl">Support-periode</span><div class="cr" id="suppC"><div class="chip on" onclick="sc('suppC',this)">Ingen support</div><div class="chip" onclick="sc('suppC',this)">7 dage</div><div class="chip" onclick="sc('suppC',this)" data-add="149">30 dage (+149 kr.)</div><div class="chip" onclick="sc('suppC',this)" data-add="299">90 dage (+299 kr.)</div></div></div>
+        <div class="cg"><span class="cl">Levering</span><div class="cr" id="delC"><div class="chip on" onclick="sc('delC',this)">Afhentning i butik</div><div class="chip" onclick="sc('delC',this)" data-add="150">Levering (+150 kr.)</div></div></div>
       </div>
     </div>
 
-    <div class="cfg-card reveal d6" style="margin-top:16px">
+    <div class="cfg-summary reveal d7" style="margin-top:16px" id="cfgSummary">
+      <div class="cfg-t">🧾 Din konfiguration lige nu</div>
+      <div class="cfg-sum-list" id="cfgSumList"></div>
+      <div class="cfg-sum-price">
+        <div class="cfg-sum-price-rows">
+          PC (valgt budget): <b id="cfgSumBase">0 kr.</b><br>
+          Tilvalg i alt: <b id="cfgSumAdd">+0 kr.</b>
+        </div>
+        <div class="cfg-sum-total-box">
+          <div class="cfg-sum-total-lbl">Estimeret totalpris</div>
+          <div class="cfg-sum-total-val" id="cfgSumTotal">ca. 0 kr.</div>
+          <div class="cfg-sum-note">Vejledende — vi bekræfter den præcise pris med dig</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cfg-card reveal d8" style="margin-top:16px">
       <div class="cfg-t">✏️ Ekstra ønsker</div>
       <div class="cf" style="margin-bottom:12px"><label>Din e-mail (så vi kan svare)</label><input type="email" id="cfgMail" placeholder="din@mail.dk"></div>
       <textarea class="cfg-ta" id="extra" rows="4" placeholder="Skriv evt. specifikke spil, mærke-præferencer eller andre ønsker..."></textarea>
@@ -1278,7 +1330,7 @@ function renderTider(){
 document.addEventListener('DOMContentLoaded',()=>{
   renderTider();setInterval(renderTider,60000);
   renderCats();renderSvcs();renderFAQ();
-  updateCartUI();updateUserBtn();scheduleReminder();visVelkomstVideoHvisNy();
+  updateCartUI();updateUserBtn();scheduleReminder();visVelkomstVideoHvisNy();renderCfgSummary();
 
   const ro=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in')}),{threshold:.1});
   document.querySelectorAll('.reveal').forEach(el=>ro.observe(el));
@@ -1345,16 +1397,62 @@ function renderSvcs(){
 }
 
 /* ═══════════ CHIPS + KONFIGURATOR ═══════════ */
-function sc(id,el){document.getElementById(id).querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));el.classList.add('on');}
-function tc(el){el.classList.toggle('on');}
+function sc(id,el){document.getElementById(id).querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));el.classList.add('on');renderCfgSummary();}
+function tc(el){el.classList.toggle('on');renderCfgSummary();}
 function valgt(id){const e=document.querySelector('#'+id+' .chip.on');return e?e.textContent:'—';}
 function valgtFlere(id){return [...document.querySelectorAll('#'+id+' .chip.on')].map(e=>e.textContent).join(', ')||'Ingen';}
+
+/* ── Live prisoverslag ── */
+function cfgTotal(){
+  const base=parseInt(document.querySelector('#bC .chip.on')?.dataset.base||0,10);
+  let add=0;
+  document.querySelectorAll('#picker .chip.on[data-add]').forEach(c=>add+=parseInt(c.dataset.add,10)||0);
+  return {base,add,total:base+add};
+}
+const CFG_SUM_FELTER=[
+  ['Primær brug','uC'],['Budget','bC'],['CPU','cpuC'],['GPU','gpuC'],['RAM','ramC'],['Lager','storC'],
+  ['Bundkort','mbC'],['Strømforsyning','psuC'],['Køling','coolC'],['Kabinet','caseC'],['Features','featC',true],
+  ['Skærm','monC'],['Netværk','netC'],['Tilbehør','accC',true],['Styresystem','osC'],['Software','swC',true],
+  ['Garanti','warC'],['Support','suppC'],['Levering','delC']
+];
+function renderCfgSummary(){
+  const list=document.getElementById('cfgSumList');
+  if(!list)return;
+  list.innerHTML=CFG_SUM_FELTER.map(([label,id,flere])=>
+    `<div class="cfg-sum-row"><span>${label}</span><b>${esc(flere?valgtFlere(id):valgt(id))}</b></div>`
+  ).join('');
+  const t=cfgTotal();
+  document.getElementById('cfgSumBase').textContent=kr(t.base);
+  document.getElementById('cfgSumAdd').textContent=(t.add>0?'+':'')+kr(t.add);
+  document.getElementById('cfgSumTotal').textContent='ca. '+kr(t.total);
+}
+
+/* ── Hurtige skabeloner ── */
+const CFG_PRESETS={
+  budget:{uC:0,bC:0,cpuC:2,gpuC:2,ramC:0,storC:0,mbC:0,psuC:0,coolC:0,caseC:1,featC:[],monC:0,netC:0,accC:[],osC:0,swC:[1,2],warC:0,suppC:0,delC:0},
+  gamer1440:{uC:1,bC:2,cpuC:2,gpuC:2,ramC:1,storC:1,mbC:1,psuC:1,coolC:0,caseC:0,featC:[0,3],monC:2,netC:0,accC:[0,1],osC:0,swC:[0,1,2],warC:0,suppC:1,delC:0},
+  creator:{uC:4,bC:3,cpuC:2,gpuC:2,ramC:2,storC:3,mbC:1,psuC:2,coolC:1,caseC:0,featC:[3],monC:2,netC:1,accC:[1,2],osC:0,swC:[1,3,4],warC:1,suppC:2,delC:0},
+  office:{uC:5,bC:0,cpuC:2,gpuC:2,ramC:0,storC:0,mbC:0,psuC:0,coolC:0,caseC:1,featC:[],monC:1,netC:0,accC:[],osC:0,swC:[1,4,5],warC:0,suppC:0,delC:0},
+  enthusiast:{uC:2,bC:3,cpuC:2,gpuC:2,ramC:2,storC:3,mbC:2,psuC:3,coolC:1,caseC:3,featC:[0,1,2,3,4,5],monC:3,netC:2,accC:[0,1,2,3],osC:0,swC:[0,1,2,3,4,5],warC:2,suppC:3,delC:1}
+};
+function applyPreset(navn){
+  const valg=CFG_PRESETS[navn];if(!valg)return;
+  Object.entries(valg).forEach(([id,v])=>{
+    const chips=[...document.querySelectorAll('#'+id+' .chip')];
+    chips.forEach(c=>c.classList.remove('on'));
+    if(Array.isArray(v))v.forEach(i=>chips[i]&&chips[i].classList.add('on'));
+    else if(chips[v])chips[v].classList.add('on');
+  });
+  renderCfgSummary();
+  showToast('✨ Skabelon anvendt — juster gerne yderligere!');
+}
 
 async function sendKonfig(btn){
   const msg=document.getElementById('cfgMsg');
   const mail=document.getElementById('cfgMail').value.trim();
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)){msg.style.color='var(--red)';msg.textContent='⚠️ Skriv din e-mail, så vi kan svare dig.';return;}
   btn.disabled=true;msg.style.color='var(--muted)';msg.textContent='Sender...';
+  const t=cfgTotal();
   const data={
     access_key:SHOP.web3formsKey,
     subject:'Ny PC-forespørgsel fra hjemmesiden',
@@ -1362,10 +1460,13 @@ async function sendKonfig(btn){
     replyto:mail,
     'Kundens e-mail':mail,
     'Primær brug':valgt('uC'),'Budget':valgt('bC'),
-    'CPU':valgt('cpuC'),'GPU':valgt('gpuC'),'RAM':valgt('ramC'),'Lager':valgt('storC'),'Køling':valgt('coolC'),
+    'CPU':valgt('cpuC'),'GPU':valgt('gpuC'),'RAM':valgt('ramC'),'Lager':valgt('storC'),
+    'Bundkort':valgt('mbC'),'Strømforsyning':valgt('psuC'),'Køling':valgt('coolC'),
     'Kabinet':valgt('caseC'),'Features':valgtFlere('featC'),
+    'Skærm':valgt('monC'),'Netværk':valgt('netC'),'Tilbehør':valgtFlere('accC'),
     'Styresystem':valgt('osC'),'Software':valgtFlere('swC'),
-    'Support':valgt('suppC'),'Levering':valgt('delC'),
+    'Garanti':valgt('warC'),'Support':valgt('suppC'),'Levering':valgt('delC'),
+    'Estimeret totalpris':kr(t.total)+' (PC: '+kr(t.base)+' + tilvalg: '+kr(t.add)+')',
     'Ekstra ønsker':document.getElementById('extra').value||'—'
   };
   try{
