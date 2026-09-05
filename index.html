@@ -3,10 +3,71 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sørensen IT & Reparation — Professionel PC-service i Danmark</title>
-<meta name="description" content="Jonas & Storm bygger, reparerer og opsætter PC'er. 14 services, hurtig levering og fair priser.">
+<title>Sørensen IT &amp; Reparation — PC-reparation, opsætning &amp; service i Danmark</title>
+<meta name="description" content="Jonas &amp; Storm bygger, reparerer og opsætter PC'er. 14 faste services fra 99 kr., gratis diagnostik, 2 års reklamationsret og 2-3 hverdages ventetid.">
+<meta name="author" content="Sørensen IT &amp; Reparation">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<meta name="theme-color" content="#0a0f1a" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#1d4ed8" media="(prefers-color-scheme: light)">
+<meta name="format-detection" content="telephone=yes">
+<link rel="canonical" href="https://sorensen-it.dk/">
+
+<!-- ── SIKKERHED (håndhæves også som rigtige HTTP-headers i server.js) ── -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://web.squarecdn.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://api.qrserver.com; media-src 'self'; connect-src 'self' https://api.web3forms.com https://connect.squareup.com; frame-src https://web.squarecdn.com; object-src 'none'; base-uri 'self'; form-action 'self' https://api.web3forms.com">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<!-- ── DELING PÅ SOCIALE MEDIER ── -->
+<meta property="og:type" content="website">
+<meta property="og:locale" content="da_DK">
+<meta property="og:site_name" content="Sørensen IT &amp; Reparation">
+<meta property="og:title" content="Sørensen IT &amp; Reparation — PC-reparation der bare virker">
+<meta property="og:description" content="14 faste services fra 99 kr. Gratis diagnostik, fast pris før vi går i gang, og din PC retur inden for 2-3 hverdage.">
+<meta property="og:url" content="https://sorensen-it.dk/">
+<meta property="og:image" content="https://sorensen-it.dk/sorensen_it_icon.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Sørensen IT &amp; Reparation — PC-reparation der bare virker">
+<meta name="twitter:description" content="14 faste services fra 99 kr. Gratis diagnostik og fast pris, før vi går i gang.">
+<meta name="twitter:image" content="https://sorensen-it.dk/sorensen_it_icon.png">
+
 <link rel="icon" href="content.ico" type="image/x-icon">
+<link rel="apple-touch-icon" href="sorensen_it_icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+<!-- ── GOOGLE-VISNING: virksomhed, åbningstider og services ── -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"LocalBusiness",
+  "@id":"https://sorensen-it.dk/#virksomhed",
+  "name":"Sørensen IT & Reparation",
+  "description":"PC-reparation, PC-samling, opsætning og IT-support. Gratis diagnostik og fast pris før vi går i gang.",
+  "url":"https://sorensen-it.dk/",
+  "telephone":"+4593869267",
+  "email":"sorensenitreparation670@gmail.com",
+  "image":"https://sorensen-it.dk/sorensen_it_icon.png",
+  "priceRange":"99-1199 DKK",
+  "currenciesAccepted":"DKK",
+  "paymentAccepted":"Betalingskort, MobilePay, Bankoverførsel",
+  "areaServed":{"@type":"Country","name":"Danmark"},
+  "founder":[{"@type":"Person","name":"Jonas"},{"@type":"Person","name":"Storm"}],
+  "openingHoursSpecification":[
+    {"@type":"OpeningHoursSpecification","dayOfWeek":["Monday","Tuesday","Wednesday","Thursday","Friday"],"opens":"09:30","closes":"17:30"},
+    {"@type":"OpeningHoursSpecification","dayOfWeek":"Saturday","opens":"12:00","closes":"20:00"}
+  ],
+  "hasOfferCatalog":{
+    "@type":"OfferCatalog","name":"IT-services",
+    "itemListElement":[
+      {"@type":"Offer","price":"399","priceCurrency":"DKK","itemOffered":{"@type":"Service","name":"PC Samling"}},
+      {"@type":"Offer","price":"1199","priceCurrency":"DKK","itemOffered":{"@type":"Service","name":"HELE SETUP"}},
+      {"@type":"Offer","price":"299","priceCurrency":"DKK","itemOffered":{"@type":"Service","name":"Reparation"}},
+      {"@type":"Offer","price":"249","priceCurrency":"DKK","itemOffered":{"@type":"Service","name":"Virus & Malware"}},
+      {"@type":"Offer","price":"99","priceCurrency":"DKK","itemOffered":{"@type":"Service","name":"Fjernhjælp"}}
+    ]
+  }
+}
+</script>
 <style>
 /* ────────────── TOKENS ────────────── */
 :root{
@@ -18,8 +79,49 @@
   --status-h:34px;--hdr-h:70px;--nav-h:44px;--total-h:148px;
   --mw:1240px;--r:10px;--r-lg:16px;
 }
+
+/* ────────────── MØRK TILSTAND ──────────────
+   Tokens skiftes ét sted — alle flader følger med. */
+:root[data-theme="dark"]{
+  --blue:#3b82f6;--blue-dk:#1d4ed8;--blue-lt:#60a5fa;
+  --blue-pale:#1e3a8a;--blue-gh:#132241;
+  --ink:#020509;--text:#e6edfa;--muted:#94a3b8;--light:#64748b;
+  --border:#1f2b42;--bg:#070c16;--white:#0e1626;
+  --shadow-1:0 1px 2px rgba(0,0,0,.5);
+  --shadow-2:0 10px 30px rgba(0,0,0,.55);
+  color-scheme:dark;
+}
+:root{--shadow-1:0 1px 2px rgba(10,15,26,.05);--shadow-2:0 12px 34px rgba(10,15,26,.1);color-scheme:light}
+html{transition:background-color .3s ease}
+body,.hdr,.svc-card,.team-card,.prom-card,.cfg-card,.faq-item,.c-card,.ci-blk,.ai-win,.drw,.user-modal,.chip,.cat-tab{transition:background-color .3s ease,border-color .3s ease,color .3s ease}
+:root[data-theme="dark"] .sb{background:#01030a}
+:root[data-theme="dark"] .hdr{box-shadow:0 1px 0 var(--border)}
+:root[data-theme="dark"] .hdr.up{box-shadow:0 6px 26px rgba(0,0,0,.6)}
+:root[data-theme="dark"] .feat-bar,:root[data-theme="dark"] .sec-alt{background:var(--white)}
+:root[data-theme="dark"] .svc-card:hover{box-shadow:0 14px 36px rgba(0,0,0,.5)}
+:root[data-theme="dark"] .btn-white{background:#f8fafc;color:#0a0f1a;border-color:#f8fafc}
+:root[data-theme="dark"] .um-note,:root[data-theme="dark"] .um-cart-info{background:#0a1220}
+:root[data-theme="dark"] footer{background:#03070f}
+:root[data-theme="dark"] img,:root[data-theme="dark"] .wv-video{filter:brightness(.92)}
+
+/* Tema-knap i headeren */
+.theme-btn{display:flex;align-items:center;justify-content:center;width:38px;height:38px;border:1.5px solid var(--border);background:var(--bg);border-radius:11px;cursor:pointer;font-size:1rem;line-height:1;transition:all .2s;flex-shrink:0;color:var(--text)}
+.theme-btn:hover{border-color:var(--blue);background:var(--blue-gh);transform:translateY(-2px)}
+.theme-btn .t-ico{display:block;transition:transform .4s cubic-bezier(.34,1.56,.64,1)}
+.theme-btn:active .t-ico{transform:rotate(180deg) scale(.85)}
+
+/* Læsefremgang øverst */
+.progress{position:fixed;top:0;left:0;height:3px;width:0;z-index:1400;background:linear-gradient(90deg,var(--blue-sky),var(--blue),var(--purple));transition:width .1s linear;pointer-events:none;border-radius:0 3px 3px 0}
+
+/* Spring til indhold (tastatur + skærmlæser) */
+.skip{position:absolute;left:-9999px;top:0;z-index:2000;background:var(--blue);color:#fff;padding:12px 20px;border-radius:0 0 12px 0;font-weight:700;font-size:.9rem}
+.skip:focus{left:0}
+
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+input:not([type=checkbox]):not([type=radio]),select,textarea{background:var(--white);color:var(--text)}
+input::placeholder,textarea::placeholder{color:var(--light)}
 html{scroll-behavior:smooth}
+section[id],div[id="hvordan"],div[id="priser"],div[id="faq"]{scroll-margin-top:calc(var(--total-h) + 12px)}
 body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);line-height:1.65;padding-top:var(--total-h)}
 a{color:inherit;text-decoration:none}
 button{font-family:'Outfit',sans-serif}
@@ -35,7 +137,7 @@ button{font-family:'Outfit',sans-serif}
 
 .reveal{opacity:0;transform:translateY(26px);transition:opacity .6s ease,transform .6s ease}
 .reveal.in{opacity:1;transform:none}
-.d1{transition-delay:.08s}.d2{transition-delay:.16s}.d3{transition-delay:.24s}.d4{transition-delay:.32s}.d5{transition-delay:.4s}.d6{transition-delay:.48s}
+.d1{transition-delay:.08s}.d2{transition-delay:.16s}.d3{transition-delay:.24s}.d4{transition-delay:.32s}.d5{transition-delay:.4s}.d6{transition-delay:.48s}.d7{transition-delay:.56s}.d8{transition-delay:.64s}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.reveal{opacity:1;transform:none}}
 
 /* ────────────── STATUS BAR ────────────── */
@@ -66,26 +168,26 @@ button{font-family:'Outfit',sans-serif}
 .sd-item:last-child{border-bottom:none}
 .sd-item:hover{background:var(--blue-gh);color:var(--blue)}
 
-.hdr-acts{display:flex;align-items:center;gap:6px;margin-left:auto;flex-shrink:0;padding-bottom:4px}
-.hbtn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:10px 16px;border:none;background:none;border-radius:12px;cursor:pointer;color:var(--text);transition:all .2s;text-decoration:none;min-width:80px;position:relative}
+.hdr-acts{display:flex;align-items:center;gap:4px;margin-left:auto;flex-shrink:0}
+.hbtn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:6px 10px;border:none;background:none;border-radius:10px;cursor:pointer;color:var(--text);transition:all .2s;text-decoration:none;min-width:60px;position:relative}
 .hbtn:hover{background:var(--blue-gh);transform:translateY(-2px);box-shadow:0 4px 12px rgba(29,78,216,.12)}
-.hbtn .hi{font-size:1.5rem;line-height:1;margin-bottom:1px}
-.hbtn .hl{font-size:.62rem;font-weight:600;color:var(--muted);white-space:nowrap;letter-spacing:.2px}
-.hbtn .hv{font-size:.78rem;font-weight:800;white-space:nowrap;color:var(--text)}
+.hbtn .hi{font-size:1.25rem;line-height:1}
+.hbtn .hl{font-size:.58rem;font-weight:600;color:var(--muted);white-space:nowrap;letter-spacing:.2px;line-height:1.15}
+.hbtn .hv{font-size:.72rem;font-weight:800;white-space:nowrap;color:var(--text);line-height:1.15}
 .hbtn:active{transform:translateY(0);box-shadow:none}
-.hbtn-sep{width:1px;height:36px;background:var(--border);flex-shrink:0;margin:0 2px}
-.cart-btn{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:10px 16px;border:2px solid var(--blue-pale);border-radius:12px;cursor:pointer;color:var(--text);transition:all .2s;background:var(--blue-gh);min-width:90px}
+.hbtn-sep{width:1px;height:28px;background:var(--border);flex-shrink:0;margin:0 2px}
+.cart-btn{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:6px 11px;border:2px solid var(--blue-pale);border-radius:10px;cursor:pointer;color:var(--text);transition:all .2s;background:var(--blue-gh);min-width:66px}
 .cart-btn:hover{background:var(--blue);color:#fff;border-color:var(--blue);transform:translateY(-2px);box-shadow:0 6px 20px rgba(29,78,216,.25)}
 .cart-btn:hover .hl,.cart-btn:hover .hv{color:#fff}
-.cart-btn .hi{font-size:1.5rem;line-height:1}
-.cart-btn .hl{font-size:.62rem;font-weight:600;color:var(--blue);white-space:nowrap;letter-spacing:.2px;transition:color .2s}
-.cart-btn .hv{font-size:.78rem;font-weight:800;white-space:nowrap;color:var(--blue);transition:color .2s}
+.cart-btn .hi{font-size:1.25rem;line-height:1}
+.cart-btn .hl{font-size:.58rem;font-weight:600;color:var(--blue);white-space:nowrap;letter-spacing:.2px;transition:color .2s;line-height:1.15}
+.cart-btn .hv{font-size:.72rem;font-weight:800;white-space:nowrap;color:var(--blue);transition:color .2s;line-height:1.15}
 .cbadge{position:absolute;top:-4px;right:-4px;background:var(--red);color:#fff;font-size:.6rem;font-weight:900;min-width:18px;height:18px;border-radius:99px;display:none;align-items:center;justify-content:center;padding:0 4px;border:2px solid #fff;box-shadow:0 2px 6px rgba(239,68,68,.4)}
 
 /* ── KURV-SKUFFE ── */
 .drw-ov{position:fixed;inset:0;background:rgba(10,15,26,.55);z-index:5200;opacity:0;pointer-events:none;transition:opacity .25s}
 .drw-ov.open{opacity:1;pointer-events:all}
-.drw{position:absolute;top:0;right:0;height:100%;width:380px;max-width:92vw;background:#fff;display:flex;flex-direction:column;transform:translateX(102%);transition:transform .32s cubic-bezier(.4,0,.2,1);box-shadow:-8px 0 40px rgba(0,0,0,.18)}
+.drw{position:absolute;top:0;right:0;height:100%;width:380px;max-width:92vw;background:var(--white);display:flex;flex-direction:column;transform:translateX(102%);transition:transform .32s cubic-bezier(.4,0,.2,1);box-shadow:-8px 0 40px rgba(0,0,0,.18)}
 .drw-ov.open .drw{transform:translateX(0)}
 .drw-hdr{background:var(--ink);color:#fff;padding:16px 18px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
 .drw-hdr h3{font-size:1rem;font-weight:800}
@@ -111,7 +213,7 @@ button{font-family:'Outfit',sans-serif}
 /* ── BRUGER MODAL ── */
 .user-modal-ov{position:fixed;inset:0;background:rgba(10,15,26,.65);z-index:5000;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .25s;backdrop-filter:blur(4px)}
 .user-modal-ov.open{opacity:1;pointer-events:all}
-.user-modal{background:#fff;border-radius:20px;max-width:420px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.2);transform:scale(.95) translateY(10px);transition:transform .3s cubic-bezier(.34,1.56,.64,1);overflow:hidden}
+.user-modal{background:var(--white);border-radius:20px;max-width:420px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.2);transform:scale(.95) translateY(10px);transition:transform .3s cubic-bezier(.34,1.56,.64,1);overflow:hidden}
 .user-modal-ov.open .user-modal{transform:scale(1) translateY(0)}
 .um-hdr{background:linear-gradient(135deg,#030a1c 0%,#1d4ed8 100%);padding:20px 24px;display:flex;align-items:center;justify-content:space-between}
 .um-brand{font-size:1rem;font-weight:800;color:#fff;display:flex;align-items:center;gap:9px}
@@ -125,7 +227,7 @@ button{font-family:'Outfit',sans-serif}
 .um-form-sub{font-size:.82rem;color:var(--muted);margin-bottom:20px;line-height:1.6}
 .um-field{margin-bottom:12px}
 .um-input{width:100%;padding:12px 14px;border:2px solid var(--border);border-radius:10px;font-family:'Outfit',sans-serif;font-size:.9rem;outline:none;transition:border-color .2s,background .2s;background:var(--bg)}
-.um-input:focus{border-color:var(--blue);background:#fff;box-shadow:0 0 0 3px rgba(29,78,216,.08)}
+.um-input:focus{border-color:var(--blue);background:var(--white);box-shadow:0 0 0 3px rgba(29,78,216,.08)}
 .um-btn{width:100%;padding:13px;background:var(--blue);color:#fff;border:none;border-radius:10px;font-family:'Outfit',sans-serif;font-size:.95rem;font-weight:800;cursor:pointer;transition:all .2s;margin-bottom:12px}
 .um-btn:hover{background:var(--blue-dk);transform:translateY(-1px);box-shadow:0 4px 16px rgba(29,78,216,.25)}
 .um-btn-ghost{display:block;text-align:center;padding:11px;background:var(--blue-gh);color:var(--blue);border-radius:10px;font-weight:700;font-size:.875rem;margin-top:10px;transition:background .2s}
@@ -148,6 +250,22 @@ button{font-family:'Outfit',sans-serif}
 .um-order-item span{color:var(--blue);font-weight:800}
 .um-logout{width:100%;padding:11px;background:none;border:2px solid #fee2e2;border-radius:10px;font-family:'Outfit',sans-serif;font-size:.875rem;font-weight:700;color:var(--red);cursor:pointer;transition:all .2s}
 .um-logout:hover{background:#fee2e2}
+.um-btn-ghost{border:none;cursor:pointer;width:100%;font-family:'Outfit',sans-serif}
+.um-pw-wrap{position:relative}
+.um-pw-wrap .um-input{padding-right:44px}
+.um-pw-toggle{position:absolute;right:5px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:1rem;padding:7px;color:var(--muted);line-height:1}
+.um-pw-hint{font-size:.72rem;color:var(--muted);margin:-6px 0 12px;line-height:1.4;padding:0 2px}
+.pw-bar{margin:-4px 0 8px;padding:0 2px}
+.pw-track{height:5px;background:var(--border);border-radius:99px;overflow:hidden}
+.pw-fill{height:100%;width:0;border-radius:99px;background:var(--red);transition:width .3s ease,background .3s ease}
+.pw-fill.s1{background:var(--red)}.pw-fill.s2{background:var(--amber)}
+.pw-fill.s3{background:#84cc16}.pw-fill.s4{background:var(--green)}
+.pw-txt{font-size:.7rem;font-weight:700;color:var(--muted);margin-top:5px}
+.um-husk{display:flex;align-items:center;gap:9px;font-size:.8rem;color:var(--muted);margin:-2px 0 14px;cursor:pointer;user-select:none}
+.um-husk input{width:16px;height:16px;accent-color:var(--blue);cursor:pointer;flex-shrink:0}
+.um-sik{background:var(--blue-gh);border:1px solid var(--blue-pale);border-radius:10px;padding:11px 13px;font-size:.74rem;color:var(--muted);line-height:1.65;margin-bottom:14px}
+.um-sik b{color:var(--text)}
+.um-sik .sik-r{display:flex;justify-content:space-between;gap:10px}
 
 /* ── LOGIN REMINDER ── */
 .login-reminder{position:fixed;bottom:100px;left:22px;z-index:1300;background:var(--ink);border-left:4px solid var(--blue);border-radius:14px;padding:16px;max-width:268px;box-shadow:0 8px 32px rgba(0,0,0,.32);transform:translateY(calc(100% + 28px));opacity:0;transition:transform .44s cubic-bezier(.34,1.56,.64,1),opacity .32s;pointer-events:none}
@@ -161,6 +279,23 @@ button{font-family:'Outfit',sans-serif}
 .lr-login-btn:hover{background:var(--blue-dk)}
 .lr-dismiss-btn{padding:9px 12px;background:rgba(255,255,255,.08);color:#94a3b8;border:none;border-radius:8px;font-family:'Outfit',sans-serif;font-weight:600;font-size:.82rem;cursor:pointer}
 .lr-dismiss-btn:hover{background:rgba(255,255,255,.16);color:#fff}
+
+/* ── VELKOMSTVIDEO ── */
+.wv-ov{position:fixed;inset:0;background:rgba(3,10,28,.92);z-index:6000;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .3s}
+.wv-ov.open{opacity:1;pointer-events:all}
+.wv-box{background:#000;border-radius:18px;max-width:720px;width:100%;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.5);transform:scale(.96);transition:transform .3s cubic-bezier(.34,1.56,.64,1)}
+.wv-ov.open .wv-box{transform:scale(1)}
+.wv-top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px;background:linear-gradient(135deg,#030a1c 0%,#1d4ed8 100%)}
+.wv-badge{color:#fff;font-weight:800;font-size:.9rem;display:flex;align-items:center;gap:6px}
+.wv-top-btns{display:flex;gap:8px}
+.wv-sound,.wv-skip{background:rgba(255,255,255,.12);color:#fff;border:none;padding:8px 14px;border-radius:8px;font-family:'Outfit',sans-serif;font-weight:700;font-size:.78rem;cursor:pointer;transition:background .15s;white-space:nowrap}
+.wv-sound:hover,.wv-skip:hover{background:rgba(255,255,255,.22)}
+.wv-video{display:block;width:100%;aspect-ratio:16/9;background:#000}
+.wv-bottom{padding:16px 18px;background:#0a0f1a;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.wv-txt{color:#94a3b8;font-size:.8rem;line-height:1.5;max-width:400px}
+.wv-btn{background:var(--blue);color:#fff;border:none;padding:11px 20px;border-radius:10px;font-family:'Outfit',sans-serif;font-weight:800;font-size:.85rem;cursor:pointer;white-space:nowrap;transition:background .2s;flex-shrink:0}
+.wv-btn:hover{background:var(--blue-dk)}
+@media(max-width:600px){.wv-bottom{flex-direction:column;align-items:stretch}.wv-txt{max-width:none}}
 
 /* Nav */
 .hdr-nav{height:var(--nav-h);display:flex;align-items:center;padding:0 28px;overflow-x:auto;scrollbar-width:none;border-top:1px solid var(--border)}
@@ -233,6 +368,66 @@ button{font-family:'Outfit',sans-serif}
 .fb-i span b{display:block;color:var(--text);font-weight:700}
 
 /* ────────────── SECTIONS ────────────── */
+/* ────────────── SYMPTOM-VÆLGER ────────────── */
+.diag-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+.diag-card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--r-lg);padding:20px;text-align:left;cursor:pointer;transition:transform .22s,box-shadow .22s,border-color .22s;display:flex;flex-direction:column;gap:9px;position:relative;overflow:hidden;font-family:'Outfit',sans-serif}
+.diag-card::after{content:'';position:absolute;inset:0 auto 0 0;width:4px;background:linear-gradient(180deg,var(--blue-sky),var(--blue));transform:scaleY(0);transform-origin:top;transition:transform .28s}
+.diag-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-2);border-color:var(--blue-pale)}
+.diag-card:hover::after{transform:scaleY(1)}
+.diag-top{display:flex;align-items:center;gap:11px}
+.diag-ico{font-size:1.7rem;line-height:1;flex-shrink:0}
+.diag-t{font-size:.98rem;font-weight:800;color:var(--text);line-height:1.3}
+.diag-s{font-size:.83rem;color:var(--muted);line-height:1.6}
+.diag-fix{display:flex;align-items:center;gap:8px;font-size:.8rem;font-weight:700;color:var(--blue);margin-top:auto;padding-top:11px;border-top:1px dashed var(--border)}
+.diag-fix .arw{margin-left:auto;transition:transform .2s}
+.diag-card:hover .diag-fix .arw{transform:translateX(4px)}
+
+/* ────────────── PRISLISTE ────────────── */
+.pl-tools{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;align-items:center;justify-content:center}
+.pl-search{flex:1;min-width:220px;max-width:340px;padding:11px 15px;border:2px solid var(--border);border-radius:var(--r);font-family:'Outfit',sans-serif;font-size:.88rem;outline:none;background:var(--white);color:var(--text);transition:border-color .2s}
+.pl-search:focus{border-color:var(--blue)}
+.pl-sort{padding:11px 14px;border:2px solid var(--border);border-radius:var(--r);font-family:'Outfit',sans-serif;font-size:.85rem;font-weight:600;background:var(--white);color:var(--text);cursor:pointer;outline:none}
+.pl-wrap{background:var(--white);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--shadow-1)}
+.pl-head,.pl-row{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,2fr) 110px 116px;gap:14px;align-items:center;padding:13px 20px}
+.pl-head{background:var(--bg);border-bottom:1px solid var(--border);font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.9px;color:var(--muted)}
+.pl-row{border-bottom:1px solid var(--border);transition:background .18s}
+.pl-row:last-child{border-bottom:none}
+.pl-row:hover{background:var(--blue-gh)}
+.pl-name{font-size:.92rem;font-weight:800;display:flex;align-items:center;gap:9px;min-width:0}
+.pl-name .pl-ico{font-size:1.15rem;flex-shrink:0}
+.pl-desc{font-size:.81rem;color:var(--muted);line-height:1.5}
+.pl-price{font-size:1rem;font-weight:900;color:var(--blue);text-align:right;white-space:nowrap}
+.pl-add{padding:8px 14px;border:2px solid var(--blue-pale);background:var(--blue-gh);color:var(--blue);border-radius:9px;font-family:'Outfit',sans-serif;font-size:.78rem;font-weight:800;cursor:pointer;transition:all .18s;white-space:nowrap}
+.pl-add:hover{background:var(--blue);color:#fff;border-color:var(--blue)}
+.pl-tom{padding:26px;text-align:center;color:var(--muted);font-size:.88rem}
+.pl-note{text-align:center;font-size:.8rem;color:var(--muted);margin-top:14px}
+@media(max-width:820px){
+  .pl-head{display:none}
+  .pl-row{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"navn pris" "desc desc" "knap knap";gap:7px 14px;padding:16px 18px}
+  .pl-name{grid-area:navn;font-size:.95rem}
+  .pl-price{grid-area:pris}
+  .pl-desc{grid-area:desc}
+  .pl-add{grid-area:knap;justify-self:stretch;text-align:center;margin-top:5px;padding:11px}
+  .pl-tools{flex-direction:column;align-items:stretch}
+  .pl-search,.pl-sort{max-width:none;width:100%}
+}
+
+/* ────────────── PAKKEGUIDE ────────────── */
+.pack-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px;counter-reset:pk}
+.pack-step{background:var(--white);border:1px solid var(--border);border-radius:var(--r-lg);padding:22px;position:relative;transition:transform .22s,box-shadow .22s}
+.pack-step:hover{transform:translateY(-4px);box-shadow:var(--shadow-2)}
+.pack-step::before{counter-increment:pk;content:counter(pk);position:absolute;top:-14px;left:22px;width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--blue-sky));color:#fff;display:grid;place-items:center;font-size:.85rem;font-weight:900;box-shadow:0 5px 14px rgba(29,78,216,.35)}
+.pack-step h3{font-size:.98rem;font-weight:800;margin:12px 0 7px}
+.pack-step p{font-size:.85rem;color:var(--muted);line-height:1.65}
+.pack-note{margin-top:20px;background:var(--amber-gh,#fffbeb);border:1px solid #fde68a;color:#92400e;border-radius:var(--r-lg);padding:16px 20px;font-size:.87rem;line-height:1.7;display:flex;gap:12px;align-items:flex-start}
+:root[data-theme="dark"] .pack-note{background:#2a1f05;border-color:#5b4708;color:#fcd34d}
+:root[data-theme="dark"]{--warn-bg:#2a1f05;--warn-tx:#fcd34d}
+:root[data-theme="dark"] .wait-tag b,:root[data-theme="dark"] .wait-tag span{color:#fcd34d}
+.pack-note b{font-weight:800}
+
+/* ────────────── HERO-TÆLLERE ────────────── */
+.hm-n[data-tal]{font-variant-numeric:tabular-nums}
+
 .sec{max-width:var(--mw);margin:0 auto;padding:80px 28px}
 .sec-alt{background:var(--white)}
 .sh{text-align:center;margin-bottom:50px}
@@ -302,8 +497,25 @@ button{font-family:'Outfit',sans-serif}
 .chip{padding:7px 11px;border:1.5px solid var(--border);border-radius:7px;font-family:'Outfit',sans-serif;font-size:.78rem;font-weight:600;cursor:pointer;transition:all .15s;user-select:none;background:var(--white)}
 .chip:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-gh)}
 .chip.on{background:var(--blue);border-color:var(--blue);color:#fff}
-.cfg-ta{width:100%;padding:11px 13px;border:1.5px solid var(--border);border-radius:var(--r);font-family:'Outfit',sans-serif;font-size:.9rem;resize:vertical;outline:none;transition:border-color .2s;line-height:1.6}
+.cfg-ta{width:100%;padding:11px 13px;border:1.5px solid var(--border);border-radius:var(--r);font-family:'Outfit',sans-serif;font-size:.9rem;resize:vertical;outline:none;transition:border-color .2s;line-height:1.6;background:var(--white);color:var(--text)}
 .cfg-ta:focus{border-color:var(--blue)}
+.cfg-presets{display:flex;flex-wrap:wrap;align-items:center;gap:9px;margin:-8px 0 22px}
+.cfg-preset-lbl{font-size:.8rem;font-weight:700;color:var(--muted);margin-right:2px}
+.cfg-preset-btn{padding:9px 16px;border:1.5px solid var(--blue-pale);border-radius:99px;background:var(--blue-gh);color:var(--blue);font-family:'Outfit',sans-serif;font-weight:700;font-size:.8rem;cursor:pointer;transition:all .18s}
+.cfg-preset-btn:hover{background:var(--blue);color:#fff;border-color:var(--blue);transform:translateY(-2px);box-shadow:0 6px 16px rgba(29,78,216,.25)}
+.cfg-summary{background:linear-gradient(135deg,var(--bg) 0%,var(--blue-gh) 100%);border:2px solid var(--blue-pale);border-radius:var(--r-lg);padding:22px}
+.cfg-sum-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:2px 22px;margin:14px 0 18px}
+.cfg-sum-row{display:flex;justify-content:space-between;gap:10px;font-size:.8rem;padding:7px 0;border-bottom:1px dashed var(--blue-pale)}
+.cfg-sum-row span{color:var(--muted);font-weight:600}
+.cfg-sum-row b{color:var(--text);font-weight:700;text-align:right}
+.cfg-sum-price{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:14px;padding-top:16px;border-top:2px solid var(--blue-pale)}
+.cfg-sum-price-rows{font-size:.8rem;color:var(--muted);line-height:1.8}
+.cfg-sum-price-rows b{color:var(--text);font-weight:800}
+.cfg-sum-total-box{text-align:right}
+.cfg-sum-total-lbl{font-size:.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.cfg-sum-total-val{font-size:1.9rem;font-weight:900;color:var(--blue);line-height:1.2}
+.cfg-sum-note{font-size:.7rem;color:var(--muted);margin-top:6px}
+@media(max-width:560px){.cfg-sum-price{flex-direction:column;align-items:flex-start}.cfg-sum-total-box{text-align:left}}
 
 /* ────────────── FAQ ────────────── */
 .faq-list{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:10px}
@@ -335,13 +547,18 @@ button{font-family:'Outfit',sans-serif}
 .hr-row{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border-radius:7px;font-size:.85rem;font-weight:600;margin-bottom:4px}
 .hr-row:nth-child(odd){background:var(--bg)}
 .hr-v{color:var(--blue)}.hr-off{color:var(--muted)}
-.wait-tag{margin-top:12px;padding:13px;background:#fef9c3;border-radius:9px;border-left:4px solid var(--amber)}
+.wait-tag{margin-top:12px;padding:13px;background:var(--warn-bg,#fef9c3);color:var(--warn-tx,inherit);border-radius:9px;border-left:4px solid var(--amber)}
 .wt-t{font-weight:700;font-size:.82rem;margin-bottom:3px}
 .wt-v{font-size:1.2rem;font-weight:900;color:#92400e}
 .wt-s{font-size:.72rem;color:var(--muted);margin-top:3px}
 
 /* ────────────── FOOTER ────────────── */
 footer{background:#08101f;color:#4b5563;padding:60px 28px 28px}
+.f-pay{display:flex;justify-content:space-between;align-items:center;gap:18px;flex-wrap:wrap;border-top:1px solid #1e2d3d;padding:20px 0;margin-bottom:4px}
+.f-pay-l{display:flex;gap:8px;flex-wrap:wrap}
+.fp-tag{background:#0f1a2e;border:1px solid #1e2d3d;color:#94a3b8;border-radius:8px;padding:6px 11px;font-size:.72rem;font-weight:700;white-space:nowrap}
+.f-pay-r{display:flex;gap:16px;flex-wrap:wrap;font-size:.74rem;color:#6b7280}
+.f-pay-r span{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
 .f-in{max-width:var(--mw);margin:0 auto}
 .f-grid{display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr;gap:38px;margin-bottom:44px}
 .f-brand p{font-size:.82rem;line-height:1.72;color:#6b7280;max-width:240px;margin-top:10px}
@@ -357,7 +574,7 @@ footer{background:#08101f;color:#4b5563;padding:60px 28px 28px}
 .ai-wrap{position:fixed;bottom:24px;right:24px;z-index:1500;font-family:'Outfit',sans-serif}
 .ai-tog{background:var(--blue);color:#fff;border:none;padding:12px 20px;border-radius:30px;font-weight:700;font-size:.92rem;cursor:pointer;display:flex;align-items:center;gap:9px;box-shadow:0 8px 28px rgba(29,78,216,.4);transition:transform .2s,background .2s}
 .ai-tog:hover{transform:translateY(-2px);background:var(--blue-dk)}
-.ai-win{position:absolute;bottom:62px;right:0;width:350px;height:470px;background:#fff;border-radius:var(--r-lg);box-shadow:0 12px 44px rgba(15,24,43,.18);border:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;transform:translateY(14px);opacity:0;pointer-events:none;transition:transform .32s cubic-bezier(.34,1.56,.64,1),opacity .28s}
+.ai-win{position:absolute;bottom:62px;right:0;width:350px;height:470px;background:var(--white);border-radius:var(--r-lg);box-shadow:0 12px 44px rgba(15,24,43,.18);border:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;transform:translateY(14px);opacity:0;pointer-events:none;transition:transform .32s cubic-bezier(.34,1.56,.64,1),opacity .28s}
 .ai-win.open{transform:translateY(0);opacity:1;pointer-events:auto}
 .ai-hdr{background:var(--ink);color:#fff;padding:13px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid var(--blue);flex-shrink:0}
 .ai-hl{display:flex;align-items:center;gap:9px}
@@ -366,14 +583,14 @@ footer{background:#08101f;color:#4b5563;padding:60px 28px 28px}
 .ai-hdr p{font-size:.68rem;color:#94a3b8}
 .ai-cx{background:none;border:none;color:#94a3b8;font-size:1.5rem;cursor:pointer}
 .ai-cx:hover{color:#fff}
-.ai-body{flex:1;padding:14px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;background:#f8fafc}
+.ai-body{flex:1;padding:14px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;background:var(--bg)}
 .ai-msg{max-width:88%;padding:10px 13px;border-radius:13px;font-size:.87rem;line-height:1.5}
-.ai-bot{background:#fff;border:1px solid var(--border);border-bottom-left-radius:4px;align-self:flex-start}
+.ai-bot{background:var(--white);border:1px solid var(--border);border-bottom-left-radius:4px;align-self:flex-start}
 .ai-user{background:var(--blue);color:#fff;border-bottom-right-radius:4px;align-self:flex-end}
-.ai-chips{display:flex;flex-wrap:wrap;gap:6px;padding:0 14px 10px;background:#f8fafc}
-.ai-chip{background:#fff;border:1.5px solid var(--blue-pale);color:var(--blue);border-radius:99px;padding:5px 11px;font-size:.75rem;font-weight:700;cursor:pointer}
+.ai-chips{display:flex;flex-wrap:wrap;gap:6px;padding:0 14px 10px;background:var(--bg)}
+.ai-chip{background:var(--white);border:1.5px solid var(--blue-pale);color:var(--blue);border-radius:99px;padding:5px 11px;font-size:.75rem;font-weight:700;cursor:pointer}
 .ai-chip:hover{background:var(--blue);color:#fff;border-color:var(--blue)}
-.ai-foot{padding:9px;background:#fff;border-top:1px solid var(--border);display:flex;gap:6px;flex-shrink:0}
+.ai-foot{padding:9px;background:var(--white);border-top:1px solid var(--border);display:flex;gap:6px;flex-shrink:0}
 .ai-foot input{flex:1;padding:9px 11px;border-radius:8px;border:1.5px solid var(--border);outline:none;font-family:'Outfit',sans-serif;font-size:.85rem}
 .ai-foot input:focus{border-color:var(--blue)}
 .ai-foot button{background:var(--blue);color:#fff;border:none;padding:0 14px;border-radius:8px;font-weight:700;cursor:pointer}
@@ -382,10 +599,17 @@ footer{background:#08101f;color:#4b5563;padding:60px 28px 28px}
 /* ────────────── RESPONSIVE ────────────── */
 @media(max-width:1100px){.hero-in{grid-template-columns:1fr;gap:36px}.hero-r{display:grid;grid-template-columns:repeat(3,1fr)}}
 @media(max-width:900px){:root{--hdr-h:62px}.proc-grid{grid-template-columns:1fr 1fr}.proc-grid::before{display:none}.team-grid,.prom-grid{grid-template-columns:1fr 1fr}.con-grid{grid-template-columns:1fr}.f-grid{grid-template-columns:1fr 1fr;gap:26px}.feat-in{grid-template-columns:1fr 1fr}}
-@media(max-width:640px){:root{--hdr-h:56px;--nav-h:40px;--total-h:130px}.hdr-top{padding:0 12px;gap:9px}.logo-s{display:none}.hbtn .hl,.hbtn .hv{display:none}.hdr-nav{padding:0 12px}.hero-r{grid-template-columns:1fr}.proc-grid,.prom-grid{grid-template-columns:1fr}.team-grid{grid-template-columns:1fr}.f-grid{grid-template-columns:1fr}.feat-in{grid-template-columns:1fr}.sec{padding:52px 16px}#hjem{padding:52px 16px;min-height:auto}.ai-win{width:calc(100vw - 48px);right:-24px}.hm{padding:0 14px}.login-reminder{left:12px;right:12px;max-width:none;bottom:90px}.sb{font-size:.68rem;gap:8px}}
+@media(max-width:640px){
+  .sb-day{display:none}
+  .diag-grid{grid-template-columns:1fr}
+  .f-pay{flex-direction:column;align-items:flex-start;gap:12px}
+  :root{--hdr-h:56px;--nav-h:40px;--total-h:130px}.hdr-top{padding:0 12px;gap:9px}.logo-s{display:none}.hbtn .hl,.hbtn .hv{display:none}.hdr-nav{padding:0 12px}.hero-r{grid-template-columns:1fr}.proc-grid,.prom-grid{grid-template-columns:1fr}.team-grid{grid-template-columns:1fr}.f-grid{grid-template-columns:1fr}.feat-in{grid-template-columns:1fr}.sec{padding:52px 16px}#hjem{padding:52px 16px;min-height:auto}.ai-win{width:calc(100vw - 48px);right:-24px}.hm{padding:0 14px}.login-reminder{left:12px;right:12px;max-width:none;bottom:90px}.sb{font-size:.68rem;gap:8px}}
 </style>
 </head>
 <body>
+
+<a class="skip" href="#services">Spring til indholdet</a>
+<div class="progress" id="progress" role="presentation"></div>
 
 <!-- STATUS BAR -->
 <div class="sb" id="statusBar"></div>
@@ -417,6 +641,10 @@ footer{background:#08101f;color:#4b5563;padding:60px 28px 28px}
         <span class="hv" id="userBtnVal">Log ind</span>
       </button>
       <div class="hbtn-sep"></div>
+      <button class="theme-btn" id="themeBtn" onclick="skiftTema()" title="Skift mellem lys og mørk tilstand" aria-label="Skift tema">
+        <span class="t-ico" id="themeIco">🌙</span>
+      </button>
+      <div class="hbtn-sep"></div>
       <button class="cart-btn" id="cartBtn" onclick="openDrawer()" title="Se din kurv">
         <span class="hi">🛒</span>
         <span class="hl">Din kurv</span>
@@ -427,7 +655,9 @@ footer{background:#08101f;color:#4b5563;padding:60px 28px 28px}
   </div>
   <nav class="hdr-nav">
     <a onclick="navTo('#hjem')">Hjem</a><div class="ndiv"></div>
+    <a onclick="navTo('#symptomer')">Hvad fejler den?</a><div class="ndiv"></div>
     <a onclick="navTo('#services')">Services</a><div class="ndiv"></div>
+    <a onclick="navTo('#priser')">Priser</a><div class="ndiv"></div>
     <a href="Om-os.html">Om os</a><div class="ndiv"></div>
     <a onclick="navTo('#hvordan')">Sådan fungerer det</a><div class="ndiv"></div>
     <a onclick="navTo('#picker')">Konfigurator</a><div class="ndiv"></div>
@@ -454,7 +684,7 @@ footer{background:#08101f;color:#4b5563;padding:60px 28px 28px}
         <a href="service-indlevering.html" class="btn btn-outline">📦 Send ind</a>
       </div>
       <div class="hero-metrics">
-        <div class="hm"><div class="hm-n">14</div><div class="hm-l">Services</div></div>
+        <div class="hm"><div class="hm-n" data-tal="14">0</div><div class="hm-l">Services</div></div>
         <div class="hm"><div class="hm-n">2-3</div><div class="hm-l">Dages ventetid</div></div>
         <div class="hm"><div class="hm-n">0 kr.</div><div class="hm-l">Returforsendelse</div></div>
         <div class="hm"><div class="hm-n">Fast</div><div class="hm-l">Pris fra start</div></div>
@@ -487,6 +717,19 @@ footer{background:#08101f;color:#4b5563;padding:60px 28px 28px}
   </div>
 </div>
 
+<!-- SYMPTOMER -->
+<section id="symptomer">
+  <div class="sec">
+    <div class="sh reveal">
+      <span class="s-eye">Find det rigtige</span>
+      <h2 class="s-ttl">Hvad fejler din PC?</h2>
+      <p class="s-sub">Klik på det der ligner dit problem — så viser vi dig præcis hvilken service du skal bruge, og hvad den koster.</p>
+    </div>
+    <div class="diag-grid" id="diagGrid"></div>
+    <p class="pl-note reveal">Kan du ikke finde dit problem? <a onclick="togAI()" style="color:var(--blue);font-weight:700;cursor:pointer">Spørg vores AI-tekniker</a> eller ring på <a href="tel:93869267" style="color:var(--blue);font-weight:700">93 86 92 67</a>.</p>
+  </div>
+</section>
+
 <!-- SERVICES -->
 <section id="services">
   <div class="sec">
@@ -499,6 +742,33 @@ footer{background:#08101f;color:#4b5563;padding:60px 28px 28px}
     <div class="svc-grid" id="svcGrid"></div>
   </div>
 </section>
+
+<!-- PRISLISTE -->
+<div class="sec-alt" id="priser">
+  <div class="sec">
+    <div class="sh reveal">
+      <span class="s-eye">Fuld gennemsigtighed</span>
+      <h2 class="s-ttl">Hele prislisten</h2>
+      <p class="s-sub">Alle priser er faste og inklusive moms. Ingen timepris, ingen overraskelser — du godkender prisen, før vi går i gang.</p>
+    </div>
+    <div class="pl-tools reveal">
+      <input class="pl-search" id="plSearch" type="search" placeholder="🔍 Søg i prislisten..." oninput="renderPrisliste()" aria-label="Søg i prislisten">
+      <select class="pl-sort" id="plSort" onchange="renderPrisliste()" aria-label="Sortér prislisten">
+        <option value="std">Sortér: Standard</option>
+        <option value="lav">Pris: Lav til høj</option>
+        <option value="hoej">Pris: Høj til lav</option>
+        <option value="navn">Navn: A til Å</option>
+      </select>
+    </div>
+    <div class="pl-wrap reveal">
+      <div class="pl-head">
+        <span>Service</span><span>Hvad du får</span><span style="text-align:right">Fast pris</span><span></span>
+      </div>
+      <div id="plBody"></div>
+    </div>
+    <p class="pl-note">💡 Express-behandling samme dag kan tilkøbes i kassen for +100 kr. · Kan vi ikke reparere den, betaler du kun 50 kr. i diagnostik.</p>
+  </div>
+</div>
 
 <!-- PROCESS -->
 <div class="sec-alt" id="hvordan">
@@ -516,6 +786,39 @@ footer{background:#08101f;color:#4b5563;padding:60px 28px 28px}
     </div>
   </div>
 </div>
+
+<!-- PAKKEGUIDE -->
+<section id="pakkeguide">
+  <div class="sec">
+    <div class="sh reveal">
+      <span class="s-eye">Før du sender</span>
+      <h2 class="s-ttl">Sådan pakker du din PC sikkert</h2>
+      <p class="s-sub">Fem minutters forberedelse betyder, at din enhed kommer frem i samme stand, som den forlod dig.</p>
+    </div>
+    <div class="pack-grid">
+      <div class="pack-step reveal d1">
+        <h3>🔐 Tag en backup</h3>
+        <p>Kopiér dine vigtige filer over på en USB-disk eller i skyen. Vi passer på dine data, men en backup er altid din bedste forsikring.</p>
+      </div>
+      <div class="pack-step reveal d2">
+        <h3>🔌 Kun det nødvendige</h3>
+        <p>Send selve maskinen — ikke skærm, mus eller tastatur, medmindre fejlen handler om dem. Færre dele betyder mindre der kan gå i stykker undervejs.</p>
+      </div>
+      <div class="pack-step reveal d3">
+        <h3>📦 Polstring hele vejen rundt</h3>
+        <p>Mindst 5 cm bobleplast eller skum på alle sider. Har du et stationært kabinet, så støt grafikkortet eller tag det ud og pak det for sig.</p>
+      </div>
+      <div class="pack-step reveal d4">
+        <h3>📝 Læg en seddel i</h3>
+        <p>Skriv navn, telefonnummer og en kort beskrivelse af fejlen. Har du en kode til Windows, så skriv den også — ellers kan vi ikke teste maskinen.</p>
+      </div>
+    </div>
+    <div class="pack-note reveal">
+      <span style="font-size:1.3rem;line-height:1">💡</span>
+      <span><b>Husk:</b> Du betaler forsendelsen til os — returforsendelsen betaler vi. Brug altid en pakke med track &amp; trace, og tape kassen godt til i begge ender. Er du i tvivl om noget, så ring på <b>93 86 92 67</b>, inden du sender.</span>
+    </div>
+  </div>
+</section>
 
 <!-- TEAM -->
 <section>
@@ -565,16 +868,26 @@ footer{background:#08101f;color:#4b5563;padding:60px 28px 28px}
     <div class="sh reveal">
       <span class="s-eye">Konfigurator</span>
       <h2 class="s-ttl">PC Konfigurator</h2>
-      <p class="s-sub">Fortæl os hvad du har brug for — vi rådgiver dig om de rette komponenter til dit budget.</p>
+      <p class="s-sub">Fortæl os hvad du har brug for — vi rådgiver dig om de rette komponenter til dit budget. Priserne er vejledende og bekræftes altid, inden vi går i gang.</p>
     </div>
+
+    <div class="cfg-presets reveal">
+      <span class="cfg-preset-lbl">⚡ Hurtig start — vælg en skabelon:</span>
+      <button type="button" class="cfg-preset-btn" onclick="applyPreset('budget')">💸 Budget Gamer</button>
+      <button type="button" class="cfg-preset-btn" onclick="applyPreset('gamer1440')">🎮 1440p Gamer</button>
+      <button type="button" class="cfg-preset-btn" onclick="applyPreset('creator')">🎬 Content Creator</button>
+      <button type="button" class="cfg-preset-btn" onclick="applyPreset('office')">💼 Kontor-PC</button>
+      <button type="button" class="cfg-preset-btn" onclick="applyPreset('enthusiast')">🚀 Enthusiast</button>
+    </div>
+
     <div class="cfg-grid">
       <div class="cfg-card reveal d1">
         <div class="cfg-t">🎮 Brug &amp; Budget</div>
         <div class="cg"><span class="cl">Primær brug</span>
           <div class="cr" id="uC"><div class="chip on" onclick="sc('uC',this)">1080p Gaming</div><div class="chip" onclick="sc('uC',this)">1440p Gaming</div><div class="chip" onclick="sc('uC',this)">4K Gaming</div><div class="chip" onclick="sc('uC',this)">Streaming</div><div class="chip" onclick="sc('uC',this)">Content Creation</div><div class="chip" onclick="sc('uC',this)">Kontor</div></div>
         </div>
-        <div class="cg"><span class="cl">Budget</span>
-          <div class="cr" id="bC"><div class="chip on" onclick="sc('bC',this)">4.000–6.000 kr.</div><div class="chip" onclick="sc('bC',this)">6.000–9.000 kr.</div><div class="chip" onclick="sc('bC',this)">9.000–14.000 kr.</div><div class="chip" onclick="sc('bC',this)">14.000+ kr.</div></div>
+        <div class="cg"><span class="cl">Budget (ca. PC-pris)</span>
+          <div class="cr" id="bC"><div class="chip on" onclick="sc('bC',this)" data-base="5000">4.000–6.000 kr.</div><div class="chip" onclick="sc('bC',this)" data-base="7500">6.000–9.000 kr.</div><div class="chip" onclick="sc('bC',this)" data-base="11500">9.000–14.000 kr.</div><div class="chip" onclick="sc('bC',this)" data-base="17000">14.000+ kr.</div></div>
         </div>
       </div>
       <div class="cfg-card reveal d2">
@@ -582,29 +895,54 @@ footer{background:#08101f;color:#4b5563;padding:60px 28px 28px}
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
           <div class="cg"><span class="cl">CPU</span><div class="cr" id="cpuC"><div class="chip" onclick="sc('cpuC',this)">Intel</div><div class="chip" onclick="sc('cpuC',this)">AMD</div><div class="chip on" onclick="sc('cpuC',this)">Ingen præf.</div></div></div>
           <div class="cg"><span class="cl">GPU</span><div class="cr" id="gpuC"><div class="chip" onclick="sc('gpuC',this)">NVIDIA</div><div class="chip" onclick="sc('gpuC',this)">AMD</div><div class="chip on" onclick="sc('gpuC',this)">Ingen præf.</div></div></div>
-          <div class="cg"><span class="cl">RAM</span><div class="cr" id="ramC"><div class="chip on" onclick="sc('ramC',this)">16 GB</div><div class="chip" onclick="sc('ramC',this)">32 GB</div><div class="chip" onclick="sc('ramC',this)">64 GB</div><div class="chip" onclick="sc('ramC',this)">128 GB</div></div></div>
-          <div class="cg"><span class="cl">Lager</span><div class="cr" id="storC"><div class="chip on" onclick="sc('storC',this)">512 GB SSD</div><div class="chip" onclick="sc('storC',this)">1 TB SSD</div><div class="chip" onclick="sc('storC',this)">1+2 TB HDD</div><div class="chip" onclick="sc('storC',this)">2 TB+ SSD</div></div></div>
+          <div class="cg"><span class="cl">RAM</span><div class="cr" id="ramC"><div class="chip on" onclick="sc('ramC',this)">16 GB</div><div class="chip" onclick="sc('ramC',this)" data-add="399">32 GB (+399 kr.)</div><div class="chip" onclick="sc('ramC',this)" data-add="899">64 GB (+899 kr.)</div><div class="chip" onclick="sc('ramC',this)" data-add="1999">128 GB (+1.999 kr.)</div></div></div>
+          <div class="cg"><span class="cl">Lager</span><div class="cr" id="storC"><div class="chip on" onclick="sc('storC',this)">512 GB SSD</div><div class="chip" onclick="sc('storC',this)" data-add="299">1 TB SSD (+299 kr.)</div><div class="chip" onclick="sc('storC',this)" data-add="199">1+2 TB HDD (+199 kr.)</div><div class="chip" onclick="sc('storC',this)" data-add="799">2 TB+ SSD (+799 kr.)</div></div></div>
+          <div class="cg"><span class="cl">Bundkort</span><div class="cr" id="mbC"><div class="chip on" onclick="sc('mbC',this)">Budget (B-serie)</div><div class="chip" onclick="sc('mbC',this)" data-add="299">Mellemklasse (+299 kr.)</div><div class="chip" onclick="sc('mbC',this)" data-add="699">High-end (Z/X-serie) (+699 kr.)</div></div></div>
+          <div class="cg"><span class="cl">Strømforsyning</span><div class="cr" id="psuC"><div class="chip on" onclick="sc('psuC',this)">550W Bronze</div><div class="chip" onclick="sc('psuC',this)" data-add="199">650W Gold (+199 kr.)</div><div class="chip" onclick="sc('psuC',this)" data-add="349">750W Gold (+349 kr.)</div><div class="chip" onclick="sc('psuC',this)" data-add="699">1000W+ Platinum (+699 kr.)</div></div></div>
         </div>
-        <div class="cg" style="margin-top:10px"><span class="cl">Køling</span><div class="cr" id="coolC"><div class="chip on" onclick="sc('coolC',this)">Luftkøling</div><div class="chip" onclick="sc('coolC',this)">Vandkøling (AIO)</div><div class="chip" onclick="sc('coolC',this)">Ingen præf.</div></div></div>
+        <div class="cg" style="margin-top:10px"><span class="cl">Køling</span><div class="cr" id="coolC"><div class="chip on" onclick="sc('coolC',this)">Luftkøling</div><div class="chip" onclick="sc('coolC',this)" data-add="499">Vandkøling (AIO) (+499 kr.)</div><div class="chip" onclick="sc('coolC',this)">Ingen præf.</div></div></div>
       </div>
       <div class="cfg-card reveal d3">
         <div class="cfg-t">🎨 Kabinet &amp; Æstetik</div>
-        <div class="cg"><span class="cl">Kabinetstørrelse</span><div class="cr" id="caseC"><div class="chip on" onclick="sc('caseC',this)">ATX</div><div class="chip" onclick="sc('caseC',this)">Micro-ATX</div><div class="chip" onclick="sc('caseC',this)">Mini-ITX</div><div class="chip" onclick="sc('caseC',this)">E-ATX</div></div></div>
-        <div class="cg"><span class="cl">Features (vælg flere)</span><div class="cr" id="featC"><div class="chip" onclick="tc(this)">RGB Belysning</div><div class="chip" onclick="tc(this)">Sleeved Kabler</div><div class="chip" onclick="tc(this)">Airflow Fokus</div><div class="chip" onclick="tc(this)">Glas Sidepanel</div><div class="chip" onclick="tc(this)">Overclocking</div><div class="chip" onclick="tc(this)">Kabelstyring</div></div></div>
+        <div class="cg"><span class="cl">Kabinetstørrelse</span><div class="cr" id="caseC"><div class="chip on" onclick="sc('caseC',this)">ATX</div><div class="chip" onclick="sc('caseC',this)">Micro-ATX</div><div class="chip" onclick="sc('caseC',this)" data-add="149">Mini-ITX (+149 kr.)</div><div class="chip" onclick="sc('caseC',this)" data-add="199">E-ATX (+199 kr.)</div></div></div>
+        <div class="cg"><span class="cl">Features (vælg flere)</span><div class="cr" id="featC"><div class="chip" onclick="tc(this)" data-add="99">RGB Belysning (+99 kr.)</div><div class="chip" onclick="tc(this)" data-add="149">Sleeved Kabler (+149 kr.)</div><div class="chip" onclick="tc(this)">Airflow Fokus</div><div class="chip" onclick="tc(this)" data-add="99">Glas Sidepanel (+99 kr.)</div><div class="chip" onclick="tc(this)">Overclocking Support</div><div class="chip" onclick="tc(this)">Kabelstyring</div></div></div>
       </div>
       <div class="cfg-card reveal d4">
+        <div class="cfg-t">🖥️ Skærm, Netværk &amp; Tilbehør</div>
+        <div class="cg"><span class="cl">Skærm</span><div class="cr" id="monC"><div class="chip on" onclick="sc('monC',this)">Ingen skærm</div><div class="chip" onclick="sc('monC',this)" data-add="899">24" 1080p 144Hz (+899 kr.)</div><div class="chip" onclick="sc('monC',this)" data-add="1699">27" 1440p 165Hz (+1.699 kr.)</div><div class="chip" onclick="sc('monC',this)" data-add="3499">27" 4K 144Hz (+3.499 kr.)</div></div></div>
+        <div class="cg"><span class="cl">Netværk</span><div class="cr" id="netC"><div class="chip on" onclick="sc('netC',this)">Indbygget LAN</div><div class="chip" onclick="sc('netC',this)" data-add="199">Wi-Fi 6 kort (+199 kr.)</div><div class="chip" onclick="sc('netC',this)" data-add="299">Wi-Fi 6E kort (+299 kr.)</div></div></div>
+        <div class="cg"><span class="cl">Tilbehør (vælg flere)</span><div class="cr" id="accC"><div class="chip" onclick="tc(this)" data-add="399">Gaming mus &amp; tastatur (+399 kr.)</div><div class="chip" onclick="tc(this)" data-add="299">Gaming headset (+299 kr.)</div><div class="chip" onclick="tc(this)" data-add="249">Webcam (+249 kr.)</div><div class="chip" onclick="tc(this)" data-add="99">Ekstra USB-hub (+99 kr.)</div></div></div>
+      </div>
+      <div class="cfg-card reveal d5">
         <div class="cfg-t">💻 Software &amp; OS</div>
         <div class="cg"><span class="cl">Styresystem</span><div class="cr" id="osC"><div class="chip on" onclick="sc('osC',this)">Windows 11</div><div class="chip" onclick="sc('osC',this)">Linux</div><div class="chip" onclick="sc('osC',this)">Dual Boot</div></div></div>
         <div class="cg"><span class="cl">Software (vælg flere)</span><div class="cr" id="swC"><div class="chip" onclick="tc(this)">Steam</div><div class="chip" onclick="tc(this)">Browser</div><div class="chip" onclick="tc(this)">Discord</div><div class="chip" onclick="tc(this)">OBS Studio</div><div class="chip" onclick="tc(this)">Office</div><div class="chip" onclick="tc(this)">Antivirus</div></div></div>
       </div>
-      <div class="cfg-card reveal d5">
-        <div class="cfg-t">🛠️ Support &amp; Levering</div>
-        <div class="cg"><span class="cl">Support-periode</span><div class="cr" id="suppC"><div class="chip on" onclick="sc('suppC',this)">Ingen support</div><div class="chip" onclick="sc('suppC',this)">7 dage</div><div class="chip" onclick="sc('suppC',this)">30 dage</div><div class="chip" onclick="sc('suppC',this)">90 dage</div></div></div>
-        <div class="cg"><span class="cl">Levering</span><div class="cr" id="delC"><div class="chip on" onclick="sc('delC',this)">Afhentning i butik</div><div class="chip" onclick="sc('delC',this)">Levering (+150 kr.)</div></div></div>
+      <div class="cfg-card reveal d6">
+        <div class="cfg-t">🛡️ Garanti, Support &amp; Levering</div>
+        <div class="cg"><span class="cl">Garanti</span><div class="cr" id="warC"><div class="chip on" onclick="sc('warC',this)">Standard (2 år)</div><div class="chip" onclick="sc('warC',this)" data-add="299">Udvidet (3 år) (+299 kr.)</div><div class="chip" onclick="sc('warC',this)" data-add="599">Udvidet (5 år) (+599 kr.)</div></div></div>
+        <div class="cg"><span class="cl">Support-periode</span><div class="cr" id="suppC"><div class="chip on" onclick="sc('suppC',this)">Ingen support</div><div class="chip" onclick="sc('suppC',this)">7 dage</div><div class="chip" onclick="sc('suppC',this)" data-add="149">30 dage (+149 kr.)</div><div class="chip" onclick="sc('suppC',this)" data-add="299">90 dage (+299 kr.)</div></div></div>
+        <div class="cg"><span class="cl">Levering</span><div class="cr" id="delC"><div class="chip on" onclick="sc('delC',this)">Afhentning i butik</div><div class="chip" onclick="sc('delC',this)" data-add="150">Levering (+150 kr.)</div></div></div>
       </div>
     </div>
 
-    <div class="cfg-card reveal d6" style="margin-top:16px">
+    <div class="cfg-summary reveal d7" style="margin-top:16px" id="cfgSummary">
+      <div class="cfg-t">🧾 Din konfiguration lige nu</div>
+      <div class="cfg-sum-list" id="cfgSumList"></div>
+      <div class="cfg-sum-price">
+        <div class="cfg-sum-price-rows">
+          PC (valgt budget): <b id="cfgSumBase">0 kr.</b><br>
+          Tilvalg i alt: <b id="cfgSumAdd">+0 kr.</b>
+        </div>
+        <div class="cfg-sum-total-box">
+          <div class="cfg-sum-total-lbl">Estimeret totalpris</div>
+          <div class="cfg-sum-total-val" id="cfgSumTotal">ca. 0 kr.</div>
+          <div class="cfg-sum-note">Vejledende — vi bekræfter den præcise pris med dig</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cfg-card reveal d8" style="margin-top:16px">
       <div class="cfg-t">✏️ Ekstra ønsker</div>
       <div class="cf" style="margin-bottom:12px"><label>Din e-mail (så vi kan svare)</label><input type="email" id="cfgMail" placeholder="din@mail.dk"></div>
       <textarea class="cfg-ta" id="extra" rows="4" placeholder="Skriv evt. specifikke spil, mærke-præferencer eller andre ønsker..."></textarea>
@@ -694,7 +1032,10 @@ footer{background:#08101f;color:#4b5563;padding:60px 28px 28px}
       <div class="f-col">
         <h4>Navigation</h4>
         <a onclick="navTo('#hjem')">Hjem</a>
+        <a onclick="navTo('#symptomer')">Hvad fejler din PC?</a>
         <a onclick="navTo('#services')">Services</a>
+        <a onclick="navTo('#priser')">Prisliste</a>
+        <a onclick="navTo('#pakkeguide')">Pakkeguide</a>
         <a href="Om-os.html">Om os</a>
         <a onclick="navTo('#picker')">Konfigurator</a>
         <a onclick="navTo('#faq')">FAQ</a>
@@ -716,6 +1057,16 @@ footer{background:#08101f;color:#4b5563;padding:60px 28px 28px}
         <a href="service-indlevering.html">📦 Indlevering</a>
         <a href="tel:93869267">📞 93 86 92 67</a>
         <a href="mailto:sorensenitreparation670@gmail.com">✉️ Mail os</a>
+      </div>
+    </div>
+    <div class="f-pay">
+      <div class="f-pay-l">
+        <span class="fp-tag">💳 Visa</span><span class="fp-tag">💳 Mastercard</span>
+        <span class="fp-tag">💳 Maestro</span><span class="fp-tag">📱 MobilePay</span>
+        <span class="fp-tag">🏦 Bankoverførsel</span>
+      </div>
+      <div class="f-pay-r">
+        <span>🔒 SSL-krypteret</span><span>🛡️ Kortbetaling via Square</span><span>✅ 2 års reklamationsret</span>
       </div>
     </div>
     <div class="f-bot">
@@ -757,20 +1108,35 @@ footer{background:#08101f;color:#4b5563;padding:60px 28px 28px}
     </div>
     <div class="um-body" id="umLoginBody">
       <div class="um-form-title">Velkommen tilbage! 👋</div>
-      <div class="um-form-sub">Indtast din e-mail for at hente din kurv og dine tidligere ordrer frem igen.</div>
-      <div class="um-field"><input type="email" id="umEmail" class="um-input" placeholder="din@mail.dk" onkeypress="if(event.key==='Enter')doUserLogin()"></div>
+      <div class="um-form-sub">Log ind med din e-mail og dit kodeord for at hente din kurv og dine tidligere ordrer frem igen.</div>
+      <div class="um-field"><input type="email" id="umEmail" class="um-input" placeholder="din@mail.dk" autocomplete="email" maxlength="120" onkeypress="if(event.key==='Enter')doUserLogin()"></div>
+      <div class="um-field um-pw-wrap">
+        <input type="password" id="umPassword" class="um-input" placeholder="Kodeord" autocomplete="current-password" maxlength="100" onkeypress="if(event.key==='Enter')doUserLogin()">
+        <button type="button" class="um-pw-toggle" onclick="toggleUmPw('umPassword',this)" aria-label="Vis kodeord">👁️</button>
+      </div>
+      <label class="um-husk"><input type="checkbox" id="umHusk" checked><span>Husk mig på denne enhed i 7 dage</span></label>
       <div class="um-error" id="umLoginErr"></div>
       <button class="um-btn" onclick="doUserLogin()">🔓 Log ind</button>
-      <div class="um-note">🔒 Din konto gemmes lokalt i din browser på denne enhed. Vi beder aldrig om kodeord.</div>
+      <div class="um-note">🔒 Kodeordet gemmes aldrig i klartekst — kun som en PBKDF2-nøgle med 210.000 runder og eget salt. Du logges automatisk ud efter 1 times inaktivitet. Kontoen bor i <b>denne browser</b> og bruges kun til at gemme din kurv og dine ordrer.</div>
     </div>
     <div class="um-body" id="umSignupBody" style="display:none">
       <div class="um-form-title">Opret konto ✨</div>
-      <div class="um-form-sub">Tilmeld dig for at gemme din kurv og ordrehistorik. Du behøver ikke oprette en konto — det er bare nemmere.</div>
-      <div class="um-field"><input type="text" id="umSignupName" class="um-input" placeholder="Dit navn (valgfrit)"></div>
-      <div class="um-field"><input type="email" id="umSignupEmail" class="um-input" placeholder="din@mail.dk" onkeypress="if(event.key==='Enter')doUserSignup()"></div>
+      <div class="um-form-sub">Tilmeld dig med et sikkert kodeord for at gemme din kurv og ordrehistorik. Du behøver ikke oprette en konto — det er bare nemmere.</div>
+      <div class="um-field"><input type="text" id="umSignupName" class="um-input" placeholder="Dit navn (valgfrit)" autocomplete="name" maxlength="60"></div>
+      <div class="um-field"><input type="email" id="umSignupEmail" class="um-input" placeholder="din@mail.dk" autocomplete="email" maxlength="120"></div>
+      <div class="um-field um-pw-wrap">
+        <input type="password" id="umSignupPassword" class="um-input" placeholder="Vælg et kodeord" autocomplete="new-password" maxlength="100">
+        <button type="button" class="um-pw-toggle" onclick="toggleUmPw('umSignupPassword',this)" aria-label="Vis kodeord">👁️</button>
+      </div>
+      <div class="pw-bar" id="umSignupPwBar" style="display:none"><div class="pw-track"><div class="pw-fill"></div></div><div class="pw-txt"></div></div>
+      <div class="um-pw-hint">Mindst 8 tegn med både bogstaver og tal. 12+ tegn er klart bedst.</div>
+      <div class="um-field um-pw-wrap">
+        <input type="password" id="umSignupPassword2" class="um-input" placeholder="Gentag kodeord" autocomplete="new-password" maxlength="100" onkeypress="if(event.key==='Enter')doUserSignup()">
+        <button type="button" class="um-pw-toggle" onclick="toggleUmPw('umSignupPassword2',this)" aria-label="Vis kodeord">👁️</button>
+      </div>
       <div class="um-error" id="umSignupErr"></div>
       <button class="um-btn" onclick="doUserSignup()">✅ Opret konto</button>
-      <div class="um-note">🔒 Kontoen gemmes lokalt i din browser. Ingen kodeord nødvendigt.</div>
+      <div class="um-note">🔒 Kodeordet forlader aldrig din browser. Vi gemmer kun en PBKDF2-nøgle (210.000 runder) med et tilfældigt salt — aldrig kodeordet selv. Du behøver ikke en konto for at bestille.</div>
     </div>
     <div class="um-body" id="umProfileBody" style="display:none">
       <div class="um-profile-welcome">
@@ -789,7 +1155,45 @@ footer{background:#08101f;color:#4b5563;padding:60px 28px 28px}
         <div class="um-orders-title">📋 Seneste ordrer</div>
         <div id="umOrdersList"></div>
       </div>
+      <div class="um-sik" id="umSik"></div>
+      <button class="um-btn-ghost" style="margin-bottom:10px" onclick="showUMChangePw()">🔑 Skift kodeord</button>
+      <button class="um-btn-ghost" style="margin-bottom:10px" onclick="logUdAlleSteder()">🔒 Log ud alle steder</button>
       <button class="um-logout" onclick="doUserLogout()">🚪 Log ud</button>
+    </div>
+    <div class="um-body" id="umChangePwBody" style="display:none">
+      <div class="um-form-title">Skift kodeord 🔑</div>
+      <div class="um-form-sub">Indtast dit nuværende kodeord, og vælg herefter et nyt.</div>
+      <div class="um-field um-pw-wrap">
+        <input type="password" id="umOldPw" class="um-input" placeholder="Nuværende kodeord" autocomplete="current-password" maxlength="100">
+        <button type="button" class="um-pw-toggle" onclick="toggleUmPw('umOldPw',this)" aria-label="Vis kodeord">👁️</button>
+      </div>
+      <div class="um-field um-pw-wrap">
+        <input type="password" id="umNewPw" class="um-input" placeholder="Nyt kodeord" autocomplete="new-password" maxlength="100" onkeypress="if(event.key==='Enter')doChangePassword()">
+        <button type="button" class="um-pw-toggle" onclick="toggleUmPw('umNewPw',this)" aria-label="Vis kodeord">👁️</button>
+      </div>
+      <div class="pw-bar" id="umNewPwBar" style="display:none"><div class="pw-track"><div class="pw-fill"></div></div><div class="pw-txt"></div></div>
+      <div class="um-pw-hint">Mindst 8 tegn med både bogstaver og tal. Andre enheder logges ud, når du skifter.</div>
+      <div class="um-error" id="umChangePwErr"></div>
+      <button class="um-btn" onclick="doChangePassword()">🔑 Opdatér kodeord</button>
+      <button class="um-btn-ghost" onclick="showUMProfile(getUser())">← Tilbage til profil</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ VELKOMSTVIDEO ══ -->
+<div class="wv-ov" id="wvOv" role="dialog" aria-modal="true" aria-label="Velkomstvideo">
+  <div class="wv-box">
+    <div class="wv-top">
+      <span class="wv-badge">👋 Velkommen til Sørensen IT</span>
+      <div class="wv-top-btns">
+        <button type="button" class="wv-sound" id="wvSoundBtn" onclick="toggleWvSound(this)">🔇 Slå lyd til</button>
+        <button type="button" class="wv-skip" onclick="skipWelcomeVideo()">Spring over ✕</button>
+      </div>
+    </div>
+    <video id="wvVideo" class="wv-video" src="velkomst-video.mp4" playsinline controls muted onended="onWelcomeVideoEnded()"></video>
+    <div class="wv-bottom">
+      <p class="wv-txt">Se en kort velkomstvideo om Sørensen IT & Reparation — eller spring den over. Du ser den kun denne ene gang.</p>
+      <button class="wv-btn" onclick="skipWelcomeVideo()">Fortsæt til siden →</button>
     </div>
   </div>
 </div>
@@ -874,6 +1278,21 @@ const SVCS=[
   {id:13,ico:'📡',n:'Netværk & WiFi',c:'supp',d:'Router opsætning, WiFi optimering, kabeltræk og fejlfinding.',p:199,b:'Ny',bc:'bn'},
   {id:14,ico:'🖥️',n:'Fjernhjælp',c:'supp',d:'Vi hjælper dig remote via AnyDesk. Hurtig og nem support.',p:99,b:'Ny',bc:'bn'},
 ];
+/* Symptom → service. loes = id fra SVCS ovenfor */
+const SYMPTOMER=[
+  {ico:'🐌',t:'Min PC er blevet meget langsom',s:'Lang opstart, programmer hakker, alt føles trægt. Ofte støv, fuld disk eller baggrundsprogrammer.',loes:9},
+  {ico:'🚫',t:'Den starter slet ikke op',s:'Sort skærm, ingen lyd, eller den slukker af sig selv igen. Vi finder fejlen med gratis diagnostik.',loes:4},
+  {ico:'🦠',t:'Reklamer og mærkelige programmer',s:'Pop-ups, ny startside i browseren eller advarsler du ikke kender. Klassiske tegn på malware.',loes:5},
+  {ico:'🔥',t:'Den bliver meget varm og støjer',s:'Blæserne kører for fuldt tryk, og maskinen lukker ned under spil. Typisk støv og gammel kølepasta.',loes:9},
+  {ico:'🖥️',t:'Skærmen flimrer eller er sort',s:'Striber, forkerte farver eller intet billede. Kan være kabel, driver eller grafikkort.',loes:6},
+  {ico:'🎮',t:'For få FPS i spil',s:'Hakkende billede og input-lag. Vi tuner Windows, BIOS og drivere til maksimal ydelse.',loes:10},
+  {ico:'💾',t:'Jeg har mistet mine filer',s:'Slettet ved et uheld, eller disken vil ikke læses. Vi forsøger altid redning før alt andet.',loes:11},
+  {ico:'📡',t:'WiFi falder ud hele tiden',s:'Ustabilt net, dårlig dækning eller router der driller. Vi sætter det hele rigtigt op.',loes:13},
+  {ico:'🆕',t:'Jeg vil have en hurtigere PC',s:'Ny SSD, mere RAM eller et bedre grafikkort — vi monterer, tester og sikrer stabil drift.',loes:8},
+  {ico:'🧩',t:'Jeg har købt delene selv',s:'Vi samler din PC professionelt, kabelfører pænt og stress-tester den, før du får den.',loes:1},
+  {ico:'💿',t:'Windows skal installeres forfra',s:'Ren installation med alle drivere og opdateringer — klar til brug fra første start.',loes:3},
+  {ico:'❓',t:'Jeg skal bare have hjælp nu',s:'Vi kobler os på din skærm via AnyDesk og løser det med det samme, mens du kigger med.',loes:14}
+];
 const FAQS=[
   {q:'Hvad sender jeg ind?',a:"Send selve enheden — PC, laptop eller hvad der skal repareres. Du behøver ikke sende kabler, mus eller skærm med, medmindre problemet er direkte relateret til dem."},
   {q:'Hvad sker der med mine data?',a:'Dine data rører vi ikke uden din tilladelse. Vi anbefaler altid en backup inden du sender, men vi behandler alt fortroligt og sletter intet uden aftale.'},
@@ -899,6 +1318,10 @@ const SRCH=[
   {t:'Kontakt & ring os',fn:()=>navTo('#kontakt')},
   {t:'Åbningstider',fn:()=>navTo('#kontakt')},
   {t:'Gå til kassen',fn:()=>location.href='checkout.html'},
+  {t:'Hvad fejler min PC? — symptomer',fn:()=>navTo('#symptomer')},
+  {t:'Prisliste — alle priser',fn:()=>navTo('#priser')},
+  {t:'Sådan pakker du din PC',fn:()=>navTo('#pakkeguide')},
+  {t:'Mørk tilstand / lys tilstand',fn:()=>skiftTema()},
 ];
 let _sh=[];
 
@@ -973,7 +1396,14 @@ function renderDrawer(){
 
 /* ═══════════ BRUGER ═══════════ */
 const USER_LS='sorensen_user', USERS_LS='sorensen_users';
-function getUser(){try{return JSON.parse(localStorage.getItem(USER_LS))}catch{return null}}
+function getUser(){
+  /* Profilen tæller kun som "logget ind", hvis der findes en gyldig session
+     hvis token matcher kontoen. Redigerer man localStorage i hånden, ryger man ud. */
+  const g=(typeof gyldigSession==='function')?gyldigSession():null;
+  if(!g)return null;
+  const ud=g.ud;
+  return {email:ud.email,name:ud.name,oprettet:ud.oprettet,sidsteLogin:ud.sidsteLogin,antalLogins:ud.antalLogins};
+}
 function getUsers(){try{return JSON.parse(localStorage.getItem(USERS_LS))||{}}catch{return {}}}
 function saveUsers(u){try{localStorage.setItem(USERS_LS,JSON.stringify(u))}catch{}}
 const userCartKey=e=>'sorensen_cart_u_'+e.replace(/[^a-zA-Z0-9]/g,'_');
@@ -992,14 +1422,34 @@ function closeUserModal(){document.getElementById('userModalOv').classList.remov
 function showUMLogin(){um('umLoginBody');setUMTab('login');}
 function showUMSignup(){um('umSignupBody');setUMTab('signup');}
 function um(show){
-  ['umLoginBody','umSignupBody','umProfileBody'].forEach(id=>document.getElementById(id).style.display=id===show?'block':'none');
-  document.getElementById('umTabs').style.display=show==='umProfileBody'?'none':'flex';
+  ['umLoginBody','umSignupBody','umProfileBody','umChangePwBody'].forEach(id=>document.getElementById(id).style.display=id===show?'block':'none');
+  document.getElementById('umTabs').style.display=(show==='umProfileBody'||show==='umChangePwBody')?'none':'flex';
+}
+function showUMChangePw(){
+  document.getElementById('umOldPw').value='';document.getElementById('umNewPw').value='';
+  document.getElementById('umChangePwErr').classList.remove('show');
+  um('umChangePwBody');
+}
+function toggleUmPw(id,btn){
+  const inp=document.getElementById(id);
+  const vis=inp.type==='password';
+  inp.type=vis?'text':'password';
+  btn.textContent=vis?'🙈':'👁️';
+  btn.setAttribute('aria-label',vis?'Skjul kodeord':'Vis kodeord');
 }
 function setUMTab(tab){document.querySelectorAll('.um-tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===tab));}
 function umSwitchTab(tab){tab==='login'?showUMLogin():showUMSignup();}
 
 function showUMProfile(user){
   um('umProfileBody');
+  const g=gyldigSession();
+  const sik=document.getElementById('umSik');
+  if(sik&&g){
+    const udloeb=new Date(Math.min(g.ses.start+SESSION_LEVETID,g.ses.aktiv+SESSION_INAKTIV));
+    sik.innerHTML=`<div class="sik-r"><span>🔐 Kodeord</span><b>PBKDF2 · 210.000 runder</b></div>
+      <div class="sik-r"><span>⏳ Session udløber</span><b>${udloeb.toLocaleString('da-DK',{hour:'2-digit',minute:'2-digit',day:'numeric',month:'short'})}</b></div>
+      <div class="sik-r"><span>💻 Enhed</span><b>${g.ses.husk?'Husket i 7 dage':'Kun denne fane'}</b></div>`;
+  }
   const kort=user.name||user.email.split('@')[0];
   document.getElementById('umAvatar').textContent=kort.charAt(0).toUpperCase();
   document.getElementById('umProfileName').textContent=kort;
@@ -1013,39 +1463,308 @@ function showUMProfile(user){
     ? ordrer.slice(-5).reverse().map(o=>`<div class="um-order-item"><b>${esc(o.id)}</b><span>${kr(o.total)}</span></div>`).join('')
     : '<div class="um-empty-orders">Ingen ordrer endnu. Læg en service i kurven og betal i kassen!</div>';
 }
-function doUserLogin(){
-  const email=document.getElementById('umEmail').value.trim().toLowerCase();
-  const err=document.getElementById('umLoginErr');
-  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){err.textContent='⚠️ Indtast en gyldig e-mailadresse.';err.classList.add('show');return;}
-  err.classList.remove('show');
+/* ══════════════════════════════════════════════════════════════════════
+   KODEORD & SESSION
+   Kodeord gemmes aldrig i klartekst: de køres gennem PBKDF2-HMAC-SHA256
+   med 210.000 runder og et tilfældigt salt pr. konto (OWASP-anbefaling).
+   Kontoen lever kun i denne browser — se noten nederst i login-boksen.
+   ══════════════════════════════════════════════════════════════════════ */
+const PBKDF2_ITER=210000;
+const LOGIN_MAKS_FORSOEG=5;
+const LAASE_TRIN=[5,15,60,240];                 /* minutter, stiger for hvert nyt låseniveau */
+const SESSION_KEY='sorensen_session';
+const SESSION_LEVETID=7*24*60*60*1000;          /* logges ud efter 7 dage uanset hvad */
+const SESSION_INAKTIV=60*60*1000;               /* logges ud efter 1 times inaktivitet */
+
+/* De mest brugte kodeord — dem vil vi ikke have på kontoerne */
+const SVAGE_KODEORD=['12345678','123456789','1234567890','password','password1','passord1','qwerty123','qwertyui',
+ 'iloveyou','kodeord1','kodeord123','adgangskode','sommer2024','sommer2025','vinter2024','danmark1','fodbold1',
+ 'admin123','welcome1','abc12345','a1234567','11111111','00000000','football1','princess1','monkey123','dragon12'];
+
+function bufToHex(buf){return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');}
+function hexToBuf(hex){const a=new Uint8Array(hex.length/2);for(let i=0;i<a.length;i++)a[i]=parseInt(hex.substr(i*2,2),16);return a.buffer;}
+function tilfaeldigHex(bytes){return bufToHex(crypto.getRandomValues(new Uint8Array(bytes)).buffer);}
+const randomSaltHex=()=>tilfaeldigHex(16);
+
+async function hashPassword(password,saltHex,iter){
+  const enc=new TextEncoder();
+  const keyMat=await crypto.subtle.importKey('raw',enc.encode(password),{name:'PBKDF2'},false,['deriveBits']);
+  const bits=await crypto.subtle.deriveBits(
+    {name:'PBKDF2',salt:hexToBuf(saltHex),iterations:iter||PBKDF2_ITER,hash:'SHA-256'},keyMat,256);
+  return bufToHex(bits);
+}
+/* Sammenligner uden at afsløre hvor mange tegn der passede (timing-sikker) */
+function sammenlign(a,b){
+  if(typeof a!=='string'||typeof b!=='string'||a.length!==b.length)return false;
+  let forskel=0;
+  for(let i=0;i<a.length;i++)forskel|=a.charCodeAt(i)^b.charCodeAt(i);
+  return forskel===0;
+}
+
+/* ── Kodeordsstyrke ── */
+function kodeordScore(pw,email){
+  if(!pw)return{score:0,tekst:'',klasse:''};
+  const lav=pw.toLowerCase();
+  if(SVAGE_KODEORD.includes(lav))return{score:1,tekst:'Alt for almindeligt — vælg noget andet',klasse:'s1'};
+  if(email&&lav===String(email).toLowerCase().split('@')[0])return{score:1,tekst:'Må ikke være din e-mail',klasse:'s1'};
+  let n=0;
+  if(pw.length>=8)n++;
+  if(pw.length>=12)n++;
+  if(/[a-zæøå]/.test(pw)&&/[A-ZÆØÅ]/.test(pw))n++;
+  if(/[0-9]/.test(pw))n++;
+  if(/[^a-zA-Z0-9æøåÆØÅ]/.test(pw))n++;
+  if(/^(.)\1+$/.test(pw))n=1;
+  const t=['','Meget svagt','Svagt','Middel','Stærkt','Meget stærkt'];
+  const k=['','s1','s1','s2','s3','s4'];
+  return{score:n,tekst:t[n]||'',klasse:k[n]||''};
+}
+function visStyrke(inpId,barId,email){
+  const inp=document.getElementById(inpId),boks=document.getElementById(barId);
+  if(!inp||!boks)return;
+  const r=kodeordScore(inp.value,email?document.getElementById(email)?.value:'');
+  boks.style.display=inp.value?'block':'none';
+  boks.querySelector('.pw-fill').className='pw-fill '+r.klasse;
+  boks.querySelector('.pw-fill').style.width=(r.score/5*100)+'%';
+  boks.querySelector('.pw-txt').textContent=r.tekst;
+}
+const erKodeordStaerkt=(pw,email)=>{
+  if(typeof pw!=='string'||pw.length<8)return false;
+  if(!/[a-zA-ZæøåÆØÅ]/.test(pw)||!/[0-9]/.test(pw))return false;
+  if(SVAGE_KODEORD.includes(pw.toLowerCase()))return false;
+  if(email&&pw.toLowerCase()===String(email).toLowerCase().split('@')[0])return false;
+  return true;
+};
+
+/* ── Låsning efter forkerte forsøg (stiger for hver gang) ── */
+const erLaast=ud=>!!(ud&&ud.laasIndtil&&ud.laasIndtil>Date.now());
+const laasTekst=ud=>{
+  const min=Math.ceil((ud.laasIndtil-Date.now())/60000);
+  return `🔒 For mange forkerte forsøg. Prøv igen om ${min} ${min===1?'minut':'minutter'}.`;
+};
+function registrerFejlForsoeg(users,email,ud){
+  ud.forsoeg=(ud.forsoeg||0)+1;
+  if(ud.forsoeg>=LOGIN_MAKS_FORSOEG){
+    const niveau=Math.min(ud.laasNiveau||0,LAASE_TRIN.length-1);
+    ud.laasIndtil=Date.now()+LAASE_TRIN[niveau]*60000;
+    ud.laasNiveau=(ud.laasNiveau||0)+1;
+    ud.forsoeg=0;
+  }
+  users[email]=ud;saveUsers(users);
+}
+
+/* ── Session ──
+   Sessionen har sit eget tilfældige token, som også ligger på kontoen.
+   Passer de to ikke sammen (fx hvis nogen har pillet ved localStorage,
+   eller du har trykket "log ud alle steder"), bliver man logget ud.  */
+function laesSession(){
+  for(const store of [localStorage,sessionStorage]){
+    try{
+      const raw=store.getItem(SESSION_KEY);
+      if(raw)return {ses:JSON.parse(raw),store};
+    }catch{}
+  }
+  return null;
+}
+function skrivSession(ses,husk){
+  const store=husk?localStorage:sessionStorage;
+  const anden=husk?sessionStorage:localStorage;
+  try{anden.removeItem(SESSION_KEY);}catch{}
+  try{store.setItem(SESSION_KEY,JSON.stringify(ses));}catch{}
+}
+function ryddSession(){
+  try{localStorage.removeItem(SESSION_KEY);sessionStorage.removeItem(SESSION_KEY);localStorage.removeItem(USER_LS);}catch{}
+}
+function startSession(ud,husk){
+  const token=tilfaeldigHex(24);
   const users=getUsers();
-  const ud=users[email]||{email,name:'',oprettet:Date.now()};
+  ud.sessionToken=token;
+  users[ud.email]=ud;saveUsers(users);
+  skrivSession({email:ud.email,token,start:Date.now(),aktiv:Date.now(),husk:!!husk},husk);
+  /* Profil-snapshot uden hash — bruges af kassen til at forudfylde felter */
+  try{localStorage.setItem(USER_LS,JSON.stringify({email:ud.email,name:ud.name,oprettet:ud.oprettet,sidsteLogin:ud.sidsteLogin,antalLogins:ud.antalLogins}));}catch{}
+}
+function gyldigSession(){
+  const fund=laesSession();
+  if(!fund)return null;
+  const {ses,store}=fund;
+  if(!ses||!ses.email||!ses.token)return null;
+  const ud=getUsers()[ses.email];
+  if(!ud||!ud.sessionToken||!sammenlign(ud.sessionToken,ses.token))return null;
+  const nu=Date.now();
+  if(nu-(ses.start||0)>SESSION_LEVETID)return null;
+  if(nu-(ses.aktiv||0)>SESSION_INAKTIV)return null;
+  return {ses,store,ud};
+}
+function roerSession(){
+  const g=gyldigSession();
+  if(!g)return;
+  g.ses.aktiv=Date.now();
+  try{g.store.setItem(SESSION_KEY,JSON.stringify(g.ses));}catch{}
+}
+function tjekSession(stille){
+  const fund=laesSession();
+  if(!fund)return;
+  if(!gyldigSession()){
+    ryddSession();updateUserBtn();
+    if(!stille){
+      closeUserModal();
+      showToast('🔒 Du blev logget ud af sikkerhedshensyn (inaktiv for længe).','warn');
+    }
+  }
+}
+
+async function doUserLogin(){
+  const email=document.getElementById('umEmail').value.trim().toLowerCase().slice(0,120);
+  const password=document.getElementById('umPassword').value;
+  const husk=!!document.getElementById('umHusk')?.checked;
+  const err=document.getElementById('umLoginErr');
+  const knap=document.querySelector('#umLoginBody .um-btn');
+  err.classList.remove('show');
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)){err.textContent='⚠️ Indtast en gyldig e-mailadresse.';err.classList.add('show');return;}
+  if(!password){err.textContent='⚠️ Indtast dit kodeord.';err.classList.add('show');return;}
+
+  const users=getUsers();
+  const ud=users[email];
+  if(ud&&erLaast(ud)){err.textContent=laasTekst(ud);err.classList.add('show');return;}
+
+  knap.disabled=true;knap.textContent='🔐 Kontrollerer…';
+  let ok=false, mangler=false;
+  try{
+    if(!ud){
+      /* Regn alligevel — så tager et ukendt login lige så lang tid som et kendt,
+         og man kan ikke se hvilke e-mails der findes. */
+      await hashPassword(password,randomSaltHex());
+    }else if(!ud.hash){
+      mangler=true;                       /* gammel konto uden kodeord */
+    }else{
+      ok=sammenlign(await hashPassword(password,ud.salt,ud.iter||PBKDF2_ITER),ud.hash);
+    }
+  }catch{
+    knap.disabled=false;knap.textContent='🔓 Log ind';
+    err.textContent='⚠️ Din browser kan ikke lave sikker login lige nu. Prøv igen, eller brug en anden browser.';err.classList.add('show');return;
+  }
+  knap.disabled=false;knap.textContent='🔓 Log ind';
+
+  if(mangler){
+    err.innerHTML='⚠️ Din konto er oprettet før vi indførte kodeord. Vælg et kodeord under <b>Opret konto</b> med samme e-mail, så knytter vi det til din konto og dine ordrer.';
+    err.classList.add('show');return;
+  }
+  if(!ok){
+    if(ud)registrerFejlForsoeg(users,email,ud);
+    err.textContent=(ud&&erLaast(ud))?laasTekst(ud):'⚠️ Forkert e-mail eller kodeord.';
+    err.classList.add('show');
+    document.getElementById('umPassword').value='';
+    return;
+  }
+
+  ud.forsoeg=0;ud.laasIndtil=0;ud.laasNiveau=0;
   ud.sidsteLogin=Date.now();
   ud.antalLogins=(ud.antalLogins||0)+1;
+  /* Opgradér gamle hash med færre runder, nu hvor vi har kodeordet */
+  if((ud.iter||0)<PBKDF2_ITER){
+    try{ud.salt=randomSaltHex();ud.hash=await hashPassword(password,ud.salt);ud.iter=PBKDF2_ITER;}catch{}
+  }
   users[email]=ud;saveUsers(users);
-  try{localStorage.setItem(USER_LS,JSON.stringify(ud));}catch{}
+  startSession(ud,husk);
+  document.getElementById('umPassword').value='';
   loadUserCart(email);updateUserBtn();updateCartUI();closeUserModal();
   showToast('👋 Velkommen tilbage, '+esc(ud.name||email.split('@')[0])+'!');
   dismissReminder();
 }
-function doUserSignup(){
-  const name=document.getElementById('umSignupName').value.trim();
-  const email=document.getElementById('umSignupEmail').value.trim().toLowerCase();
+
+async function doUserSignup(){
+  const name=document.getElementById('umSignupName').value.trim().slice(0,60);
+  const email=document.getElementById('umSignupEmail').value.trim().toLowerCase().slice(0,120);
+  const password=document.getElementById('umSignupPassword').value;
+  const password2=document.getElementById('umSignupPassword2').value;
   const err=document.getElementById('umSignupErr');
-  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){err.textContent='⚠️ Indtast en gyldig e-mailadresse.';err.classList.add('show');return;}
+  const knap=document.querySelector('#umSignupBody .um-btn');
   err.classList.remove('show');
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)){err.textContent='⚠️ Indtast en gyldig e-mailadresse.';err.classList.add('show');return;}
+  if(!erKodeordStaerkt(password,email)){
+    err.textContent='⚠️ Kodeordet skal være mindst 8 tegn med både bogstaver og tal — og må ikke være et af de mest almindelige.';
+    err.classList.add('show');return;
+  }
+  if(password!==password2){err.textContent='⚠️ De to kodeord er ikke ens.';err.classList.add('show');return;}
+
   const users=getUsers();
-  const ud={email,name,oprettet:Date.now(),sidsteLogin:Date.now(),antalLogins:1};
+  const findes=users[email];
+  if(findes&&findes.hash){
+    err.textContent='⚠️ Der findes allerede en konto med denne e-mail. Log ind i stedet.';err.classList.add('show');return;
+  }
+  knap.disabled=true;knap.textContent='🔐 Opretter…';
+  const salt=randomSaltHex();
+  let hash;
+  try{hash=await hashPassword(password,salt);}
+  catch{
+    knap.disabled=false;knap.textContent='✅ Opret konto';
+    err.textContent='⚠️ Din browser kan ikke lave sikker oprettelse lige nu. Prøv igen, eller brug en anden browser.';err.classList.add('show');return;
+  }
+  knap.disabled=false;knap.textContent='✅ Opret konto';
+
+  /* Gammel konto uden kodeord beholder sine ordrer — den får bare et kodeord nu */
+  const ud=Object.assign({},findes||{},{
+    email,name:name||findes?.name||'',
+    oprettet:findes?.oprettet||Date.now(),
+    sidsteLogin:Date.now(),antalLogins:(findes?.antalLogins||0)+1,
+    salt,hash,iter:PBKDF2_ITER,forsoeg:0,laasIndtil:0,laasNiveau:0
+  });
   users[email]=ud;saveUsers(users);
-  try{localStorage.setItem(USER_LS,JSON.stringify(ud));}catch{}
+  startSession(ud,true);
   saveUserCart(email);updateUserBtn();updateCartUI();closeUserModal();
+  document.getElementById('umSignupPassword').value='';
+  document.getElementById('umSignupPassword2').value='';
+  visStyrke('umSignupPassword','umSignupPwBar','umSignupEmail');
   showToast('✅ Konto oprettet! Velkommen, '+esc(name||email.split('@')[0])+'!');
   dismissReminder();
 }
+
+async function doChangePassword(){
+  const cur=getUser();
+  const err=document.getElementById('umChangePwErr');
+  err.classList.remove('show');
+  if(!cur){closeUserModal();return;}
+  const oldPw=document.getElementById('umOldPw').value;
+  const newPw=document.getElementById('umNewPw').value;
+  const users=getUsers();
+  const ud=users[cur.email];
+  if(!ud){err.textContent='⚠️ Konto ikke fundet.';err.classList.add('show');return;}
+  if(erLaast(ud)){err.textContent=laasTekst(ud);err.classList.add('show');return;}
+  if(!erKodeordStaerkt(newPw,cur.email)){
+    err.textContent='⚠️ Det nye kodeord skal være mindst 8 tegn med både bogstaver og tal — og må ikke være et af de mest almindelige.';
+    err.classList.add('show');return;
+  }
+  if(oldPw===newPw){err.textContent='⚠️ Vælg et nyt kodeord, der er forskelligt fra det gamle.';err.classList.add('show');return;}
+  let ok=false;
+  try{ok=ud.hash?sammenlign(await hashPassword(oldPw,ud.salt,ud.iter||PBKDF2_ITER),ud.hash):false;}
+  catch{err.textContent='⚠️ Kunne ikke bekræfte dit nuværende kodeord. Prøv igen.';err.classList.add('show');return;}
+  if(!ok){
+    registrerFejlForsoeg(users,cur.email,ud);
+    err.textContent=erLaast(ud)?laasTekst(ud):'⚠️ Dit nuværende kodeord er forkert.';err.classList.add('show');return;
+  }
+  ud.forsoeg=0;ud.laasIndtil=0;ud.laasNiveau=0;
+  ud.salt=randomSaltHex();
+  ud.hash=await hashPassword(newPw,ud.salt);
+  ud.iter=PBKDF2_ITER;
+  users[cur.email]=ud;saveUsers(users);
+  startSession(ud,true);                    /* nyt token = andre enheder logges ud */
+  document.getElementById('umOldPw').value='';document.getElementById('umNewPw').value='';
+  visStyrke('umNewPw','umNewPwBar');
+  showToast('🔑 Kodeordet er opdateret — andre enheder er logget ud.');
+  showUMProfile(getUser());
+}
+
 function doUserLogout(){
   const u=getUser();if(u)saveUserCart(u.email);
-  try{localStorage.removeItem(USER_LS);}catch{}
+  ryddSession();
   updateUserBtn();closeUserModal();showToast('👋 Du er nu logget ud.');
+}
+function logUdAlleSteder(){
+  const u=getUser();if(!u)return;
+  const users=getUsers();
+  if(users[u.email]){users[u.email].sessionToken=tilfaeldigHex(24);saveUsers(users);}
+  ryddSession();updateUserBtn();closeUserModal();
+  showToast('🔒 Du er nu logget ud på alle enheder, der bruger denne browser.');
 }
 
 /* ═══════════ LOGIN-PÅMINDELSE ═══════════ */
@@ -1066,6 +1785,55 @@ function dismissReminder(){
   try{localStorage.setItem('sorensen_r_dismiss',String(c+1));}catch{}
 }
 
+/* ═══════════ KLIKJACKING-VÆRN ═══════════
+   Serveren sætter også X-Frame-Options/CSP — det her er sidste skanse,
+   hvis siden hostes et sted uden de headers. */
+(function(){
+  try{
+    if(window.top!==window.self&&window.top.location.origin!==window.location.origin){
+      window.top.location=window.location.href;
+    }
+  }catch{
+    document.documentElement.style.display='none';
+    try{window.top.location=window.location.href;}catch{}
+  }
+})();
+
+/* ═══════════ VELKOMSTVIDEO ═══════════ */
+const WV_SEEN_KEY='sorensen_velkomst_set';
+function harSetVelkomstVideo(){try{return !!localStorage.getItem(WV_SEEN_KEY);}catch{return true;}}
+function markerVelkomstVideoSet(){try{localStorage.setItem(WV_SEEN_KEY,'1');}catch{}}
+function visVelkomstVideoHvisNy(){
+  if(harSetVelkomstVideo())return;
+  const ov=document.getElementById('wvOv');
+  if(!ov)return;
+  const v=document.getElementById('wvVideo');
+  /* Findes videofilen ikke (eller kan browseren ikke afspille den),
+     springer vi over i stedet for at spærre siden med en tom boks. */
+  v.addEventListener('error',()=>{markerVelkomstVideoSet();lukVelkomstVideo();},{once:true});
+  const noedbremse=setTimeout(()=>{
+    if(v.readyState===0){markerVelkomstVideoSet();lukVelkomstVideo();}
+  },4000);
+  v.addEventListener('loadeddata',()=>clearTimeout(noedbremse),{once:true});
+  ov.classList.add('open');
+  document.body.style.overflow='hidden';
+  v.play().catch(()=>{});
+}
+function toggleWvSound(btn){
+  const v=document.getElementById('wvVideo');
+  v.muted=!v.muted;
+  btn.textContent=v.muted?'🔇 Slå lyd til':'🔊 Slå lyd fra';
+}
+function lukVelkomstVideo(){
+  const ov=document.getElementById('wvOv');
+  ov.classList.remove('open');
+  document.body.style.overflow='';
+  const v=document.getElementById('wvVideo');
+  v.pause();
+}
+function skipWelcomeVideo(){markerVelkomstVideoSet();lukVelkomstVideo();}
+function onWelcomeVideoEnded(){markerVelkomstVideoSet();lukVelkomstVideo();}
+
 /* ═══════════ ÅBNINGSTIDER ═══════════ */
 function minutter(t){const[a,b]=t.split(':').map(Number);return a*60+b;}
 function erAabent(){
@@ -1080,16 +1848,34 @@ function renderTider(){
   document.getElementById('statusBar').innerHTML=
     `<span class="sb-dot${s.aaben?'':' lukket'}"></span><b>${s.tekst}</b>`+
     `<span class="sb-sep">·</span><span>⏱ Ventetid: <b>${SHOP.ventetid}</b></span>`+
-    SHOP.tider.map(t=>`<span class="sb-sep">·</span><span>${t.dag.replace('Mandag – Fredag','Man-Fre')}: <b>${t.tid}</b></span>`).join('');
+    SHOP.tider.map(t=>`<span class="sb-sep sb-day">·</span><span class="sb-day">${esc(t.dag.replace('Mandag – Fredag','Man-Fre'))}: <b>${esc(t.tid)}</b></span>`).join('');
   document.getElementById('hoursList').innerHTML=SHOP.tider.map(t=>
     `<div class="hr-row"><span>${t.dag}</span><span class="${t.lukket?'hr-off':'hr-v'}">${t.tid}</span></div>`).join('');
 }
 
 /* ═══════════ INIT ═══════════ */
 document.addEventListener('DOMContentLoaded',()=>{
+  initTema();
   renderTider();setInterval(renderTider,60000);
   renderCats();renderSvcs();renderFAQ();
+  renderSymptomer();renderPrisliste();
+  tjekSession(true);
   updateCartUI();updateUserBtn();scheduleReminder();
+
+  /* Sessionsvagt: forlæng ved aktivitet, log ud når tiden er gået */
+  let sidsteRoer=0;
+  ['click','keydown','scroll','touchstart'].forEach(h=>window.addEventListener(h,()=>{
+    const nu=Date.now();
+    if(nu-sidsteRoer>30000){sidsteRoer=nu;roerSession();}
+  },{passive:true}));
+  setInterval(()=>tjekSession(false),60000);
+  window.addEventListener('storage',e=>{ if(e.key===SESSION_KEY||e.key===USERS_LS){tjekSession(true);updateUserBtn();} });
+
+  /* Live kodeordsstyrke */
+  const sp=document.getElementById('umSignupPassword');
+  if(sp)sp.addEventListener('input',()=>visStyrke('umSignupPassword','umSignupPwBar','umSignupEmail'));
+  const np=document.getElementById('umNewPw');
+  if(np)np.addEventListener('input',()=>visStyrke('umNewPw','umNewPwBar'));visVelkomstVideoHvisNy();renderCfgSummary();
 
   const ro=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in')}),{threshold:.1});
   document.querySelectorAll('.reveal').forEach(el=>ro.observe(el));
@@ -1097,10 +1883,13 @@ document.addEventListener('DOMContentLoaded',()=>{
   window.addEventListener('scroll',()=>{
     document.getElementById('HDR').classList.toggle('up',scrollY>10);
     document.getElementById('sTop').classList.toggle('vis',scrollY>300);
-  });
+    opdaterProgress();
+  },{passive:true});
+  opdaterProgress();
+  taelOp();
   document.addEventListener('click',e=>{if(!e.target.closest('.srch-wrap'))closeDrop();});
   document.addEventListener('keydown',e=>{
-    if(e.key==='Escape'){closeDrawer();closeUserModal();closeDrop();}
+    if(e.key==='Escape'){closeDrawer();closeUserModal();closeDrop();if(document.getElementById('wvOv').classList.contains('open'))skipWelcomeVideo();}
   });
   document.getElementById('userModalOv').addEventListener('click',function(e){if(e.target===this)closeUserModal();});
 });
@@ -1128,6 +1917,110 @@ function closeDrop(){document.getElementById('srchDrop').classList.remove('open'
 function runSrch(){_sh.length?exSrch(0):navTo('#services');}
 function srchKey(e){if(e.key==='Enter')runSrch();}
 
+/* ═══════════ TEMA (lys / mørk) ═══════════ */
+const TEMA_KEY='sorensen_tema';
+function anvendTema(t){
+  document.documentElement.setAttribute('data-theme',t);
+  const ico=document.getElementById('themeIco');
+  if(ico)ico.textContent=t==='dark'?'☀️':'🌙';
+  const btn=document.getElementById('themeBtn');
+  if(btn)btn.setAttribute('aria-label',t==='dark'?'Skift til lys tilstand':'Skift til mørk tilstand');
+}
+function skiftTema(){
+  const ny=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';
+  try{localStorage.setItem(TEMA_KEY,ny);}catch{}
+  anvendTema(ny);
+  showToast(ny==='dark'?'🌙 Mørk tilstand slået til':'☀️ Lys tilstand slået til');
+}
+function initTema(){
+  let gemt=null;try{gemt=localStorage.getItem(TEMA_KEY);}catch{}
+  if(gemt==='dark'||gemt==='light'){anvendTema(gemt);return;}
+  anvendTema(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change',e=>{
+    let valgt=null;try{valgt=localStorage.getItem(TEMA_KEY);}catch{}
+    if(!valgt)anvendTema(e.matches?'dark':'light');
+  });
+}
+
+/* ═══════════ LÆSEFREMGANG ═══════════ */
+function opdaterProgress(){
+  const h=document.documentElement;
+  const maks=h.scrollHeight-h.clientHeight;
+  const el=document.getElementById('progress');
+  if(el)el.style.width=(maks>0?Math.min(100,(h.scrollTop/maks)*100):0)+'%';
+}
+
+/* ═══════════ TÆLLERE I HEROEN ═══════════ */
+function taelOp(){
+  document.querySelectorAll('.hm-n[data-tal]').forEach(el=>{
+    if(el.dataset.kort)return;
+    el.dataset.kort='1';
+    const maal=parseInt(el.dataset.tal,10)||0;
+    if(matchMedia('(prefers-reduced-motion: reduce)').matches){el.textContent=maal;return;}
+    const start=performance.now(), varighed=1100;
+    const trin=nu=>{
+      const p=Math.min(1,(nu-start)/varighed);
+      el.textContent=Math.round(maal*(1-Math.pow(1-p,3)));
+      if(p<1)requestAnimationFrame(trin);
+    };
+    requestAnimationFrame(trin);
+  });
+}
+
+/* ═══════════ SYMPTOM-VÆLGER ═══════════ */
+function renderSymptomer(){
+  const box=document.getElementById('diagGrid');
+  if(!box)return;
+  box.innerHTML=SYMPTOMER.map((sy,i)=>{
+    const sv=SVCS.find(x=>x.id===sy.loes);
+    if(!sv)return '';
+    return `<button type="button" class="diag-card reveal d${(i%4)+1}" onclick="symptomValg(${i})" aria-label="${esc(sy.t)} — se løsning">
+      <div class="diag-top"><span class="diag-ico">${sy.ico}</span><span class="diag-t">${esc(sy.t)}</span></div>
+      <div class="diag-s">${esc(sy.s)}</div>
+      <div class="diag-fix"><span>${sv.ico} ${esc(sv.n)}</span><span>· ${kr(sv.p)}</span><span class="arw">→</span></div>
+    </button>`;
+  }).join('');
+}
+function symptomValg(i){
+  const sy=SYMPTOMER[i];if(!sy)return;
+  const sv=SVCS.find(x=>x.id===sy.loes);if(!sv)return;
+  navTo('#services');
+  filterCat(sv.c);
+  setTimeout(()=>{
+    const kort=document.querySelector(`.svc-card[data-id="${sv.id}"]`);
+    if(kort){
+      kort.scrollIntoView({behavior:'smooth',block:'center'});
+      kort.style.transition='box-shadow .3s,transform .3s';
+      kort.style.boxShadow='0 0 0 3px var(--blue), 0 18px 40px rgba(29,78,216,.28)';
+      setTimeout(()=>{kort.style.boxShadow='';},2600);
+    }
+  },420);
+  showToast(`💡 ${esc(sy.t)} → <b>${esc(sv.n)}</b> · ${kr(sv.p)}`);
+}
+
+/* ═══════════ PRISLISTE ═══════════ */
+function renderPrisliste(){
+  const body=document.getElementById('plBody');
+  if(!body)return;
+  const q=(document.getElementById('plSearch')?.value||'').trim().toLowerCase();
+  const sort=document.getElementById('plSort')?.value||'std';
+  let liste=SVCS.filter(v=>!q||(v.n+' '+v.d).toLowerCase().includes(q));
+  if(sort==='lav')liste=[...liste].sort((a,b)=>a.p-b.p);
+  else if(sort==='hoej')liste=[...liste].sort((a,b)=>b.p-a.p);
+  else if(sort==='navn')liste=[...liste].sort((a,b)=>a.n.localeCompare(b.n,'da'));
+  if(!liste.length){
+    body.innerHTML='<div class="pl-tom">Ingen services matcher “'+esc(q)+'”. Prøv fx “virus”, “skærm” eller “backup”.</div>';
+    return;
+  }
+  body.innerHTML=liste.map(v=>`
+    <div class="pl-row">
+      <div class="pl-name"><span class="pl-ico">${v.ico}</span><span>${esc(v.n)}</span></div>
+      <div class="pl-desc">${esc(v.d)}</div>
+      <div class="pl-price">${kr(v.p)}</div>
+      <button class="pl-add" type="button" onclick="addToCart(${v.id})" aria-label="Læg ${esc(v.n)} i kurven">+ I kurv</button>
+    </div>`).join('');
+}
+
 /* ═══════════ KATEGORIER & SERVICES ═══════════ */
 function renderCats(){
   document.getElementById('catTabs').innerHTML=CATS.map(c=>
@@ -1139,13 +2032,13 @@ function filterCat(cat){
 }
 function renderSvcs(){
   document.getElementById('svcGrid').innerHTML=SVCS.map(s=>`
-    <div class="svc-card reveal" data-cat="${s.c}">
+    <div class="svc-card reveal" data-cat="${s.c}" data-id="${s.id}">
       <div class="svc-top">
         <div class="svc-ico">${s.ico}</div>
-        ${s.b?`<span class="badge ${s.bc}">${s.b}</span>`:''}
+        ${s.b?`<span class="badge ${s.bc}">${esc(s.b)}</span>`:''}
       </div>
-      <h3>${s.n}</h3>
-      <p>${s.d}</p>
+      <h3>${esc(s.n)}</h3>
+      <p>${esc(s.d)}</p>
       <div class="svc-foot">
         <div class="svc-pr">${s.p}<small> kr.</small></div>
         <button class="btn-add" onclick="addToCart(${s.id})">+ Tilføj</button>
@@ -1156,16 +2049,62 @@ function renderSvcs(){
 }
 
 /* ═══════════ CHIPS + KONFIGURATOR ═══════════ */
-function sc(id,el){document.getElementById(id).querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));el.classList.add('on');}
-function tc(el){el.classList.toggle('on');}
+function sc(id,el){document.getElementById(id).querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));el.classList.add('on');renderCfgSummary();}
+function tc(el){el.classList.toggle('on');renderCfgSummary();}
 function valgt(id){const e=document.querySelector('#'+id+' .chip.on');return e?e.textContent:'—';}
 function valgtFlere(id){return [...document.querySelectorAll('#'+id+' .chip.on')].map(e=>e.textContent).join(', ')||'Ingen';}
+
+/* ── Live prisoverslag ── */
+function cfgTotal(){
+  const base=parseInt(document.querySelector('#bC .chip.on')?.dataset.base||0,10);
+  let add=0;
+  document.querySelectorAll('#picker .chip.on[data-add]').forEach(c=>add+=parseInt(c.dataset.add,10)||0);
+  return {base,add,total:base+add};
+}
+const CFG_SUM_FELTER=[
+  ['Primær brug','uC'],['Budget','bC'],['CPU','cpuC'],['GPU','gpuC'],['RAM','ramC'],['Lager','storC'],
+  ['Bundkort','mbC'],['Strømforsyning','psuC'],['Køling','coolC'],['Kabinet','caseC'],['Features','featC',true],
+  ['Skærm','monC'],['Netværk','netC'],['Tilbehør','accC',true],['Styresystem','osC'],['Software','swC',true],
+  ['Garanti','warC'],['Support','suppC'],['Levering','delC']
+];
+function renderCfgSummary(){
+  const list=document.getElementById('cfgSumList');
+  if(!list)return;
+  list.innerHTML=CFG_SUM_FELTER.map(([label,id,flere])=>
+    `<div class="cfg-sum-row"><span>${label}</span><b>${esc(flere?valgtFlere(id):valgt(id))}</b></div>`
+  ).join('');
+  const t=cfgTotal();
+  document.getElementById('cfgSumBase').textContent=kr(t.base);
+  document.getElementById('cfgSumAdd').textContent=(t.add>0?'+':'')+kr(t.add);
+  document.getElementById('cfgSumTotal').textContent='ca. '+kr(t.total);
+}
+
+/* ── Hurtige skabeloner ── */
+const CFG_PRESETS={
+  budget:{uC:0,bC:0,cpuC:2,gpuC:2,ramC:0,storC:0,mbC:0,psuC:0,coolC:0,caseC:1,featC:[],monC:0,netC:0,accC:[],osC:0,swC:[1,2],warC:0,suppC:0,delC:0},
+  gamer1440:{uC:1,bC:2,cpuC:2,gpuC:2,ramC:1,storC:1,mbC:1,psuC:1,coolC:0,caseC:0,featC:[0,3],monC:2,netC:0,accC:[0,1],osC:0,swC:[0,1,2],warC:0,suppC:1,delC:0},
+  creator:{uC:4,bC:3,cpuC:2,gpuC:2,ramC:2,storC:3,mbC:1,psuC:2,coolC:1,caseC:0,featC:[3],monC:2,netC:1,accC:[1,2],osC:0,swC:[1,3,4],warC:1,suppC:2,delC:0},
+  office:{uC:5,bC:0,cpuC:2,gpuC:2,ramC:0,storC:0,mbC:0,psuC:0,coolC:0,caseC:1,featC:[],monC:1,netC:0,accC:[],osC:0,swC:[1,4,5],warC:0,suppC:0,delC:0},
+  enthusiast:{uC:2,bC:3,cpuC:2,gpuC:2,ramC:2,storC:3,mbC:2,psuC:3,coolC:1,caseC:3,featC:[0,1,2,3,4,5],monC:3,netC:2,accC:[0,1,2,3],osC:0,swC:[0,1,2,3,4,5],warC:2,suppC:3,delC:1}
+};
+function applyPreset(navn){
+  const valg=CFG_PRESETS[navn];if(!valg)return;
+  Object.entries(valg).forEach(([id,v])=>{
+    const chips=[...document.querySelectorAll('#'+id+' .chip')];
+    chips.forEach(c=>c.classList.remove('on'));
+    if(Array.isArray(v))v.forEach(i=>chips[i]&&chips[i].classList.add('on'));
+    else if(chips[v])chips[v].classList.add('on');
+  });
+  renderCfgSummary();
+  showToast('✨ Skabelon anvendt — juster gerne yderligere!');
+}
 
 async function sendKonfig(btn){
   const msg=document.getElementById('cfgMsg');
   const mail=document.getElementById('cfgMail').value.trim();
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)){msg.style.color='var(--red)';msg.textContent='⚠️ Skriv din e-mail, så vi kan svare dig.';return;}
   btn.disabled=true;msg.style.color='var(--muted)';msg.textContent='Sender...';
+  const t=cfgTotal();
   const data={
     access_key:SHOP.web3formsKey,
     subject:'Ny PC-forespørgsel fra hjemmesiden',
@@ -1173,10 +2112,13 @@ async function sendKonfig(btn){
     replyto:mail,
     'Kundens e-mail':mail,
     'Primær brug':valgt('uC'),'Budget':valgt('bC'),
-    'CPU':valgt('cpuC'),'GPU':valgt('gpuC'),'RAM':valgt('ramC'),'Lager':valgt('storC'),'Køling':valgt('coolC'),
+    'CPU':valgt('cpuC'),'GPU':valgt('gpuC'),'RAM':valgt('ramC'),'Lager':valgt('storC'),
+    'Bundkort':valgt('mbC'),'Strømforsyning':valgt('psuC'),'Køling':valgt('coolC'),
     'Kabinet':valgt('caseC'),'Features':valgtFlere('featC'),
+    'Skærm':valgt('monC'),'Netværk':valgt('netC'),'Tilbehør':valgtFlere('accC'),
     'Styresystem':valgt('osC'),'Software':valgtFlere('swC'),
-    'Support':valgt('suppC'),'Levering':valgt('delC'),
+    'Garanti':valgt('warC'),'Support':valgt('suppC'),'Levering':valgt('delC'),
+    'Estimeret totalpris':kr(t.total)+' (PC: '+kr(t.base)+' + tilvalg: '+kr(t.add)+')',
     'Ekstra ønsker':document.getElementById('extra').value||'—'
   };
   try{

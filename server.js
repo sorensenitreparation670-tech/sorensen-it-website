@@ -37,10 +37,64 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const app = express();
 
+app.disable('x-powered-by');
 app.use(express.json({ limit: '1mb' }));
 app.use(cors({ origin: process.env.SITE_URL || '*' }));
+
+/* ══════════════ SIKKERHEDS-HEADERS ══════════════
+   Sættes på hvert svar. CSP'en matcher den i index.html/checkout.html —
+   retter du i den ene, så ret i den anden.                              */
+const CSP = [
+  "default-src 'self'",
+  "script-src 'self' 'unsafe-inline' https://*.squarecdn.com https://pay.google.com",
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+  "font-src 'self' https://fonts.gstatic.com",
+  "img-src 'self' data: https://api.qrserver.com",
+  "media-src 'self'",
+  "connect-src 'self' https://api.web3forms.com https://*.squareup.com https://*.squareupsandbox.com https://*.squarecdn.com https://pay.google.com",
+  "frame-src https://*.squarecdn.com https://*.squareup.com https://*.squareupsandbox.com https://pay.google.com",
+  "form-action 'self' https://api.web3forms.com",
+  "frame-ancestors 'self'",
+  "object-src 'none'",
+  "base-uri 'self'",
+  "upgrade-insecure-requests"
+].join('; ');
+
+app.use((req, res, next) => {
+  res.setHeader('Content-Security-Policy', CSP);
+  res.setHeader('X-Content-Type-Options', 'nosniff');          /* ingen MIME-gætteri  */
+  res.setHeader('X-Frame-Options', 'SAMEORIGIN');              /* mod klikjacking     */
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('Permissions-Policy', 'geolocation=(), microphone=(), camera=(), payment=(self), interest-cohort=()');
+  res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+  res.setHeader('X-DNS-Prefetch-Control', 'off');
+  /* HSTS kun over HTTPS — ellers kan man låse sig selv ude lokalt */
+  if (req.secure || req.headers['x-forwarded-proto'] === 'https') {
+    res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+  }
+  next();
+});
+
+/* .env og andre skjulte filer må aldrig serveres */
+app.use((req, res, next) => {
+  if (/(^|\/)\.(env|git|htaccess)/i.test(req.path) || /\.(jsonl|log)$/i.test(req.path)) {
+    return res.status(404).send('Not found');
+  }
+  next();
+});
+
 /* Hele websitet serveres herfra, så checkout.html selv finder /api/betaling */
-app.use(express.static(__dirname, { extensions: ['html'] }));
+app.use(express.static(__dirname, {
+  extensions: ['html'],
+  dotfiles: 'deny',
+  setHeaders(res, filePath) {
+    if (/\.(png|jpg|jpeg|webp|svg|ico|woff2?|mp4)$/i.test(filePath)) {
+      res.setHeader('Cache-Control', 'public, max-age=604800');   /* 7 dage */
+    } else {
+      res.setHeader('Cache-Control', 'no-cache');                 /* HTML skal altid være frisk */
+    }
+  }
+}));
 
 const SQUARE_BASE = process.env.SQUARE_ENV === 'sandbox'
   ? 'https://connect.squareupsandbox.com'
